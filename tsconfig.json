@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "noEmitOnError": true,
+    "target": "es6",
+    "module": "commonjs",
+    "sourceMap": true,
+    "declaration": true,
+    "outDir": "./src/js",
+    "watch": false,
+    "traceResolution": false,
+    "importHelpers": true,
+    "lib": [
+      "es2015"
+    ],
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "noUnusedLocals": true
+  },
+  "exclude": [
+    "node_modules",
+    "build",
+    "scripts",
+    "webpack",
+  ],
+  "files": [
+    "./src/ts/index.ts",
+    "./src/ts/test/index.ts"
+  ],
+  "compileOnSave": true
+}

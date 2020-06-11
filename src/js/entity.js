@@ -1,0 +1,229 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.IdentifiableMap = exports.Identifiable = exports.EnumBase = exports.isNullOrUndefined = void 0;
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const uuid_1 = require("uuid");
+const guid = () => {
+    return uuid_1.v4();
+};
+exports.isNullOrUndefined = (val) => {
+    return ((val === null) || (val === undefined));
+};
+const equals = (primary, other) => {
+    if (exports.isNullOrUndefined(primary)) {
+        return false;
+    }
+    if (exports.isNullOrUndefined(other)) {
+        return false;
+    }
+    return ((primary === other) || (primary.id === other.id));
+};
+class EnumBase {
+    constructor(enumTypeName, id, value) {
+        this.isNotOneOf = (values) => {
+            return !this.isOneOf(values);
+        };
+        this.isOneOf = (values) => {
+            if (!values) {
+                return false;
+            }
+            return (values.findIndex((v) => {
+                return this.equals(v);
+            }) > -1);
+        };
+        this._id = id;
+        this._value = value;
+        const ctx = EnumBase.normalize(enumTypeName);
+        if (!EnumBase._idMap.has(ctx)) {
+            EnumBase._idMap.set(ctx, new Map());
+            EnumBase._vlMap.set(ctx, new Map());
+        }
+        EnumBase._idMap.get(ctx).set(this._id.toString(), this);
+        EnumBase._vlMap.get(ctx).set(this._value.toString(), this);
+    }
+    static normalize(enumTypeName) {
+        return enumTypeName.toLowerCase().trim();
+    }
+    get isNull() {
+        return ((!this._id) || (this._id === '0'));
+    }
+    get id() {
+        return this._id;
+    }
+    get value() {
+        return this._value;
+    }
+    is(other) {
+        return other && (this === other || (this._value === other.value));
+    }
+    static getMap(enumTypeName, cacheType) {
+        const cache = ((cacheType === 'id') ? EnumBase._idMap : EnumBase._vlMap);
+        return cache.get(EnumBase.normalize(enumTypeName));
+    }
+    static getEntries(enumTypeName, cacheType = 'id') {
+        return Array.from(EnumBase.getMap(enumTypeName, cacheType).values()).filter((entry) => {
+            return !entry.isNull;
+        });
+    }
+    static getKeys(enumTypeName) {
+        return EnumBase.getEntries(enumTypeName, 'id').map((entry) => {
+            return entry.id;
+        });
+    }
+    static getValues(enumTypeName) {
+        return EnumBase.getEntries(enumTypeName, 'value').map((entry) => {
+            return entry.value;
+        });
+    }
+    static forEachOne(enumTypeName, fn) {
+        EnumBase.getEntries(enumTypeName).forEach(fn);
+    }
+    equals(other) {
+        return equals(this, other);
+    }
+    toString() {
+        return this.value;
+    }
+}
+exports.EnumBase = EnumBase;
+EnumBase._idMap = new Map();
+EnumBase._vlMap = new Map();
+EnumBase.attemptGet = (enumTypeName, cacheType, value, isCaseInsensitive = true) => {
+    if (!value) {
+        return null;
+    }
+    const cache = EnumBase.getMap(enumTypeName, cacheType);
+    let key = ((typeof (value) === 'string') ? value.trim() : '');
+    if (cache.has(key)) {
+        return cache.get(key);
+    }
+    if (isCaseInsensitive) {
+        key = Array.from(cache.keys()).find((k) => {
+            return (k.toLowerCase() === key.toLowerCase());
+        });
+    }
+    return (cache.get(key) || null);
+};
+EnumBase.attemptParse = (enumTypeName, idOrValue, isCaseInsensitive = true) => {
+    return (EnumBase.attemptGet(enumTypeName, 'id', idOrValue, isCaseInsensitive) || EnumBase.attemptGet(enumTypeName, 'value', idOrValue, isCaseInsensitive));
+};
+class Identifiable {
+    constructor(id = null) {
+        this._id = (id || null);
+    }
+    get isNull() {
+        return ((!this._id) || (this._id === '0'));
+    }
+    get id() {
+        return this._id || (this._id = guid());
+    }
+    set id(value) {
+        this._id = (value || this._id || guid());
+    }
+    equals(other) {
+        return equals(this, other);
+    }
+    toString() {
+        return (this.id || 'null');
+    }
+}
+exports.Identifiable = Identifiable;
+class IdentifiableMap {
+    constructor(elements) {
+        this._inner = new Map();
+        this.set(this.onSetItems(elements));
+    }
+    get itemKey() {
+        return 'id';
+    }
+    get size() {
+        return this._inner.size;
+    }
+    get values() {
+        return Array.from(this._inner.values());
+    }
+    get keys() {
+        return Array.from(this._inner.keys());
+    }
+    onSetItems(elements) {
+        return elements;
+    }
+    set(elements) {
+        if (exports.isNullOrUndefined(elements)) {
+            return null;
+        }
+        const items = ((Array.isArray(elements)) ? [...elements] : [elements]);
+        items.forEach((e) => {
+            this._inner.set(e[this.itemKey], e);
+        });
+        return this;
+    }
+    clear() {
+        this._inner.clear();
+        return this;
+    }
+    tryGetKeyBy(value) {
+        if (exports.isNullOrUndefined(value)) {
+            return null;
+        }
+        let key = null;
+        if (typeof (value) === 'string') {
+            key = value;
+        }
+        if (typeof (value) === 'number') {
+            key = (this.keys[value] || null);
+        }
+        if (exports.isNullOrUndefined(key)) {
+            key = value[this.itemKey];
+        }
+        return (key || null);
+    }
+    delete(value) {
+        const key = this.tryGetKeyBy(value);
+        if (exports.isNullOrUndefined(key)) {
+            return null;
+        }
+        const element = this._inner.get(key);
+        if (exports.isNullOrUndefined(element)) {
+            return null;
+        }
+        this._inner.delete(key);
+        return element;
+    }
+    get(value) {
+        const key = this.tryGetKeyBy(value);
+        return (this._inner.get(key) || null);
+    }
+    has(value) {
+        return (this._inner.has(this.tryGetKeyBy(value)));
+    }
+    forEach(fn) {
+        this.values.forEach(fn);
+    }
+    filter(fn) {
+        return this.values.filter(fn);
+    }
+    map(fn) {
+        return this.values.map(fn);
+    }
+    any(keys) {
+        if ((!keys) || (keys.length === 0)) {
+            return false;
+        }
+        for (const key in keys) {
+            if (this.has(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    indexOf(value) {
+        const key = this.tryGetKeyBy(value);
+        return this.keys.findIndex((k) => {
+            return (key === k);
+        });
+    }
+}
+exports.IdentifiableMap = IdentifiableMap;
+//# sourceMappingURL=entity.js.map

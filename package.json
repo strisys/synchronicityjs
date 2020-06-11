@@ -1,0 +1,56 @@
+{
+  "name": "sychronicityjs",
+  "version": "0.0.0-beta.0",
+  "description": "Simple set of types commonly used in Domain-Driven development",
+  "main": "./src/js/index.js",
+  "scripts": {
+    "pre-commit": "npm-run-all --sequential lint",
+    "list-packages": "npm list --depth=1",
+    "update-packages": "npm update",
+    "tsc-version": "tsc --version",
+    "tsc": "tsc",
+    "transpile-clean": "rimraf ./src/js",
+    "transpile": "npm-run-all transpile-clean tsc-version tsc",
+    "mocha": "mocha ./src/js/test/**/*.spec.js",
+    "lint": "eslint",
+    "test": "npm-run-all transpile lint mocha"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run pre-commit"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/strisys/sychronicityjs.git"
+  },
+  "keywords": [
+    "domain-driven",
+    "entity"
+  ],
+  "author": "Stephen Trudel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/strisys/sychronicityjs/issues"
+  },
+  "homepage": "https://github.com/strisys/sychronicityjs#readme",
+  "devDependencies": {
+    "@types/chai": "~4.2.11",
+    "@types/mocha": "~7.0.2",
+    "@typescript-eslint/eslint-plugin": "~3.2.0",
+    "@typescript-eslint/parser": "~3.2.0",
+    "chai": "~4.2.0",
+    "eslint": "~7.2.0",
+    "husky": "~4.2.5",
+    "mocha": "~8.0.1",
+    "npm-run-all": "~4.1.5",
+    "rimraf": "~3.0.2",
+    "typescript": "~3.9.5"
+  },
+  "dependencies": {
+    "@types/node": "~14.0.13",
+    "@types/uuid": "~8.0.0",
+    "uuid": "~8.1.0",
+    "tslib": "~2.0.0"
+  }
+}

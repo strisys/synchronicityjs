@@ -1,2 +1,3 @@
-# synchronicityjs
-Simple set of types commonly used in Domain-Driven development
+# SynchronicityJS
+
+Simple set of types commonly used in Domain-Driven development.
