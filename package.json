@@ -1,10 +1,11 @@
 {
   "name": "synchronicityjs",
-  "version": "0.0.0-beta.0",
+  "version": "0.0.0-beta.1",
   "description": "Simple set of types commonly used in Domain-Driven development",
   "main": "./src/js/index.js",
   "scripts": {
     "pre-commit": "npm-run-all --sequential lint",
+    "publish-package-beta": "npm publish --beta",
     "list-packages": "npm list --depth=1",
     "update-packages": "npm update",
     "tsc-version": "tsc --version",
