@@ -26,6 +26,10 @@ class Fruit extends Enum<Fruit> {
     return (<Fruit>Fruit.attemptParse(Fruit.TypeName, keyOrValue));
   }
 
+  public static get size(): number {
+    return Fruit.getSize(Fruit.TypeName);
+  }
+
   public static get random(): Fruit {
     return (Fruit.getRandom(Fruit.TypeName) as Fruit);
   }
@@ -61,6 +65,10 @@ describe('Enum', () => {
     assert.isFalse(fruit.isNull);
   });
 
+  it('size', () => {
+    assert.equal(Fruit.size, 2);
+  });
+
 
   it('basic truths for enums', () => {
     const fruit = Fruit.random;
@@ -77,35 +85,42 @@ describe('Enum', () => {
     assert.isTrue(fruit === other);
     assert.isTrue(fruit.equals(fruit));
     assert.isTrue(other.equals(fruit));
+
+    // invariants
+    assert.equal(Fruit.size, Fruit.entries.length);
+    assert.equal(Fruit.size, Fruit.keys.length);
+    assert.equal(Fruit.size, Fruit.values.length);
   });
 
   it('can parse id or value to enum', () => {
-    assert.isTrue(Fruit.tryParse('1') === Fruit.tryParse('apple'));
-    assert.isTrue(Fruit.tryParse('1') === Fruit.tryParse('Apple'));
-    assert.isTrue(Fruit.tryParse('1') === Fruit.tryParse('aPple '));
-    assert.isTrue(Fruit.tryParse('1') === Fruit.Apple);
+    let other = Fruit.tryParse('1');
+    assert.isTrue(other === Fruit.tryParse('apple'));
+    assert.isTrue(other === Fruit.tryParse('Apple'));
+    assert.isTrue(other === Fruit.tryParse('aPple '));
+    assert.isTrue(other === Fruit.Apple);
 
-    assert.isTrue(Fruit.tryParse('2') === Fruit.tryParse('pear'));
-    assert.isTrue(Fruit.tryParse('2') === Fruit.tryParse('Pear'));
-    assert.isTrue(Fruit.tryParse('2') === Fruit.tryParse('peaR '));
-    assert.isTrue(Fruit.tryParse('2') === Fruit.Pear);
+    other = Fruit.tryParse('2');
+    assert.isTrue(other === Fruit.tryParse('pear'));
+    assert.isTrue(other === Fruit.tryParse('Pear'));
+    assert.isTrue(other === Fruit.tryParse('peaR '));
+    assert.isTrue(other === Fruit.Pear);
   });
 
-  it('entries property returns expected entries', () => {
+  it('entries property returns expected entries in order', () => {
     const entries = Fruit.entries;
     assert.equal(entries.length, 2);
     assert.equal(entries[0], Fruit.Apple);
     assert.equal(entries[1], Fruit.Pear);
   });
 
-  it('keys property returns expected keys', () => {
+  it('keys property returns expected keys in order', () => {
     const keys = Fruit.keys;
     assert.equal(keys.length, 2);
     assert.equal(keys[0], '1');
     assert.equal(keys[1], '2');
   });
 
-  it('values property returns expected values', () => {
+  it('values property returns expected values in order', () => {
     const values = Fruit.values;
     assert.equal(values.length, 2);
     assert.equal(values[0], 'apple');

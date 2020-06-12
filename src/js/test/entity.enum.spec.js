@@ -16,6 +16,9 @@ class Fruit extends entity_1.Enum {
     static tryParse(keyOrValue) {
         return Fruit.attemptParse(Fruit.TypeName, keyOrValue);
     }
+    static get size() {
+        return Fruit.getSize(Fruit.TypeName);
+    }
     static get random() {
         return Fruit.getRandom(Fruit.TypeName);
     }
@@ -48,6 +51,9 @@ mocha_1.describe('Enum', () => {
         chai_1.assert.isNotNull(fruit);
         chai_1.assert.isFalse(fruit.isNull);
     });
+    mocha_1.it('size', () => {
+        chai_1.assert.equal(Fruit.size, 2);
+    });
     mocha_1.it('basic truths for enums', () => {
         const fruit = Fruit.random;
         chai_1.assert.isNotNull(fruit);
@@ -61,30 +67,36 @@ mocha_1.describe('Enum', () => {
         chai_1.assert.isTrue(fruit === other);
         chai_1.assert.isTrue(fruit.equals(fruit));
         chai_1.assert.isTrue(other.equals(fruit));
+        // invariants
+        chai_1.assert.equal(Fruit.size, Fruit.entries.length);
+        chai_1.assert.equal(Fruit.size, Fruit.keys.length);
+        chai_1.assert.equal(Fruit.size, Fruit.values.length);
     });
     mocha_1.it('can parse id or value to enum', () => {
-        chai_1.assert.isTrue(Fruit.tryParse('1') === Fruit.tryParse('apple'));
-        chai_1.assert.isTrue(Fruit.tryParse('1') === Fruit.tryParse('Apple'));
-        chai_1.assert.isTrue(Fruit.tryParse('1') === Fruit.tryParse('aPple '));
-        chai_1.assert.isTrue(Fruit.tryParse('1') === Fruit.Apple);
-        chai_1.assert.isTrue(Fruit.tryParse('2') === Fruit.tryParse('pear'));
-        chai_1.assert.isTrue(Fruit.tryParse('2') === Fruit.tryParse('Pear'));
-        chai_1.assert.isTrue(Fruit.tryParse('2') === Fruit.tryParse('peaR '));
-        chai_1.assert.isTrue(Fruit.tryParse('2') === Fruit.Pear);
+        let other = Fruit.tryParse('1');
+        chai_1.assert.isTrue(other === Fruit.tryParse('apple'));
+        chai_1.assert.isTrue(other === Fruit.tryParse('Apple'));
+        chai_1.assert.isTrue(other === Fruit.tryParse('aPple '));
+        chai_1.assert.isTrue(other === Fruit.Apple);
+        other = Fruit.tryParse('2');
+        chai_1.assert.isTrue(other === Fruit.tryParse('pear'));
+        chai_1.assert.isTrue(other === Fruit.tryParse('Pear'));
+        chai_1.assert.isTrue(other === Fruit.tryParse('peaR '));
+        chai_1.assert.isTrue(other === Fruit.Pear);
     });
-    mocha_1.it('entries property returns expected entries', () => {
+    mocha_1.it('entries property returns expected entries in order', () => {
         const entries = Fruit.entries;
         chai_1.assert.equal(entries.length, 2);
         chai_1.assert.equal(entries[0], Fruit.Apple);
         chai_1.assert.equal(entries[1], Fruit.Pear);
     });
-    mocha_1.it('keys property returns expected keys', () => {
+    mocha_1.it('keys property returns expected keys in order', () => {
         const keys = Fruit.keys;
         chai_1.assert.equal(keys.length, 2);
         chai_1.assert.equal(keys[0], '1');
         chai_1.assert.equal(keys[1], '2');
     });
-    mocha_1.it('values property returns expected values', () => {
+    mocha_1.it('values property returns expected values in order', () => {
         const values = Fruit.values;
         chai_1.assert.equal(values.length, 2);
         chai_1.assert.equal(values[0], 'apple');
