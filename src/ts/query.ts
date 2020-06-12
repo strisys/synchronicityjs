@@ -1,4 +1,4 @@
-import { EnumBase } from './entity';
+import { Enum } from './entity';
 
 export class EntityQueryParameters {
   public static readonly Null: EntityQueryParameters = new EntityQueryParameters(0, 0, '');
@@ -110,7 +110,7 @@ export class EntityQueryPage<T> {
 
 export type PageDirectionCode = ('Previous' | 'Next' | '');
 
-export class PageDirection extends EnumBase<PageDirection> {
+export class PageDirection extends Enum<PageDirection> {
   private static readonly TypeName: string = 'PageDirection';
   public static readonly None: PageDirection = new PageDirection('0', '');
   public static readonly Previous: PageDirection = new PageDirection('1', 'Previous');
@@ -133,7 +133,7 @@ export class PageDirection extends EnumBase<PageDirection> {
   }
 
   public static get entries(): PageDirection[] {
-    return PageDirection.getEntries(PageDirection.TypeName);
+    return (PageDirection.getEntries(PageDirection.TypeName) as PageDirection[]);
   }
 
   public static get keys(): string[] {
