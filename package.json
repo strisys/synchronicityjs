@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/strisys/sychronicityjs.git"
+    "url": "git+https://github.com/strisys/synchronicityjs.git"
   },
   "keywords": [
     "domain-driven",
@@ -31,9 +31,9 @@
   "author": "Stephen Trudel",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/strisys/sychronicityjs/issues"
+    "url": "https://github.com/strisys/synchronicityjs/issues"
   },
-  "homepage": "https://github.com/strisys/sychronicityjs#readme",
+  "homepage": "https://github.com/strisys/synchronicityjs#readme",
   "devDependencies": {
     "@types/chai": "~4.2.11",
     "@types/mocha": "~7.0.2",
