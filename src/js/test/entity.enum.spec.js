@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const chai_1 = require("chai");
-// import { describe, it } from 'mocha';
 const entity_1 = require("../entity");
 class Fruit extends entity_1.Enum {
     constructor(id, value) {
