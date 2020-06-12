@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IdentifiableMap = exports.Identifiable = exports.EnumBase = exports.isNullOrUndefined = void 0;
+exports.IdentifiableMap = exports.Identifiable = exports.Enum = exports.isNullOrUndefined = void 0;
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const uuid_1 = require("uuid");
@@ -19,7 +19,7 @@ const equals = (primary, other) => {
     }
     return ((primary === other) || (primary.id === other.id));
 };
-class EnumBase {
+class Enum {
     constructor(enumTypeName, id, value) {
         this.isNotOneOf = (values) => {
             return !this.isOneOf(values);
@@ -34,13 +34,13 @@ class EnumBase {
         };
         this._id = id;
         this._value = value;
-        const ctx = EnumBase.normalize(enumTypeName);
-        if (!EnumBase._idMap.has(ctx)) {
-            EnumBase._idMap.set(ctx, new Map());
-            EnumBase._vlMap.set(ctx, new Map());
+        const ctx = Enum.normalize(enumTypeName);
+        if (!Enum._idMap.has(ctx)) {
+            Enum._idMap.set(ctx, new Map());
+            Enum._vlMap.set(ctx, new Map());
         }
-        EnumBase._idMap.get(ctx).set(this._id.toString(), this);
-        EnumBase._vlMap.get(ctx).set(this._value.toString(), this);
+        Enum._idMap.get(ctx).set(this._id.toString(), this);
+        Enum._vlMap.get(ctx).set(this._value.toString(), this);
     }
     static normalize(enumTypeName) {
         return enumTypeName.toLowerCase().trim();
@@ -57,27 +57,35 @@ class EnumBase {
     is(other) {
         return other && (this === other || (this._value === other.value));
     }
+    static getSize(enumTypeName) {
+        return Enum.getEntries(enumTypeName).length;
+    }
     static getMap(enumTypeName, cacheType) {
-        const cache = ((cacheType === 'id') ? EnumBase._idMap : EnumBase._vlMap);
-        return cache.get(EnumBase.normalize(enumTypeName));
+        const cache = ((cacheType === 'id') ? Enum._idMap : Enum._vlMap);
+        return cache.get(Enum.normalize(enumTypeName));
     }
     static getEntries(enumTypeName, cacheType = 'id') {
-        return Array.from(EnumBase.getMap(enumTypeName, cacheType).values()).filter((entry) => {
+        return Array.from(Enum.getMap(enumTypeName, cacheType).values()).filter((entry) => {
             return !entry.isNull;
         });
     }
+    static getRandom(enumTypeName) {
+        const entries = Enum.getEntries(enumTypeName, 'id');
+        const index = Math.floor((Math.random() * entries.length));
+        return entries[index];
+    }
     static getKeys(enumTypeName) {
-        return EnumBase.getEntries(enumTypeName, 'id').map((entry) => {
+        return Enum.getEntries(enumTypeName, 'id').map((entry) => {
             return entry.id;
         });
     }
     static getValues(enumTypeName) {
-        return EnumBase.getEntries(enumTypeName, 'value').map((entry) => {
+        return Enum.getEntries(enumTypeName, 'value').map((entry) => {
             return entry.value;
         });
     }
     static forEachOne(enumTypeName, fn) {
-        EnumBase.getEntries(enumTypeName).forEach(fn);
+        Enum.getEntries(enumTypeName).forEach(fn);
     }
     equals(other) {
         return equals(this, other);
@@ -86,14 +94,14 @@ class EnumBase {
         return this.value;
     }
 }
-exports.EnumBase = EnumBase;
-EnumBase._idMap = new Map();
-EnumBase._vlMap = new Map();
-EnumBase.attemptGet = (enumTypeName, cacheType, value, isCaseInsensitive = true) => {
+exports.Enum = Enum;
+Enum._idMap = new Map();
+Enum._vlMap = new Map();
+Enum.attemptGet = (enumTypeName, cacheType, value, isCaseInsensitive = true) => {
     if (!value) {
         return null;
     }
-    const cache = EnumBase.getMap(enumTypeName, cacheType);
+    const cache = Enum.getMap(enumTypeName, cacheType);
     let key = ((typeof (value) === 'string') ? value.trim() : '');
     if (cache.has(key)) {
         return cache.get(key);
@@ -105,8 +113,8 @@ EnumBase.attemptGet = (enumTypeName, cacheType, value, isCaseInsensitive = true)
     }
     return (cache.get(key) || null);
 };
-EnumBase.attemptParse = (enumTypeName, idOrValue, isCaseInsensitive = true) => {
-    return (EnumBase.attemptGet(enumTypeName, 'id', idOrValue, isCaseInsensitive) || EnumBase.attemptGet(enumTypeName, 'value', idOrValue, isCaseInsensitive));
+Enum.attemptParse = (enumTypeName, keyOrValue, isCaseInsensitive = true) => {
+    return (Enum.attemptGet(enumTypeName, 'id', keyOrValue, isCaseInsensitive) || Enum.attemptGet(enumTypeName, 'value', keyOrValue, isCaseInsensitive));
 };
 class Identifiable {
     constructor(id = null) {

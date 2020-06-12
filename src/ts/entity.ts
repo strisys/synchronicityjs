@@ -34,7 +34,7 @@ const equals = (primary: IIdentifiable, other: IIdentifiable): boolean => {
 
 type EnumCacheType = ('id' | 'value');
 
-export abstract class EnumBase<T> implements IEnum {
+export abstract class Enum<T> implements IEnum {
   private static readonly _idMap: Map<string, Map<string, any>> = new Map();
   private static readonly _vlMap: Map<string, Map<string, any>> = new Map();
   private readonly _id: string;
@@ -44,15 +44,15 @@ export abstract class EnumBase<T> implements IEnum {
     this._id = id;
     this._value = value;
 
-    const ctx = EnumBase.normalize(enumTypeName);
+    const ctx = Enum.normalize(enumTypeName);
 
-    if (!EnumBase._idMap.has(ctx)) {
-      EnumBase._idMap.set(ctx, new Map());
-      EnumBase._vlMap.set(ctx, new Map());
+    if (!Enum._idMap.has(ctx)) {
+      Enum._idMap.set(ctx, new Map());
+      Enum._vlMap.set(ctx, new Map());
     }
 
-    EnumBase._idMap.get(ctx).set(this._id.toString(), this);
-    EnumBase._vlMap.get(ctx).set(this._value.toString(), this);
+    Enum._idMap.get(ctx).set(this._id.toString(), this);
+    Enum._vlMap.get(ctx).set(this._value.toString(), this);
   }
 
   private static normalize(enumTypeName: string) {
@@ -71,21 +71,25 @@ export abstract class EnumBase<T> implements IEnum {
     return this._value;
   }
 
-  public is(other: EnumBase<T>): boolean {
+  public is(other: Enum<T>): boolean {
     return other && (this === other || (this._value === other.value));
   }
 
-  private static getMap(enumTypeName: string, cacheType: EnumCacheType): Map<string, any> {
-    const cache = ((cacheType === 'id') ? EnumBase._idMap : EnumBase._vlMap);
-    return cache.get(EnumBase.normalize(enumTypeName));
+  public static getSize(enumTypeName: string): number {
+    return Enum.getEntries(enumTypeName).length;
   }
 
-  protected static attemptGet = (enumTypeName: string, cacheType: EnumCacheType, value: string, isCaseInsensitive = true): any => {
+  private static getMap(enumTypeName: string, cacheType: EnumCacheType): Map<string, any> {
+    const cache = ((cacheType === 'id') ? Enum._idMap : Enum._vlMap);
+    return cache.get(Enum.normalize(enumTypeName));
+  }
+
+  protected static attemptGet = (enumTypeName: string, cacheType: EnumCacheType, value: string, isCaseInsensitive = true): IEnum => {
     if (!value) {
       return null;
     }
 
-    const cache = EnumBase.getMap(enumTypeName, cacheType);
+    const cache = Enum.getMap(enumTypeName, cacheType);
     let key: string = ((typeof (value) === 'string') ? value.trim() : '');
 
     if (cache.has(key)) {
@@ -101,37 +105,43 @@ export abstract class EnumBase<T> implements IEnum {
     return (cache.get(key) || null);
   }
 
-  protected static attemptParse = (enumTypeName: string, idOrValue: string, isCaseInsensitive = true): any => {
-    return (EnumBase.attemptGet(enumTypeName, 'id', idOrValue, isCaseInsensitive) || EnumBase.attemptGet(enumTypeName, 'value', idOrValue, isCaseInsensitive));
+  protected static attemptParse = (enumTypeName: string, keyOrValue: string, isCaseInsensitive = true): any => {
+    return (Enum.attemptGet(enumTypeName, 'id', keyOrValue, isCaseInsensitive) || Enum.attemptGet(enumTypeName, 'value', keyOrValue, isCaseInsensitive));
   }
 
-  protected static getEntries(enumTypeName: string, cacheType: EnumCacheType = 'id'): any[] {
-    return Array.from(EnumBase.getMap(enumTypeName, cacheType).values()).filter((entry) => {
+  protected static getEntries(enumTypeName: string, cacheType: EnumCacheType = 'id'): IEnum[] {
+    return Array.from(Enum.getMap(enumTypeName, cacheType).values()).filter((entry) => {
       return !entry.isNull;
     });
   }
 
+  protected static getRandom(enumTypeName: string): IEnum {
+    const entries = Enum.getEntries(enumTypeName, 'id');
+    const index = Math.floor((Math.random() * entries.length));
+    return entries[index];
+  }
+
   protected static getKeys(enumTypeName: string): string[] {
-    return EnumBase.getEntries(enumTypeName, 'id').map((entry) => {
+    return Enum.getEntries(enumTypeName, 'id').map((entry) => {
       return entry.id;
     })
   }
 
   protected static getValues(enumTypeName: string): string[] {
-    return EnumBase.getEntries(enumTypeName, 'value').map((entry) => {
+    return Enum.getEntries(enumTypeName, 'value').map((entry) => {
       return entry.value;
     })
   }
 
-  protected static forEachOne<T>(enumTypeName: string, fn: (value: T, index: number) => void): void {
-    EnumBase.getEntries(enumTypeName).forEach(fn);
+  protected static forEachOne(enumTypeName: string, fn: (value: IEnum, index: number) => void): void {
+    Enum.getEntries(enumTypeName).forEach(fn);
   }
 
-  public isNotOneOf = (values: Array<EnumBase<T>>): boolean => {
+  public isNotOneOf = (values: Array<Enum<T>>): boolean => {
     return !this.isOneOf(values);
   }
 
-  public isOneOf = (values: Array<EnumBase<T>>): boolean => {
+  public isOneOf = (values: Array<Enum<T>>): boolean => {
     if (!values) {
       return false;
     }
@@ -141,7 +151,7 @@ export abstract class EnumBase<T> implements IEnum {
     }) > -1);
   }
 
-  public equals(other: EnumBase<T>): boolean {
+  public equals(other: Enum<T>): boolean {
     return equals(this, other);
   }
 

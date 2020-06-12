@@ -1,14 +1,16 @@
 import { assert } from 'chai';
 import { describe, it } from 'mocha';
-import { EnumBase } from '../entity';
+import { Enum } from '../entity';
 
-class Fruit extends EnumBase<Fruit> {
+export type FruitCode = ('null' | 'apple' | 'pear');
+
+class Fruit extends Enum<Fruit> {
   private static readonly TypeName = 'fruit';
   public static readonly Null = new Fruit('0', 'null');
   public static readonly Apple = new Fruit('1', 'apple');
   public static readonly Pear = new Fruit('2', 'pear');
 
-  private constructor(id: string, value: string) {
+  private constructor(id: string, value: FruitCode) {
     super(Fruit.TypeName, id, value);
   }
 
@@ -20,28 +22,32 @@ class Fruit extends EnumBase<Fruit> {
     return this.is(Fruit.Pear);
   }
 
-  public static tryParse(idOrValue: string): Fruit {
-    return (<Fruit>EnumBase.attemptParse(Fruit.TypeName, idOrValue));
+  public static tryParse(keyOrValue: (string | FruitCode)): Fruit {
+    return (<Fruit>Fruit.attemptParse(Fruit.TypeName, keyOrValue));
+  }
+
+  public static get random(): Fruit {
+    return (Fruit.getRandom(Fruit.TypeName) as Fruit);
   }
 
   public static get entries(): Fruit[] {
-    return EnumBase.getEntries(Fruit.TypeName);
+    return (Fruit.getEntries(Fruit.TypeName) as Fruit[]);
   }
 
   public static get keys(): string[] {
-    return EnumBase.getKeys(Fruit.TypeName);
+    return Fruit.getKeys(Fruit.TypeName);
   }
 
-  public static get values(): string[] {
-    return EnumBase.getValues(Fruit.TypeName);
+  public static get values(): FruitCode[] {
+    return (Fruit.getValues(Fruit.TypeName) as FruitCode[]);
   }
 
   public static forEach(fn: (value: Fruit, index: number) => void): void {
-    EnumBase.forEachOne(Fruit.TypeName, fn);
+    Fruit.forEachOne(Fruit.TypeName, fn);
   }
 }
 
-describe('EnumBase', () => {
+describe('Enum', () => {
   it('null enum', () => {
     const fruit = Fruit.Null;
     assert.isNotNull(fruit);
@@ -49,19 +55,28 @@ describe('EnumBase', () => {
     assert.isTrue(fruit === Fruit.Null);
   });
 
+  it('random', () => {
+    const fruit = Fruit.random;
+    assert.isNotNull(fruit);
+    assert.isFalse(fruit.isNull);
+  });
+
+
   it('basic truths for enums', () => {
-    const fruit = Fruit.Apple;
+    const fruit = Fruit.random;
     assert.isNotNull(fruit);
     assert.isFalse(fruit.isNull);
 
     // state
-    assert.isTrue(fruit.id === '1');
-    assert.isTrue(fruit.value === 'apple');
-    assert.isTrue(fruit.isApple);
+    assert.isTrue(fruit.id === '1' || fruit.id === '2');
+    assert.isTrue(fruit.value === 'apple' || fruit.value === 'pear');
+    assert.isTrue(fruit.isApple || fruit.isPear);
     
     // equality
-    assert.isTrue(fruit === Fruit.Apple);
-    assert.isTrue(fruit.equals(Fruit.Apple));
+    const other = Fruit.tryParse(fruit.id);
+    assert.isTrue(fruit === other);
+    assert.isTrue(fruit.equals(fruit));
+    assert.isTrue(other.equals(fruit));
   });
 
   it('can parse id or value to enum', () => {
@@ -76,28 +91,28 @@ describe('EnumBase', () => {
     assert.isTrue(Fruit.tryParse('2') === Fruit.Pear);
   });
 
-  it('returns valid entries', () => {
+  it('entries property returns expected entries', () => {
     const entries = Fruit.entries;
     assert.equal(entries.length, 2);
     assert.equal(entries[0], Fruit.Apple);
     assert.equal(entries[1], Fruit.Pear);
   });
 
-  it('returns valid keys', () => {
+  it('keys property returns expected keys', () => {
     const keys = Fruit.keys;
     assert.equal(keys.length, 2);
     assert.equal(keys[0], '1');
     assert.equal(keys[1], '2');
   });
 
-  it('returns valid values', () => {
+  it('values property returns expected values', () => {
     const values = Fruit.values;
     assert.equal(values.length, 2);
     assert.equal(values[0], 'apple');
     assert.equal(values[1], 'pear');
   });
 
-  it('forEach returns valid values', () => {
+  it('forEach executes and returns valid values in order', () => {
     const entries = Fruit.entries;
     
     Fruit.forEach((e) => {
@@ -110,9 +125,15 @@ describe('EnumBase', () => {
   });
 
   it('isOneOf/isNotOneOf works', () => {
+    Fruit.forEach((fruit) => {
+      assert.isTrue(fruit.isOneOf(Fruit.entries));
+    })
+
     assert.isTrue(Fruit.Apple.isOneOf([Fruit.Apple, Fruit.Pear]));
+    assert.isFalse(Fruit.Apple.isOneOf([Fruit.Pear]));
     assert.isTrue(Fruit.Apple.isNotOneOf([Fruit.Pear]));
     assert.isTrue(Fruit.Pear.isOneOf([Fruit.Apple, Fruit.Pear]));
+    assert.isFalse(Fruit.Pear.isOneOf([Fruit.Apple]));
     assert.isTrue(Fruit.Pear.isNotOneOf([Fruit.Apple]));
   });
 });

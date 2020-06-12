@@ -8,7 +8,7 @@ export interface IEnum extends IIdentifiable {
 }
 export declare const isNullOrUndefined: (val: any) => boolean;
 declare type EnumCacheType = ('id' | 'value');
-export declare abstract class EnumBase<T> implements IEnum {
+export declare abstract class Enum<T> implements IEnum {
     private static readonly _idMap;
     private static readonly _vlMap;
     private readonly _id;
@@ -18,17 +18,19 @@ export declare abstract class EnumBase<T> implements IEnum {
     get isNull(): boolean;
     get id(): string;
     get value(): string;
-    is(other: EnumBase<T>): boolean;
+    is(other: Enum<T>): boolean;
+    static getSize(enumTypeName: string): number;
     private static getMap;
-    protected static attemptGet: (enumTypeName: string, cacheType: EnumCacheType, value: string, isCaseInsensitive?: boolean) => any;
-    protected static attemptParse: (enumTypeName: string, idOrValue: string, isCaseInsensitive?: boolean) => any;
-    protected static getEntries(enumTypeName: string, cacheType?: EnumCacheType): any[];
+    protected static attemptGet: (enumTypeName: string, cacheType: EnumCacheType, value: string, isCaseInsensitive?: boolean) => IEnum;
+    protected static attemptParse: (enumTypeName: string, keyOrValue: string, isCaseInsensitive?: boolean) => any;
+    protected static getEntries(enumTypeName: string, cacheType?: EnumCacheType): IEnum[];
+    protected static getRandom(enumTypeName: string): IEnum;
     protected static getKeys(enumTypeName: string): string[];
     protected static getValues(enumTypeName: string): string[];
-    protected static forEachOne<T>(enumTypeName: string, fn: (value: T, index: number) => void): void;
-    isNotOneOf: (values: Array<EnumBase<T>>) => boolean;
-    isOneOf: (values: Array<EnumBase<T>>) => boolean;
-    equals(other: EnumBase<T>): boolean;
+    protected static forEachOne(enumTypeName: string, fn: (value: IEnum, index: number) => void): void;
+    isNotOneOf: (values: Array<Enum<T>>) => boolean;
+    isOneOf: (values: Array<Enum<T>>) => boolean;
+    equals(other: Enum<T>): boolean;
     toString(): string;
 }
 export declare abstract class Identifiable implements IIdentifiable {
