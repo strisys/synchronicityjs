@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const chai_1 = require("chai");
-const mocha_1 = require("mocha");
+// import { describe, it } from 'mocha';
 const entity_1 = require("../entity");
 class Customer extends entity_1.Identifiable {
     constructor(id = null) {
@@ -15,7 +15,7 @@ class CustomerMap extends entity_1.IdentifiableMap {
     }
 }
 CustomerMap.Null = new Customer('0');
-mocha_1.describe('IdentifiableMap', () => {
+describe('IdentifiableMap', () => {
     const entities = [new Customer('1'), new Customer('2')];
     const validateHydration = (map) => {
         chai_1.assert.equal(map.size, entities.length);
@@ -34,13 +34,13 @@ mocha_1.describe('IdentifiableMap', () => {
             chai_1.assert.isTrue(map.get(map.indexOf(entity)).equals(entity));
         }
     };
-    mocha_1.it('map constructed properly on instantiation', () => {
+    it('map constructed properly on instantiation', () => {
         validateHydration(new CustomerMap(entities));
     });
-    mocha_1.it('map constructed properly after instantiation', () => {
+    it('map constructed properly after instantiation', () => {
         validateHydration((new CustomerMap()).set(entities));
     });
-    mocha_1.it('map keys and values', () => {
+    it('map keys and values', () => {
         const keys = new CustomerMap(entities).keys;
         chai_1.assert.equal(keys.length, 2);
         chai_1.assert.isTrue(keys.indexOf(keys[0]) > -1);
@@ -50,13 +50,13 @@ mocha_1.describe('IdentifiableMap', () => {
         chai_1.assert.isTrue(keys.indexOf(entities[0].id) > -1);
         chai_1.assert.isTrue(keys.indexOf(entities[1].id) > -1);
     });
-    mocha_1.it('delete', () => {
+    it('delete', () => {
         const map = new CustomerMap(entities);
         const entity = entities[0];
         chai_1.assert.isTrue(map.delete(entity).equals(entity));
         chai_1.assert.isFalse(map.has(entity));
     });
-    mocha_1.it('clear', () => {
+    it('clear', () => {
         const map = new CustomerMap(entities);
         chai_1.assert.equal(map.clear().size, 0);
     });

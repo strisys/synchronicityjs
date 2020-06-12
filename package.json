@@ -12,7 +12,7 @@
     "tsc": "tsc",
     "transpile-clean": "rimraf ./src/js",
     "transpile": "npm-run-all transpile-clean tsc-version tsc",
-    "mocha": "mocha ./src/js/test/**/*.spec.js",
+    "mocha": "mocha --reporter spec ./src/js/test/**/*.spec.js",
     "lint": "eslint",
     "test": "npm-run-all transpile lint mocha"
   },

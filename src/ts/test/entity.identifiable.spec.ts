@@ -1,5 +1,4 @@
 import { assert } from 'chai';
-import { describe, it } from 'mocha';
 import { Identifiable } from '../entity';
 
 class Customer extends Identifiable {

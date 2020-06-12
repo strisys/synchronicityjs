@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const chai_1 = require("chai");
-const mocha_1 = require("mocha");
+// import { describe, it } from 'mocha';
 const entity_1 = require("../entity");
 class Fruit extends entity_1.Enum {
     constructor(id, value) {
@@ -39,22 +39,22 @@ Fruit.TypeName = 'fruit';
 Fruit.Null = new Fruit('0', 'null');
 Fruit.Apple = new Fruit('1', 'apple');
 Fruit.Pear = new Fruit('2', 'pear');
-mocha_1.describe('Enum', () => {
-    mocha_1.it('null enum', () => {
+describe('Enum', () => {
+    it('null enum', () => {
         const fruit = Fruit.Null;
         chai_1.assert.isNotNull(fruit);
         chai_1.assert.isTrue(fruit.isNull);
         chai_1.assert.isTrue(fruit === Fruit.Null);
     });
-    mocha_1.it('random', () => {
+    it('random', () => {
         const fruit = Fruit.random;
         chai_1.assert.isNotNull(fruit);
         chai_1.assert.isFalse(fruit.isNull);
     });
-    mocha_1.it('size', () => {
+    it('size', () => {
         chai_1.assert.equal(Fruit.size, 2);
     });
-    mocha_1.it('basic truths for enums', () => {
+    it('basic truths for enums', () => {
         const fruit = Fruit.random;
         chai_1.assert.isNotNull(fruit);
         chai_1.assert.isFalse(fruit.isNull);
@@ -72,7 +72,7 @@ mocha_1.describe('Enum', () => {
         chai_1.assert.equal(Fruit.size, Fruit.keys.length);
         chai_1.assert.equal(Fruit.size, Fruit.values.length);
     });
-    mocha_1.it('can parse id or value to enum', () => {
+    it('can parse id or value to enum', () => {
         let other = Fruit.tryParse('1');
         chai_1.assert.isTrue(other === Fruit.tryParse('apple'));
         chai_1.assert.isTrue(other === Fruit.tryParse('Apple'));
@@ -84,25 +84,25 @@ mocha_1.describe('Enum', () => {
         chai_1.assert.isTrue(other === Fruit.tryParse('peaR '));
         chai_1.assert.isTrue(other === Fruit.Pear);
     });
-    mocha_1.it('entries property returns expected entries in order', () => {
+    it('entries property returns expected entries in order', () => {
         const entries = Fruit.entries;
         chai_1.assert.equal(entries.length, 2);
         chai_1.assert.equal(entries[0], Fruit.Apple);
         chai_1.assert.equal(entries[1], Fruit.Pear);
     });
-    mocha_1.it('keys property returns expected keys in order', () => {
+    it('keys property returns expected keys in order', () => {
         const keys = Fruit.keys;
         chai_1.assert.equal(keys.length, 2);
         chai_1.assert.equal(keys[0], '1');
         chai_1.assert.equal(keys[1], '2');
     });
-    mocha_1.it('values property returns expected values in order', () => {
+    it('values property returns expected values in order', () => {
         const values = Fruit.values;
         chai_1.assert.equal(values.length, 2);
         chai_1.assert.equal(values[0], 'apple');
         chai_1.assert.equal(values[1], 'pear');
     });
-    mocha_1.it('forEach executes and returns valid values in order', () => {
+    it('forEach executes and returns valid values in order', () => {
         const entries = Fruit.entries;
         Fruit.forEach((e) => {
             entries.splice(entries.findIndex((value) => {
@@ -111,7 +111,7 @@ mocha_1.describe('Enum', () => {
         });
         chai_1.assert.equal(entries.length, 0);
     });
-    mocha_1.it('isOneOf/isNotOneOf works', () => {
+    it('isOneOf/isNotOneOf works', () => {
         Fruit.forEach((fruit) => {
             chai_1.assert.isTrue(fruit.isOneOf(Fruit.entries));
         });
