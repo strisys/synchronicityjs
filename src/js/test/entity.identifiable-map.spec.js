@@ -18,6 +18,7 @@ describe('IdentifiableMap', () => {
     const entities = [new Customer('1'), new Customer('2')];
     const validateHydration = (map) => {
         chai_1.assert.equal(map.size, entities.length);
+        chai_1.assert.isFalse(map.isEmpty);
         // has
         for (const entity of entities) {
             chai_1.assert.isTrue(map.has(entity));

@@ -47,6 +47,7 @@ export declare abstract class IdentifiableMap<T> {
     constructor(elements?: (T | T[]));
     protected get itemKey(): string;
     get size(): number;
+    get isEmpty(): boolean;
     get values(): T[];
     get keys(): string[];
     protected onSetItems(elements: (T | T[])): (T | T[]);

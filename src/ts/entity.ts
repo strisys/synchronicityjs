@@ -168,7 +168,7 @@ export abstract class Identifiable implements IIdentifiable {
   }
 
   public get isNull(): boolean {
-    return ((!this._id) || (this._id === '0'));
+    return (this._id === '0');
   }
 
   public get id(): string {
@@ -201,6 +201,10 @@ export abstract class IdentifiableMap<T> {
 
   public get size(): number {
     return this._inner.size;
+  }
+
+  public get isEmpty(): boolean {
+    return (this.size === 0);
   }
 
   public get values(): T[] {

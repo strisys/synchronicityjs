@@ -121,7 +121,7 @@ class Identifiable {
         this._id = (id || null);
     }
     get isNull() {
-        return ((!this._id) || (this._id === '0'));
+        return (this._id === '0');
     }
     get id() {
         return this._id || (this._id = guid());
@@ -147,6 +147,9 @@ class IdentifiableMap {
     }
     get size() {
         return this._inner.size;
+    }
+    get isEmpty() {
+        return (this.size === 0);
     }
     get values() {
         return Array.from(this._inner.values());
