@@ -105,7 +105,7 @@ export declare class CellMap extends IdentifiableMap<Cell> {
     constructor(items?: Cell[]);
     static toCells(columns: ColumnMap, values: unknown[]): CellMap;
 }
-declare type RowData = {
+export declare type RowData = {
     [key: string]: unknown;
 };
 export declare class Row {
@@ -145,4 +145,3 @@ export declare class DataTable extends Identifiable {
     get columns(): DataTableColumnMap;
     get rows(): RowMap;
 }
-export {};

@@ -339,7 +339,7 @@ export class CellMap extends IdentifiableMap<Cell> {
   }
 }
 
-type RowData = { [key: string]: unknown };
+export type RowData = { [key: string]: unknown };
 
 export class Row {
   private readonly _table: DataTable;
