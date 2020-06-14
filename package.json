@@ -5,10 +5,10 @@
   "main": "./src/js/index.js",
   "scripts": {
     "pre-commit": "npm-run-all --sequential lint",
-    "publish-package-beta": "npm publish --tag beta",
+    "package-publish-beta": "npm publish --tag beta",
     "package-info": "npm info",
     "package-repo": "npm repo",
-    "list-packages": "npm list --depth=1",
+    "package-list": "npm list --depth=1",
     "update-packages": "npm update",
     "tsc-version": "tsc --version",
     "tsc": "tsc",
@@ -28,7 +28,10 @@
     "url": "git+https://github.com/strisys/synchronicityjs.git"
   },
   "keywords": [
-    "domain-driven", "DDD", "entity", "query"
+    "domain-driven",
+    "DDD",
+    "entity",
+    "query"
   ],
   "author": "Stephen Trudel",
   "license": "MIT",
