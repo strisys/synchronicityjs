@@ -6,6 +6,8 @@
   "scripts": {
     "pre-commit": "npm-run-all --sequential lint",
     "publish-package-beta": "npm publish --tag beta",
+    "package-info": "npm info",
+    "package-repo": "npm repo",
     "list-packages": "npm list --depth=1",
     "update-packages": "npm update",
     "tsc-version": "tsc --version",
