@@ -1,5 +1,42 @@
 import { assert } from 'chai';
-import { Enum } from '../entity';
+import { Enum, Identifiable, IdentifiableMap } from '../entity';
+
+class Customer extends Identifiable {
+  public static readonly Null = new Customer('0');
+
+  constructor(id: string = null) {
+    super(id);
+  }
+}
+
+describe('Identifiable', () => {
+  it('new entity with no id assigned', () => {
+    const entity = new Customer();
+    assert.isNotNull(entity);
+    assert.isNotNull(entity.id);
+    assert.isString(entity.id);
+  });
+
+  it('new entity with id assigned', () => {
+    const entity = new Customer('1');
+    assert.isNotNull(entity);
+    assert.equal(entity.id, '1');
+    assert.isString(entity.id);
+  });
+
+  it('equality with entities that have same id assigned', () => {
+    const a = new Customer();
+    const b = new Customer(a.id);
+    assert.isTrue(a.equals(b));
+  });
+
+  it('null entity', () => {
+    assert.isNotNull(Customer.Null);
+    assert.isTrue(Customer.Null.isNull);
+    assert.isTrue(Customer.Null === Customer.Null);
+    assert.isTrue(Customer.Null.equals(Customer.Null));
+  });
+});
 
 export type FruitCode = ('null' | 'apple' | 'pear');
 
@@ -149,5 +186,71 @@ describe('Enum', () => {
     assert.isTrue(Fruit.Pear.isOneOf([Fruit.Apple, Fruit.Pear]));
     assert.isFalse(Fruit.Pear.isOneOf([Fruit.Apple]));
     assert.isTrue(Fruit.Pear.isNotOneOf([Fruit.Apple]));
+  });
+});
+
+class CustomerMap extends IdentifiableMap<Customer> {
+  public static readonly Null = new Customer('0');
+
+  constructor(entities?: Customer[]) {
+    super(entities);
+  }
+}
+
+describe('IdentifiableMap', () => {
+  const entities = [new Customer('1'), new Customer('2')];
+
+  const validateHydration = (map: CustomerMap) => {
+    assert.equal(map.size, entities.length);
+    assert.isFalse(map.isEmpty);
+
+    // has
+    for(const entity of entities) {
+      assert.isTrue(map.has(entity));
+      assert.isTrue(map.has(entity.id));
+      assert.isTrue(map.has(map.indexOf(entity)));
+    }
+
+    assert.isFalse(map.has(new Customer('3')));
+    assert.isFalse(map.has('XXX'));
+    assert.isFalse(map.has(2));
+
+    // get
+    for(const entity of entities) {
+      assert.isTrue(map.get(entity.id).equals(entity));
+      assert.isTrue(map.get(map.indexOf(entity)).equals(entity));
+    }
+  }
+
+  it('map constructed properly on instantiation', () => {
+    validateHydration(new CustomerMap(entities));
+  });
+
+  it('map constructed properly after instantiation', () => {
+    validateHydration((new CustomerMap()).set(entities));
+  });
+
+  it('map keys and values', () => {
+    const keys = new CustomerMap(entities).keys;
+    assert.equal(keys.length, 2);
+    assert.isTrue(keys.indexOf(keys[0]) > -1);
+    assert.isTrue(keys.indexOf(keys[1]) > -1);
+
+    const values = new CustomerMap(entities).keys;
+    assert.equal(values.length, 2);
+    assert.isTrue(keys.indexOf(entities[0].id) > -1);
+    assert.isTrue(keys.indexOf(entities[1].id) > -1)
+  });
+
+  it('delete', () => {
+    const map = new CustomerMap(entities);
+    const entity = entities[0];
+    assert.isTrue(map.delete(entity).equals(entity));
+    assert.isFalse(map.has(entity));
+  });
+
+  it('clear', () => {
+    const map = new CustomerMap(entities);
+    assert.equal(map.clear().size, 0);
   });
 });
