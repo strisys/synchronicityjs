@@ -517,7 +517,7 @@ export class DataTable extends Identifiable {
   }
 
   public static from(data: (RowData | RowData[]), primaryKey: (string | string[]) = null): DataTable {
-    if (!data) {
+    if ((!data) || (!data.length)) {
       return DataTable.Empty;
     }
 

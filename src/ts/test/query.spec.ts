@@ -13,19 +13,11 @@ const generateData = (searchExpression = ''): RowData[] => {
   return data;
 }
 
-const hydrate = (data: RowData[]): DataTable => {
-  if ((!data) || (!data.length)) {
-    return DataTable.Empty;
-  }
-
-  return DataTable.from(data, 'PropertyID');
-}
-
 describe('DataTable', () => {
   it('kitchen sink testing for hydrated datatable', () => {
-    const data = generateData('property');
-    const datatable = hydrate(data);
-    const columnNames = Object.keys(data[0]);
+    const rowdata = generateData('property');
+    const datatable = DataTable.from(rowdata, 'PropertyID');
+    const columnNames = Object.keys(rowdata[0]);
     const pk = columnNames[0];
 
     // columns
@@ -41,10 +33,10 @@ describe('DataTable', () => {
     });
     
     // rows
-    assert.equal(datatable.rows.size, data.length);
+    assert.equal(datatable.rows.size, rowdata.length);
     
-    for(let r = 0; (r < data.length); r++) {
-      const pkVal = data[r][pk].toString();
+    for(let r = 0; (r < rowdata.length); r++) {
+      const pkVal = rowdata[r][pk].toString();
       const row = datatable.rows.get(pkVal)
 
       assert.isNotNull(row);
@@ -54,7 +46,7 @@ describe('DataTable', () => {
         assert.isNotNull(cell);
         assert.isTrue(cell === row.cells.get(columnName));
         assert.equal(cell.column.name, columnName);
-        assert.equal(cell.value, (data[r][columnName] || null));
+        assert.equal(cell.value, (rowdata[r][columnName] || null));
       }
     }
   });

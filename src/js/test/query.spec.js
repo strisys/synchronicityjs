@@ -11,17 +11,11 @@ const generateData = (searchExpression = '') => {
     }
     return data;
 };
-const hydrate = (data) => {
-    if ((!data) || (!data.length)) {
-        return query_1.DataTable.Empty;
-    }
-    return query_1.DataTable.from(data, 'PropertyID');
-};
 describe('DataTable', () => {
     it('kitchen sink testing for hydrated datatable', () => {
-        const data = generateData('property');
-        const datatable = hydrate(data);
-        const columnNames = Object.keys(data[0]);
+        const rowdata = generateData('property');
+        const datatable = query_1.DataTable.from(rowdata, 'PropertyID');
+        const columnNames = Object.keys(rowdata[0]);
         const pk = columnNames[0];
         // columns
         chai_1.assert.equal(datatable.columns.size, columnNames.length);
@@ -34,9 +28,9 @@ describe('DataTable', () => {
             chai_1.assert.isTrue(datatable.columns.has(k));
         });
         // rows
-        chai_1.assert.equal(datatable.rows.size, data.length);
-        for (let r = 0; (r < data.length); r++) {
-            const pkVal = data[r][pk].toString();
+        chai_1.assert.equal(datatable.rows.size, rowdata.length);
+        for (let r = 0; (r < rowdata.length); r++) {
+            const pkVal = rowdata[r][pk].toString();
             const row = datatable.rows.get(pkVal);
             chai_1.assert.isNotNull(row);
             for (const columnName of columnNames) {
@@ -44,7 +38,7 @@ describe('DataTable', () => {
                 chai_1.assert.isNotNull(cell);
                 chai_1.assert.isTrue(cell === row.cells.get(columnName));
                 chai_1.assert.equal(cell.column.name, columnName);
-                chai_1.assert.equal(cell.value, (data[r][columnName] || null));
+                chai_1.assert.equal(cell.value, (rowdata[r][columnName] || null));
             }
         }
     });

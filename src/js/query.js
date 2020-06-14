@@ -386,7 +386,7 @@ class DataTable extends entity_1.Identifiable {
         return (this._rows || (this._rows = new RowMap(this)));
     }
     static from(data, primaryKey = null) {
-        if (!data) {
+        if ((!data) || (!data.length)) {
             return DataTable.Empty;
         }
         const rowData = (Array.isArray(data) ? data : [data]);
