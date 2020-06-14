@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { DataTable, DataTableColumnMap, RowData } from '../query';
+import { DataTable, RowData } from '../query';
 
 const generateData = (searchExpression = ''): RowData[] => {
   const data = [];
@@ -18,11 +18,7 @@ const hydrate = (data: RowData[]): DataTable => {
     return DataTable.Empty;
   }
 
-  // Assume the column names are in the first row and the first cell is the primary key
-  const columnNames = Object.keys(data[0]);
-  const table = new DataTable(new DataTableColumnMap(columnNames, columnNames[0]));
-
-  return table.rows.add(data).table;
+  return DataTable.from(data, 'PropertyID');
 }
 
 describe('DataTable', () => {

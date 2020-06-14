@@ -140,4 +140,5 @@ export declare class DataTable extends Identifiable {
     constructor(columns: DataTableColumnMap, values?: (RowData | RowData[]));
     get columns(): DataTableColumnMap;
     get rows(): RowMap;
+    static from(data: (RowData | RowData[]), primaryKey?: (string | string[])): DataTable;
 }

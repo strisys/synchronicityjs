@@ -384,6 +384,11 @@ class DataTable extends entity_1.Identifiable {
     get rows() {
         return (this._rows || (this._rows = new RowMap(this)));
     }
+    static from(data, primaryKey = null) {
+        const columnNames = Object.keys(data[0]);
+        const table = new DataTable(new DataTableColumnMap(columnNames, (primaryKey || columnNames[0])));
+        return table.rows.add(data).table;
+    }
 }
 exports.DataTable = DataTable;
 DataTable.Empty = new DataTable(new DataTableColumnMap());

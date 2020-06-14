@@ -514,4 +514,10 @@ export class DataTable extends Identifiable {
   public get rows(): RowMap {
     return (this._rows || (this._rows = new RowMap(this)));
   }
+
+  public static from(data: (RowData | RowData[]), primaryKey: (string | string[]) = null): DataTable {
+    const columnNames = Object.keys(data[0]);
+    const table = new DataTable(new DataTableColumnMap(columnNames, (primaryKey || columnNames[0])));
+    return table.rows.add(data).table;
+  }
 }

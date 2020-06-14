@@ -15,10 +15,7 @@ const hydrate = (data) => {
     if ((!data) || (!data.length)) {
         return query_1.DataTable.Empty;
     }
-    // Assume the column names are in the first row and the first cell is the primary key
-    const columnNames = Object.keys(data[0]);
-    const table = new query_1.DataTable(new query_1.DataTableColumnMap(columnNames, columnNames[0]));
-    return table.rows.add(data).table;
+    return query_1.DataTable.from(data, 'PropertyID');
 };
 describe('DataTable', () => {
     it('kitchen sink testing for hydrated datatable', () => {
