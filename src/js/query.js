@@ -253,7 +253,7 @@ class CellMap extends entity_1.IdentifiableMap {
     }
     static toCells(columns, values) {
         const colentries = columns.values;
-        const cells = (values || []).map((v, i) => new Cell(colentries[i], v));
+        const cells = (colentries || []).map((c, i) => new Cell(c, (values[i] || null)));
         return (new CellMap(cells));
     }
 }
@@ -334,7 +334,8 @@ class RowMap extends entity_1.IdentifiableMap {
     }
     add(values, setDynamicProperties = false) {
         const setOne = (rowValues, setDynamicProperties = false) => {
-            this.set(Row.toRow(this.table, rowValues, setDynamicProperties));
+            const row = Row.toRow(this.table, rowValues, setDynamicProperties);
+            this.set(row);
         };
         if (Array.isArray(values)) {
             (values || []).forEach((v) => setOne(v, setDynamicProperties));
@@ -385,9 +386,19 @@ class DataTable extends entity_1.Identifiable {
         return (this._rows || (this._rows = new RowMap(this)));
     }
     static from(data, primaryKey = null) {
-        const columnNames = Object.keys(data[0]);
+        if (!data) {
+            return DataTable.Empty;
+        }
+        const rowData = (Array.isArray(data) ? data : [data]);
+        const set = new Set(Object.keys(rowData[0]));
+        rowData.forEach((r) => {
+            Object.keys(r).forEach((k) => {
+                set.add(k);
+            });
+        });
+        const columnNames = Array.from(set.keys());
         const table = new DataTable(new DataTableColumnMap(columnNames, (primaryKey || columnNames[0])));
-        return table.rows.add(data).table;
+        return table.rows.add(rowData).table;
     }
 }
 exports.DataTable = DataTable;
