@@ -99,7 +99,6 @@ export declare class Cell extends Identifiable {
     constructor(column: Column, value: unknown);
     get value(): unknown;
     get column(): Column;
-    static toCell(column: Column, value: unknown): Cell;
 }
 export declare class CellMap extends IdentifiableMap<Cell> {
     constructor(items?: Cell[]);
@@ -108,14 +107,14 @@ export declare class CellMap extends IdentifiableMap<Cell> {
 export declare type RowData = {
     [key: string]: unknown;
 };
-export declare class Row {
+export declare class Row extends Identifiable {
     private readonly _table;
     private readonly _cells;
-    private _id;
     private _json;
+    private _rowid;
     constructor(table: DataTable, values: unknown[], setDynamicProperties?: boolean);
     protected setDynamicProperties(values: unknown[]): unknown[];
-    get rowId(): string;
+    get id(): string;
     get isNull(): boolean;
     get table(): DataTable;
     toJson(): {
@@ -130,12 +129,9 @@ export declare class RowMap extends IdentifiableMap<Row> {
     constructor(table: DataTable);
     get table(): DataTable;
     add(values: (RowData | RowData[]), setDynamicProperties?: boolean): RowMap;
-    toJson(): Array<{
-        [key: string]: unknown;
-    }>;
+    toJson(): RowData[];
     private toCaseInsensitiveString;
     find(columns: string[], values: unknown[]): Row[];
-    protected get itemKey(): string;
 }
 export declare class DataTable extends Identifiable {
     static readonly Empty: DataTable;

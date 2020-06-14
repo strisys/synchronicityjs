@@ -236,13 +236,14 @@ class Cell extends entity_1.Identifiable {
         this._column = column;
     }
     get value() {
-        return (this._value || null);
+        const val = this._value;
+        if (typeof (val) === 'boolean') {
+            return val;
+        }
+        return (val || null);
     }
     get column() {
         return this._column;
-    }
-    static toCell(column, value) {
-        return (new Cell(column, value));
     }
 }
 exports.Cell = Cell;
@@ -251,15 +252,17 @@ class CellMap extends entity_1.IdentifiableMap {
         super(items);
     }
     static toCells(columns, values) {
-        const cells = (values || []).map((v, i) => Cell.toCell(columns.get(i), v));
+        const colentries = columns.values;
+        const cells = (values || []).map((v, i) => new Cell(colentries[i], v));
         return (new CellMap(cells));
     }
 }
 exports.CellMap = CellMap;
-class Row {
+class Row extends entity_1.Identifiable {
     constructor(table, values, setDynamicProperties = false) {
-        this._id = null;
+        super();
         this._json = null;
+        this._rowid = null;
         this._table = table;
         this._cells = CellMap.toCells(table.columns, ((setDynamicProperties) ? this.setDynamicProperties(values) : values));
     }
@@ -281,16 +284,16 @@ class Row {
         }
         return values;
     }
-    get rowId() {
-        if (this._id) {
-            return this._id;
+    get id() {
+        if (this._rowid) {
+            return this._rowid;
         }
         let hash = '';
         // Create delimited hash of the primary key values
         this.table.columns.primaryKey.forEach((pk) => {
             hash += `${(this.cells.get(pk.name).value || 'null')}-`;
         });
-        return hash.substring(0, (hash.length - 1));
+        return (this._rowid = hash.substring(0, (hash.length - 1)));
     }
     get isNull() {
         return false;
@@ -366,9 +369,6 @@ class RowMap extends entity_1.IdentifiableMap {
             rows.push(r);
         });
         return rows;
-    }
-    get itemKey() {
-        return 'rowId';
     }
 }
 exports.RowMap = RowMap;

@@ -29,9 +29,10 @@ describe('DataTable', () => {
   it('kitchen sink testing for hydrated datatable', () => {
     const data = generateData('property');
     const datatable = hydrate(data);
+    const columnNames = Object.keys(data[0]);
+    const pk = columnNames[0];
 
     // columns
-    const columnNames = Object.keys(data[0]);
     assert.equal(datatable.columns.size, columnNames.length);
 
     columnNames.forEach((k) => {
@@ -44,5 +45,21 @@ describe('DataTable', () => {
     });
     
     // rows
+    assert.equal(datatable.rows.size, data.length);
+    
+    for(let r = 0; (r < data.length); r++) {
+      const pkVal = data[r][pk].toString();
+      const row = datatable.rows.get(pkVal)
+
+      assert.isNotNull(row);
+
+      for(const columnName of columnNames) {
+        const cell = row.cells.get(columnName);
+        assert.isNotNull(cell);
+        assert.isTrue(cell === row.cells.get(columnName));
+        assert.equal(cell.column.name, columnName);
+        assert.equal(cell.value, data[r][columnName]);
+      }
+    }
   });
 });

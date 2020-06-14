@@ -24,18 +24,32 @@ describe('DataTable', () => {
     it('kitchen sink testing for hydrated datatable', () => {
         const data = generateData('property');
         const datatable = hydrate(data);
-        // columns
         const columnNames = Object.keys(data[0]);
+        const pk = columnNames[0];
+        // columns
         chai_1.assert.equal(datatable.columns.size, columnNames.length);
         columnNames.forEach((k) => {
-            chai_1.assert.isTrue(datatable.columns.has(k));
             const column = datatable.columns.get(k);
             chai_1.assert.isNotNull(column);
             chai_1.assert.isNotNull(column.type);
             chai_1.assert.equal(column.name, k);
             chai_1.assert.isFalse(column.isNull);
+            chai_1.assert.isTrue(datatable.columns.has(k));
         });
         // rows
+        chai_1.assert.equal(datatable.rows.size, data.length);
+        for (let r = 0; (r < data.length); r++) {
+            const pkVal = data[r][pk].toString();
+            const row = datatable.rows.get(pkVal);
+            chai_1.assert.isNotNull(row);
+            for (const columnName of columnNames) {
+                const cell = row.cells.get(columnName);
+                chai_1.assert.isNotNull(cell);
+                chai_1.assert.isTrue(cell === row.cells.get(columnName));
+                chai_1.assert.equal(cell.column.name, columnName);
+                chai_1.assert.equal(cell.value, data[r][columnName]);
+            }
+        }
     });
 });
 //# sourceMappingURL=query.spec.js.map

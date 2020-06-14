@@ -316,15 +316,17 @@ export class Cell extends Identifiable {
   }
 
   public get value(): unknown {
-    return (this._value || null);
+    const val = this._value;
+
+    if (typeof(val) === 'boolean') {
+      return val;
+    }
+
+    return (val || null);
   }
 
   public get column(): Column {
     return this._column;
-  }
-
-  public static toCell(column: Column, value: unknown): Cell {
-    return (new Cell(column, value));
   }
 }
 
@@ -334,20 +336,22 @@ export class CellMap extends IdentifiableMap<Cell> {
   }
 
   public static toCells(columns: ColumnMap, values: unknown[]): CellMap {
-    const cells = (values || []).map((v, i) => Cell.toCell(columns.get(i), v));
+    const colentries = columns.values;
+    const cells = (values || []).map((v, i) => new Cell(colentries[i], v));
     return (new CellMap(cells));
   }
 }
 
 export type RowData = { [key: string]: unknown };
 
-export class Row {
+export class Row extends Identifiable {
   private readonly _table: DataTable;
   private readonly _cells: CellMap;
-  private _id: string = null;
   private _json: { [key: string]: unknown } = null;
+  private _rowid: string = null;
 
   constructor(table: DataTable, values: unknown[], setDynamicProperties = false) {
+    super();
     this._table = table;
     this._cells = CellMap.toCells(table.columns, ((setDynamicProperties) ? this.setDynamicProperties(values) : values));
   }
@@ -376,9 +380,9 @@ export class Row {
     return values;
   }
 
-  public get rowId(): string {
-    if (this._id) {
-      return this._id;
+  public get id(): string {
+    if (this._rowid) {
+      return this._rowid;
     }
 
     let hash = '';
@@ -388,7 +392,7 @@ export class Row {
       hash += `${(this.cells.get(pk.name).value || 'null')}-`;
     });
 
-    return hash.substring(0, (hash.length - 1));
+    return (this._rowid = hash.substring(0, (hash.length - 1)));
   }
 
   public get isNull(): boolean {
@@ -454,7 +458,7 @@ export class RowMap extends IdentifiableMap<Row> {
     return this;
   }
 
-  public toJson(): Array<{ [key: string]: unknown }> {
+  public toJson(): RowData[] {
     return this.map((r) => r.toJson());
   }
 
@@ -489,10 +493,6 @@ export class RowMap extends IdentifiableMap<Row> {
     });
 
     return rows;
-  }
-
-  protected get itemKey(): string {
-    return 'rowId';
   }
 }
 
