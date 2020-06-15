@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { DataTable, RowData } from '../query';
+import { DataTable, RowData, Cell } from '../query';
 
 const generateData = (searchExpression = ''): RowData[] => {
   const data = [];
@@ -46,7 +46,10 @@ describe('DataTable', () => {
         assert.isNotNull(cell);
         assert.isTrue(cell === row.cells.get(columnName));
         assert.equal(cell.column.name, columnName);
-        assert.equal(cell.value, (rowdata[r][columnName] || null));
+
+        let dataVal = Cell.coerce(rowdata[r][columnName]);
+        assert.equal(cell.value, dataVal, `column:=${columnName},row:=${r}`);
+        assert.equal(row[columnName], dataVal, columnName);
       }
     }
   });

@@ -78,14 +78,12 @@ export declare class Column extends Identifiable {
     set title(value: string);
     get type(): ColumnType;
     set type(value: ColumnType);
-    static toColumms(items: (string[] | Column[])): Column[];
-    static toColumn(column: (string | Column)): Column;
+    static from(items: (string | Column | string[] | Column[])): Column[];
+    toString(): string;
 }
 export declare class ColumnMap extends IdentifiableMap<Column> {
     constructor(items?: (string[] | Column[]));
     get names(): string[];
-    protected static toColumms(items: (string[] | Column[])): Column[];
-    protected static toColumn(column: (string | Column)): Column;
 }
 export declare class DataTableColumnMap extends ColumnMap {
     private readonly _primaryKey;
@@ -97,8 +95,10 @@ export declare class Cell extends Identifiable {
     private readonly _value;
     private readonly _column;
     constructor(column: Column, value: unknown);
+    static coerce(value: unknown): unknown;
     get value(): unknown;
     get column(): Column;
+    toString(): string;
 }
 export declare class CellMap extends IdentifiableMap<Cell> {
     constructor(items?: Cell[]);
@@ -121,7 +121,7 @@ export declare class Row extends Identifiable {
         [key: string]: unknown;
     };
     get cells(): CellMap;
-    static toRow: (table: DataTable, values: RowData, setDynamicProperties?: boolean) => Row;
+    static from(table: DataTable, values: RowData, setDynamicProperties?: boolean): Row;
     toString(): string;
 }
 export declare class RowMap extends IdentifiableMap<Row> {

@@ -229,42 +229,36 @@ export class Column extends Identifiable {
     this._type = (value || ColumnType.Any);
   }
 
-  public static toColumms(items: (string[] | Column[])): Column[] {
-    if (!Array.isArray(items)) {
-      return [];
+  public static from(items: (string | Column | string[] | Column[])): Column[] {
+    const vals = (Array.isArray(items) ? items : [items]);
+  
+    const tryCreateColumn = (name: (string | Column)): Column => {
+      if (typeof (name) === 'string') {
+        return (new Column(name as string));
+      }
+  
+      return ((name as Column) || null);
     }
 
-    if ((items.length > 0) && (typeof (items[0]) === 'string')) {
-      return (items as string[]).map((columnName) => Column.toColumn(columnName));
+    if ((vals.length > 0) && (typeof (vals[0]) === 'string')) {
+      return (vals as string[]).map(tryCreateColumn);
     }
 
     return (items as Column[]);
   }
 
-  public static toColumn(column: (string | Column)): Column {
-    if (typeof (column) === 'string') {
-      return (new Column(column as string));
-    }
-
-    return ((column as Column) || null);
+  public toString(): string {
+    return this.name;
   }
 }
 
 export class ColumnMap extends IdentifiableMap<Column> {
   constructor(items: (string[] | Column[]) = null) {
-    super(ColumnMap.toColumms(items));
+    super(Column.from(items));
   }
 
   public get names(): string[] {
     return this.map((c) => c.name);
-  }
-
-  protected static toColumms(items: (string[] | Column[])): Column[] {
-    return Column.toColumms(items);
-  }
-
-  protected static toColumn(column: (string | Column)): Column {
-    return Column.toColumn(column);
   }
 }
 
@@ -272,7 +266,7 @@ export class DataTableColumnMap extends ColumnMap {
   private readonly _primaryKey: ColumnMap;
 
   constructor(items: (string[] | Column[]) = null, primaryKey: (string | string[]) = null) {
-    super(Column.toColumms(items));
+    super(Column.from(items));
     this._primaryKey = this.validatePrimaryKey(primaryKey);
   }
 
@@ -297,7 +291,7 @@ export class DataTableColumnMap extends ColumnMap {
           throw new Error(`Failed to initialize 'DataTableColumnMap'.  The primary key of ${colName} is not in the set of columns.`);
         }
 
-        return Column.toColumn(colName);
+        return Column.from(colName);
       }));
     }
 
@@ -315,18 +309,20 @@ export class Cell extends Identifiable {
     this._column = column;
   }
 
+  public static coerce(value: unknown): unknown {
+    return ((typeof(value) === 'boolean') ? value : (value || null))
+  }
+
   public get value(): unknown {
-    const val = this._value;
-
-    if (typeof(val) === 'boolean') {
-      return val;
-    }
-
-    return (val || null);
+    return Cell.coerce(this._value);
   }
 
   public get column(): Column {
     return this._column;
+  }
+
+  public toString(): string {
+    return `column:=${this.column},value:=${this.value}`;
   }
 }
 
@@ -336,9 +332,7 @@ export class CellMap extends IdentifiableMap<Cell> {
   }
 
   public static toCells(columns: ColumnMap, values: unknown[]): CellMap {
-    const colentries = columns.values;
-    const cells = (colentries || []).map((c, i) => new Cell(c, (values[i] || null)));
-    return (new CellMap(cells));
+    return (new CellMap(columns.values.map((c, i) => new Cell(c, values[i]))));
   }
 }
 
@@ -357,27 +351,24 @@ export class Row extends Identifiable {
   }
 
   protected setDynamicProperties(values: unknown[]): unknown[] {
-    if ((!values) || (!values.length)) {
-      return values;
-    }
-
-    const columns = this.table.columns;
+    const columns = this.table.columns.values;
+    const vals = (values || []);
 
     // Set a dynamic property on the row for each column
-    for (let i = 0; (i < columns.size); i++) {
-      const column = columns.get(i);
+    for (let c = 0; (c < columns.length); c++) {
+      const column = columns[c];
 
-      if (i > values.length) {
+      if (c > vals.length) {
         this[column.name] = null;
         continue;
       }
 
       if (!this[column.name]) {
-        this[column.name] = values[i];
+        this[column.name]= ((typeof(vals[c]) === 'boolean') ? vals[c] : (vals[c] || null));
       }
     }
 
-    return values;
+    return vals;
   }
 
   public get id(): string {
@@ -422,7 +413,7 @@ export class Row extends Identifiable {
     return this._cells;
   }
 
-  public static toRow = (table: DataTable, values: RowData, setDynamicProperties = false): Row => {
+  public static from(table: DataTable, values: RowData, setDynamicProperties = false): Row {
     const vals = Object.values((values || {}));
     return (new Row(table, vals, setDynamicProperties));
   }
@@ -446,7 +437,7 @@ export class RowMap extends IdentifiableMap<Row> {
 
   public add(values: (RowData | RowData[]), setDynamicProperties = false): RowMap {
     const setOne = (rowValues: { [key: string]: unknown }, setDynamicProperties = false) => {
-      const row = Row.toRow(this.table, rowValues, setDynamicProperties);
+      const row = Row.from(this.table, rowValues, setDynamicProperties);
       this.set(row);
     }
     
@@ -533,6 +524,6 @@ export class DataTable extends Identifiable {
     const columnNames = Array.from(set.keys());
     const columns = new DataTableColumnMap(columnNames, (primaryKey || columnNames[0]));
 
-    return (new DataTable(columns)).rows.add(rowData).table;
+    return (new DataTable(columns)).rows.add(rowData, true).table;
   }
 }
