@@ -38,7 +38,7 @@ describe('DataTable', () => {
                 chai_1.assert.isNotNull(cell);
                 chai_1.assert.isTrue(cell === row.cells.get(columnName));
                 chai_1.assert.equal(cell.column.name, columnName);
-                let dataVal = query_1.Cell.coerce(rowdata[r][columnName]);
+                const dataVal = query_1.Cell.coerce(rowdata[r][columnName]);
                 chai_1.assert.equal(cell.value, dataVal, `column:=${columnName},row:=${r}`);
                 chai_1.assert.equal(row[columnName], dataVal, columnName);
             }
