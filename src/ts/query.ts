@@ -531,7 +531,8 @@ export class DataTable extends Identifiable {
     });
     
     const columnNames = Array.from(set.keys());
-    const table = new DataTable(new DataTableColumnMap(columnNames, (primaryKey || columnNames[0])));
-    return table.rows.add(rowData).table;
+    const columns = new DataTableColumnMap(columnNames, (primaryKey || columnNames[0]));
+
+    return (new DataTable(columns)).rows.add(rowData).table;
   }
 }
