@@ -32,7 +32,7 @@ export class EntityQueryParameters {
   }
 
   public set searchString(value: string) {
-    this._searchString = (value || '');
+    this._searchString = ((value) ? JSON.stringify(value) : '');
   }
 
   public get previous(): EntityQueryParameters {
@@ -200,7 +200,7 @@ export class Column extends Identifiable {
   private _type: ColumnType;
 
   public constructor(name: string, title: string = null, type: ColumnType = ColumnType.Any) {
-    super((name || 'null'));
+    super(name);
     this._title = (title || this.id);
     this._type = (type || ColumnType.Any);
   }

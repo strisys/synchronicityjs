@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { Enum, Identifiable, IdentifiableMap } from '../entity';
+import { Enum, Identifiable, IdentifiableMap } from '../';
 
 class Customer extends Identifiable {
   public static readonly Null = new Customer('0');

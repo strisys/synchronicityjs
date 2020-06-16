@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const chai_1 = require("chai");
-const query_1 = require("../query");
+const __1 = require("../");
 const generateData = (searchExpression = '') => {
     const data = [];
     if (searchExpression.indexOf('property') > -1) {
@@ -14,7 +14,7 @@ const generateData = (searchExpression = '') => {
 describe('DataTable', () => {
     it('kitchen sink testing for hydrated datatable', () => {
         const rowdata = generateData('property');
-        const datatable = query_1.DataTable.from(rowdata, 'PropertyID');
+        const datatable = __1.DataTable.from(rowdata, 'PropertyID');
         const columnNames = Object.keys(rowdata[0]);
         const pk = columnNames[0];
         // columns
@@ -38,7 +38,7 @@ describe('DataTable', () => {
                 chai_1.assert.isNotNull(cell);
                 chai_1.assert.isTrue(cell === row.cells.get(columnName));
                 chai_1.assert.equal(cell.column.name, columnName);
-                const dataVal = query_1.Cell.coerce(rowdata[r][columnName]);
+                const dataVal = __1.Cell.coerce(rowdata[r][columnName]);
                 chai_1.assert.equal(cell.value, dataVal, `column:=${columnName},row:=${r}`);
                 chai_1.assert.equal(row[columnName], dataVal, columnName);
             }

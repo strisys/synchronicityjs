@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { DataTable, RowData, Cell } from '../query';
+import { DataTable, RowData, Cell } from '../';
 
 const generateData = (searchExpression = ''): RowData[] => {
   const data = [];

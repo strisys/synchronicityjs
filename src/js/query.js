@@ -32,7 +32,7 @@ class EntityQueryParameters {
         return (this._searchString || '');
     }
     set searchString(value) {
-        this._searchString = (value || '');
+        this._searchString = ((value) ? JSON.stringify(value) : '');
     }
     get previous() {
         return (this._previous || EntityQueryParameters.Null);
@@ -147,7 +147,7 @@ ColumnType.Date = new ColumnType('4', 'date');
 ColumnType.Boolean = new ColumnType('5', 'boolean');
 class Column extends entity_1.Identifiable {
     constructor(name, title = null, type = ColumnType.Any) {
-        super((name || 'null'));
+        super(name);
         this._title = (title || this.id);
         this._type = (type || ColumnType.Any);
     }

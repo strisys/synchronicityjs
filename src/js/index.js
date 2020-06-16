@@ -1,6 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
-tslib_1.__exportStar(require("./entity"), exports);
-tslib_1.__exportStar(require("./query"), exports);
+var entity_1 = require("./entity");
+Object.defineProperty(exports, "Enum", { enumerable: true, get: function () { return entity_1.Enum; } });
+Object.defineProperty(exports, "Identifiable", { enumerable: true, get: function () { return entity_1.Identifiable; } });
+Object.defineProperty(exports, "IdentifiableMap", { enumerable: true, get: function () { return entity_1.IdentifiableMap; } });
+var query_1 = require("./query");
+Object.defineProperty(exports, "EntityQueryParameters", { enumerable: true, get: function () { return query_1.EntityQueryParameters; } });
+Object.defineProperty(exports, "EntityQueryPage", { enumerable: true, get: function () { return query_1.EntityQueryPage; } });
+Object.defineProperty(exports, "PageDirection", { enumerable: true, get: function () { return query_1.PageDirection; } });
+Object.defineProperty(exports, "ColumnType", { enumerable: true, get: function () { return query_1.ColumnType; } });
+Object.defineProperty(exports, "Column", { enumerable: true, get: function () { return query_1.Column; } });
+Object.defineProperty(exports, "ColumnMap", { enumerable: true, get: function () { return query_1.ColumnMap; } });
+Object.defineProperty(exports, "DataTableColumnMap", { enumerable: true, get: function () { return query_1.DataTableColumnMap; } });
+Object.defineProperty(exports, "Cell", { enumerable: true, get: function () { return query_1.Cell; } });
+Object.defineProperty(exports, "CellMap", { enumerable: true, get: function () { return query_1.CellMap; } });
+Object.defineProperty(exports, "Row", { enumerable: true, get: function () { return query_1.Row; } });
+Object.defineProperty(exports, "RowMap", { enumerable: true, get: function () { return query_1.RowMap; } });
+Object.defineProperty(exports, "DataTable", { enumerable: true, get: function () { return query_1.DataTable; } });
 //# sourceMappingURL=index.js.map

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const chai_1 = require("chai");
-const entity_1 = require("../entity");
-class Customer extends entity_1.Identifiable {
+const __1 = require("../");
+class Customer extends __1.Identifiable {
     constructor(id = null) {
         super(id);
     }
@@ -33,7 +33,7 @@ describe('Identifiable', () => {
         chai_1.assert.isTrue(Customer.Null.equals(Customer.Null));
     });
 });
-class Fruit extends entity_1.Enum {
+class Fruit extends __1.Enum {
     constructor(id, value) {
         super(Fruit.TypeName, id, value);
     }
@@ -153,7 +153,7 @@ describe('Enum', () => {
         chai_1.assert.isTrue(Fruit.Pear.isNotOneOf([Fruit.Apple]));
     });
 });
-class CustomerMap extends entity_1.IdentifiableMap {
+class CustomerMap extends __1.IdentifiableMap {
     constructor(entities) {
         super(entities);
     }
