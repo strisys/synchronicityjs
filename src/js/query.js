@@ -272,7 +272,7 @@ class Row extends entity_1.Identifiable {
                 continue;
             }
             const hasProperty = Object.prototype.hasOwnProperty.call(this, column.name);
-            this[((hasProperty) ? `_${column.name}` : column.name)] = Cell.coerce(vals[c]);
+            this[((hasProperty || (column.name === 'id')) ? `_${column.name}` : column.name)] = Cell.coerce(vals[c]);
         }
         return vals;
     }
