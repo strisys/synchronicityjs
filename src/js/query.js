@@ -111,7 +111,7 @@ class PageDirection extends entity_1.Enum {
 }
 exports.PageDirection = PageDirection;
 PageDirection.TypeName = 'PageDirection';
-PageDirection.None = new PageDirection('0', '');
+PageDirection.None = new PageDirection('0', 'None');
 PageDirection.Previous = new PageDirection('1', 'Previous');
 PageDirection.Next = new PageDirection('2', 'Next');
 class ColumnType extends entity_1.Enum {

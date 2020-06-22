@@ -108,11 +108,11 @@ export class EntityQueryPage<T> {
   }
 }
 
-export type PageDirectionCode = ('Previous' | 'Next' | '');
+export type PageDirectionCode = ('Previous' | 'Next' | 'None');
 
 export class PageDirection extends Enum<PageDirection> {
   private static readonly TypeName: string = 'PageDirection';
-  public static readonly None: PageDirection = new PageDirection('0', '');
+  public static readonly None: PageDirection = new PageDirection('0', 'None');
   public static readonly Previous: PageDirection = new PageDirection('1', 'Previous');
   public static readonly Next: PageDirection = new PageDirection('2', 'Next');
 

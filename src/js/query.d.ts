@@ -35,7 +35,7 @@ export declare class EntityQueryPage<T> {
     get previousUrl(): string;
     get nextUrl(): string;
 }
-export declare type PageDirectionCode = ('Previous' | 'Next' | '');
+export declare type PageDirectionCode = ('Previous' | 'Next' | 'None');
 export declare class PageDirection extends Enum<PageDirection> {
     private static readonly TypeName;
     static readonly None: PageDirection;
