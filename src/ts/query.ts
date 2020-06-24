@@ -356,15 +356,14 @@ export class Row extends Identifiable {
 
     // Set a dynamic property on the row for each column
     for (let c = 0; (c < columns.length); c++) {
-      const column = columns[c];
+      const prop = `@query.${columns[c].name}`;
 
       if (c > vals.length) {
-        this[column.name] = null;
+        this[prop] = null;
         continue;
       }
 
-      const hasProperty = Object.prototype.hasOwnProperty.call(this, column.name);
-      this[((hasProperty || (column.name === 'id')) ? `_${column.name}`: column.name)] = Cell.coerce(vals[c]);
+      this[prop] = Cell.coerce(vals[c]);
     }
 
     return vals;

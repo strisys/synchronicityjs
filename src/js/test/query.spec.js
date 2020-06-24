@@ -40,7 +40,7 @@ describe('DataTable', () => {
                 chai_1.assert.equal(cell.column.name, columnName);
                 const dataVal = __1.Cell.coerce(rowdata[r][columnName]);
                 chai_1.assert.equal(cell.value, dataVal, `column:=${columnName},row:=${r}`);
-                chai_1.assert.equal(row[columnName], dataVal, columnName);
+                chai_1.assert.equal(row[`@query.${columnName}`], dataVal, columnName);
             }
         }
     });
