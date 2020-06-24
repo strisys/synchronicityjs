@@ -78,13 +78,15 @@ export class EntityQueryPage<T> {
   private readonly _previousUrl: string;
   private readonly _nextUrl: string;
   private readonly _value: T;
+  private _executionDuration: number;
 
-  constructor(queryParameters: EntityQueryParameters, value: T, totalRows: number = null, previousUrl = '', nextUrl = '') {
+  constructor(queryParameters: EntityQueryParameters, value: T, totalRows: number = null, previousUrl = '', nextUrl = '', executionDuration = null) {
     this._queryParameters = queryParameters;
     this._value = value;
     this._totalRows = totalRows;
     this._previousUrl = previousUrl;
     this._nextUrl = nextUrl;
+    this._executionDuration = executionDuration;
   }
 
   public get queryParameters(): EntityQueryParameters {
@@ -97,6 +99,10 @@ export class EntityQueryPage<T> {
 
   public get totalRows(): number {
     return (this._totalRows || null);
+  }
+
+  public get executionDuration(): number {
+    return (this._executionDuration || null);
   }
 
   public get previousUrl(): string {
