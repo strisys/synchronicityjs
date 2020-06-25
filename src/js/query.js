@@ -56,12 +56,13 @@ class EntityQueryParameters {
 exports.EntityQueryParameters = EntityQueryParameters;
 EntityQueryParameters.Null = new EntityQueryParameters(0, 0, '');
 class EntityQueryPage {
-    constructor(queryParameters, value, totalRows = null, previousUrl = '', nextUrl = '') {
+    constructor(queryParameters, value, totalRows = null, previousUrl = '', nextUrl = '', executionDuration = null) {
         this._queryParameters = queryParameters;
         this._value = value;
         this._totalRows = totalRows;
         this._previousUrl = previousUrl;
         this._nextUrl = nextUrl;
+        this._executionDuration = executionDuration;
     }
     get queryParameters() {
         return this._queryParameters;
@@ -71,6 +72,9 @@ class EntityQueryPage {
     }
     get totalRows() {
         return (this._totalRows || null);
+    }
+    get executionDuration() {
+        return (this._executionDuration || null);
     }
     get previousUrl() {
         return (this._previousUrl || '');

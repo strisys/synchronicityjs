@@ -28,10 +28,12 @@ export declare class EntityQueryPage<T> {
     private readonly _previousUrl;
     private readonly _nextUrl;
     private readonly _value;
-    constructor(queryParameters: EntityQueryParameters, value: T, totalRows?: number, previousUrl?: string, nextUrl?: string);
+    private _executionDuration;
+    constructor(queryParameters: EntityQueryParameters, value: T, totalRows?: number, previousUrl?: string, nextUrl?: string, executionDuration?: any);
     get queryParameters(): EntityQueryParameters;
     get value(): T;
     get totalRows(): number;
+    get executionDuration(): number;
     get previousUrl(): string;
     get nextUrl(): string;
 }

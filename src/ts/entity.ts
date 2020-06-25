@@ -227,7 +227,13 @@ export abstract class IdentifiableMap<T> {
     const items = ((Array.isArray(elements)) ? [...elements] : [elements]);
 
     items.forEach((e) => {
-      this._inner.set(e[this.itemKey], e);
+      const key = e[this.itemKey];
+
+      if (isNullOrUndefined(key)) {
+        throw new Error(`Failed to set map item. The key value from the property of '${this.itemKey}' is null or undefined.  Override the 'itemKey' member to specify a the key property to use for the items added to the map.`);
+      }
+
+      this._inner.set(key, e);
     });
 
     return this;
