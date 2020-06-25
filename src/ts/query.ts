@@ -347,7 +347,6 @@ export type RowData = { [key: string]: unknown };
 export class Row extends Identifiable {
   private readonly _table: DataTable;
   private readonly _cells: CellMap;
-  private _json: { [key: string]: unknown } = null;
   private _rowid: string = null;
 
   constructor(table: DataTable, values: unknown[], setDynamicProperties = false) {
@@ -399,18 +398,14 @@ export class Row extends Identifiable {
   }
 
   public toJson(): { [key: string]: unknown } {
-    if (!this._json) {
-      const json = {};
+    const json = {};
 
-      this.table.columns.forEach((c) => {
-        const cell = this.cells.get(c.name);
-        json[c.name] = (cell ? cell.value : null);
-      });
+    this.table.columns.forEach((c) => {
+      const cell = this.cells.get(c.name);
+      json[c.name] = (cell ? cell.value : null);
+    });
 
-      return (this._json = json);
-    }
-
-    return this._json;
+    return json;
   }
 
   public get cells(): CellMap {

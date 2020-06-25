@@ -260,7 +260,6 @@ exports.CellMap = CellMap;
 class Row extends entity_1.Identifiable {
     constructor(table, values, setDynamicProperties = false) {
         super();
-        this._json = null;
         this._rowid = null;
         this._table = table;
         this._cells = CellMap.toCells(table.columns, ((setDynamicProperties) ? this.setDynamicProperties(values) : values));
@@ -297,15 +296,12 @@ class Row extends entity_1.Identifiable {
         return this._table;
     }
     toJson() {
-        if (!this._json) {
-            const json = {};
-            this.table.columns.forEach((c) => {
-                const cell = this.cells.get(c.name);
-                json[c.name] = (cell ? cell.value : null);
-            });
-            return (this._json = json);
-        }
-        return this._json;
+        const json = {};
+        this.table.columns.forEach((c) => {
+            const cell = this.cells.get(c.name);
+            json[c.name] = (cell ? cell.value : null);
+        });
+        return json;
     }
     get cells() {
         return this._cells;

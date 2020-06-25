@@ -112,7 +112,6 @@ export declare type RowData = {
 export declare class Row extends Identifiable {
     private readonly _table;
     private readonly _cells;
-    private _json;
     private _rowid;
     constructor(table: DataTable, values: unknown[], setDynamicProperties?: boolean);
     protected setDynamicProperties(values: unknown[]): unknown[];
