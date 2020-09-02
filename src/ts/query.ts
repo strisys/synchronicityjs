@@ -1,4 +1,4 @@
-import { Enum, Identifiable, IdentifiableMap } from './entity';
+import { Enum, Identifiable, IdentifiableMap, isNullOrUndefined } from './entity';
 
 export class EntityQueryParameters {
   public static readonly Null: EntityQueryParameters = new EntityQueryParameters(0, 0, '');
@@ -439,7 +439,7 @@ export class RowMap extends IdentifiableMap<Row> {
   }
 
   public add(values: (RowData | RowData[]), setDynamicProperties = false): RowMap {
-    const setOne = (rowValues: { [key: string]: unknown }, setDynamicProperties = false) => {
+    const setOne = (rowValues: RowData, setDynamicProperties = false) => {
       const row = Row.from(this.table, rowValues, setDynamicProperties);
       this.set(row);
     }
@@ -528,5 +528,35 @@ export class DataTable extends Identifiable {
     const columns = new DataTableColumnMap(columnNames, (primaryKey || columnNames[0]));
 
     return (new DataTable(columns)).rows.add(rowData, true).table;
+  }
+
+  public static merge(tables: DataTable[]): DataTable {
+    const copy = (tables || []).filter((t) => {
+      return (!isNullOrUndefined(t));
+    });
+
+    if (!copy.length) {
+      return DataTable.Empty;
+    }
+
+    let mergedRows: RowData[] = copy[0].rows.values.map((r) => {
+      return r.toJson();
+    });
+
+    for(let t = 1; (t < copy.length); t++) {
+      const a = copy[t - 1];
+      const b = copy[t];
+
+      // make sure all the columns match otherwise the merge does not make sense
+      if (!a.columns.equals(b.columns)) {
+        throw new Error('Failed to merge data tables.  The columns for each table do not match.');
+      }
+
+      mergedRows = mergedRows.concat(copy[t].rows.values.map((r) => {
+        return r.toJson();
+      }));   
+    }
+   
+    return (new DataTable(tables[0].columns, mergedRows));
   }
 }

@@ -143,4 +143,5 @@ export declare class DataTable extends Identifiable {
     get columns(): DataTableColumnMap;
     get rows(): RowMap;
     static from(data: (RowData | RowData[]), primaryKey?: (string | string[])): DataTable;
+    static merge(tables: DataTable[]): DataTable;
 }

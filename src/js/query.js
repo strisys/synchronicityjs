@@ -394,6 +394,29 @@ class DataTable extends entity_1.Identifiable {
         const columns = new DataTableColumnMap(columnNames, (primaryKey || columnNames[0]));
         return (new DataTable(columns)).rows.add(rowData, true).table;
     }
+    static merge(tables) {
+        const copy = (tables || []).filter((t) => {
+            return (!entity_1.isNullOrUndefined(t));
+        });
+        if (!copy.length) {
+            return DataTable.Empty;
+        }
+        let mergedRows = copy[0].rows.values.map((r) => {
+            return r.toJson();
+        });
+        for (let t = 1; (t < copy.length); t++) {
+            const a = copy[t - 1];
+            const b = copy[t];
+            // make sure all the columns match otherwise the merge does not make sense
+            if (!a.columns.equals(b.columns)) {
+                throw new Error('Failed to merge data tables.  The columns for each table do not match.');
+            }
+            mergedRows = mergedRows.concat(copy[t].rows.values.map((r) => {
+                return r.toJson();
+            }));
+        }
+        return (new DataTable(tables[0].columns, mergedRows));
+    }
 }
 exports.DataTable = DataTable;
 DataTable.Empty = new DataTable(new DataTableColumnMap());
