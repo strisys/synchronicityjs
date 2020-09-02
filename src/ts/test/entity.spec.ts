@@ -250,7 +250,10 @@ describe('IdentifiableMap', () => {
   });
 
   it('clear', () => {
+    // arrange
     const map = new CustomerMap(entities);
+
+    // act, assert
     assert.equal(map.clear().size, 0);
   });
 
@@ -260,28 +263,39 @@ describe('IdentifiableMap', () => {
   });
 
   it('equals (different instances with same items)', () => {
+    // arrange
     const a = new CustomerMap(entities);
     const b = new CustomerMap(entities);
+
+    // assert
     assert.isTrue(a.equals(b));
     assert.isTrue(b.equals(a));
   });
 
   it('equals (different instances with different sizes)', () => {
+    // arrange
     const i1 = [...entities];
     const i2 = [...entities].splice(1);
 
+    // act
     const a = new CustomerMap(i1);
     const b = new CustomerMap(i2);
+
+    // assert
     assert.isFalse(a.equals(b));
     assert.isFalse(b.equals(a));
   });
 
   it('equals (different instances with different items)', () => {
+    // arrange
     const i1 = [new Customer('1'), new Customer('2')];
     const i2 = [new Customer('1'), new Customer('3')];
 
+    // act
     const a = new CustomerMap(i1);
     const b = new CustomerMap(i2);
+
+    // assert
     assert.isFalse(a.equals(b));
     assert.isFalse(b.equals(a));
   });
