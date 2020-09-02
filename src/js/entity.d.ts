@@ -62,5 +62,7 @@ export declare abstract class IdentifiableMap<T> {
     map(fn: (item: T, index: number) => any): any;
     any(keys: (string[] | number[])): boolean;
     indexOf(value: (T | string)): number;
+    equals(other: IdentifiableMap<T>): boolean;
+    toString(): string;
 }
 export {};

@@ -81,6 +81,7 @@ export declare class Column extends Identifiable {
     get type(): ColumnType;
     set type(value: ColumnType);
     static from(items: (string | Column | string[] | Column[])): Column[];
+    equals(other: Column): boolean;
     toString(): string;
 }
 export declare class ColumnMap extends IdentifiableMap<Column> {

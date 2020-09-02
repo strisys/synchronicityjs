@@ -205,5 +205,31 @@ describe('IdentifiableMap', () => {
         const map = new CustomerMap(entities);
         chai_1.assert.equal(map.clear().size, 0);
     });
+    it('equals (same instance)', () => {
+        const map = new CustomerMap(entities);
+        chai_1.assert.isTrue(map.equals(map));
+    });
+    it('equals (different instances with same items)', () => {
+        const a = new CustomerMap(entities);
+        const b = new CustomerMap(entities);
+        chai_1.assert.isTrue(a.equals(b));
+        chai_1.assert.isTrue(b.equals(a));
+    });
+    it('equals (different instances with different sizes)', () => {
+        const i1 = [...entities];
+        const i2 = [...entities].splice(1);
+        const a = new CustomerMap(i1);
+        const b = new CustomerMap(i2);
+        chai_1.assert.isFalse(a.equals(b));
+        chai_1.assert.isFalse(b.equals(a));
+    });
+    it('equals (different instances with different items)', () => {
+        const i1 = [...entities];
+        const i2 = [new Customer('1'), new Customer('3')];
+        const a = new CustomerMap(i1);
+        const b = new CustomerMap(i2);
+        chai_1.assert.isFalse(a.equals(b));
+        chai_1.assert.isFalse(b.equals(a));
+    });
 });
 //# sourceMappingURL=entity.spec.js.map

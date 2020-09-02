@@ -227,6 +227,10 @@ export abstract class IdentifiableMap<T> {
     const items = ((Array.isArray(elements)) ? [...elements] : [elements]);
 
     items.forEach((e) => {
+      if (isNullOrUndefined(e)) {
+        return;
+      }
+
       const key = e[this.itemKey];
 
       if (isNullOrUndefined(key)) {
@@ -325,5 +329,41 @@ export abstract class IdentifiableMap<T> {
     return this.keys.findIndex((k) => {
       return (key === k);
     })
+  }
+
+  public equals(other: IdentifiableMap<T>): boolean {
+    if (!other) {
+      return false;
+    }
+
+    if (other === this) {
+      return true;
+    }
+
+    if (other.size !== this.size) {
+      return false;
+    }
+
+    const keyName = this.itemKey;
+
+    for(let i = 0; (i < this.size); i++) {
+      const elem = this.get(i);
+
+      if (!elem) { 
+        return false;
+      }
+
+      const keyValue = elem[keyName];
+
+      if (!other.has(keyValue)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  public toString(): string {
+    return `size:=${this.size}`;
   }
 }

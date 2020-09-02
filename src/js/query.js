@@ -186,6 +186,9 @@ class Column extends entity_1.Identifiable {
         }
         return items;
     }
+    equals(other) {
+        return ((other) ? ((this === other) || (this.name === other.name)) : false);
+    }
     toString() {
         return this.name;
     }

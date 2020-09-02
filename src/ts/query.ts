@@ -253,6 +253,10 @@ export class Column extends Identifiable {
     return (items as Column[]);
   }
 
+  public equals(other: Column): boolean {
+    return ((other) ? ((this === other) || (this.name === other.name)) : false);
+  }
+
   public toString(): string {
     return this.name;
   }

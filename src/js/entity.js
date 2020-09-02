@@ -166,6 +166,9 @@ class IdentifiableMap {
         }
         const items = ((Array.isArray(elements)) ? [...elements] : [elements]);
         items.forEach((e) => {
+            if (exports.isNullOrUndefined(e)) {
+                return;
+            }
             const key = e[this.itemKey];
             if (exports.isNullOrUndefined(key)) {
                 throw new Error(`Failed to set map item. The key value from the property of '${this.itemKey}' is null or undefined.  Override the 'itemKey' member to specify a the key property to use for the items added to the map.`);
@@ -238,6 +241,32 @@ class IdentifiableMap {
         return this.keys.findIndex((k) => {
             return (key === k);
         });
+    }
+    equals(other) {
+        if (!other) {
+            return false;
+        }
+        if (other === this) {
+            return true;
+        }
+        if (other.size !== this.size) {
+            return false;
+        }
+        const keyName = this.itemKey;
+        for (let i = 0; (i < this.size); i++) {
+            const elem = this.get(i);
+            if (!elem) {
+                return false;
+            }
+            const keyValue = elem[keyName];
+            if (!other.has(keyValue)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    toString() {
+        return `size:=${this.size}`;
     }
 }
 exports.IdentifiableMap = IdentifiableMap;
