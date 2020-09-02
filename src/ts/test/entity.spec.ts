@@ -277,7 +277,7 @@ describe('IdentifiableMap', () => {
   });
 
   it('equals (different instances with different items)', () => {
-    const i1 = [...entities];
+    const i1 = [new Customer('1'), new Customer('2')];
     const i2 = [new Customer('1'), new Customer('3')];
 
     const a = new CustomerMap(i1);
