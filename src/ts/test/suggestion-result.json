@@ -1,0 +1,85 @@
+{
+  "@odata.context": "https://fischer-search-prod.search.windows.net/indexes('vproperty')/$metadata#docs(*)",
+  "value": [
+      {
+          "@search.text": "123 mAIN",
+          "id": "2a704fc9-9342-0de8-6e43-beefdffb4eb7",
+          "address": "123 mAIN",
+          "city": "Marietta",
+          "stateCode": "GA",
+          "zipCode": "30068"
+      },
+      {
+          "@search.text": "10600 N Main St",
+          "id": "9ccfcfd6-c5ff-d5a9-b4c8-4e05b1119f07",
+          "address": "10600 N Main St",
+          "city": "Kansas City",
+          "stateCode": "MO",
+          "zipCode": "64155"
+      },
+      {
+          "@search.text": "3731 Village Main Street",
+          "id": "892daff0-307b-cce7-58ca-3dc3dbec12b7",
+          "address": "3731 Village Main Street",
+          "city": "Loganville",
+          "stateCode": "GA",
+          "zipCode": "30052"
+      },
+      {
+          "@search.text": "214 N Main St",
+          "id": "a09337ad-332b-be66-f847-07e8d1db756d",
+          "address": "214 N Main St",
+          "city": "Bethel",
+          "stateCode": "OH",
+          "zipCode": "45106"
+      },
+      {
+          "@search.text": "123 Main St",
+          "id": "d2d1e182-7994-20e6-c4a2-17a0e4a33503",
+          "address": "123 Main St",
+          "city": "Olathe",
+          "stateCode": "MO",
+          "zipCode": "66061"
+      },
+      {
+          "@search.text": "10314 N Main St",
+          "id": "3c2f0896-5626-376b-03dc-ad8d9d003eaa",
+          "address": "10314 N Main St",
+          "city": "Kansas City",
+          "stateCode": "MO",
+          "zipCode": "64155"
+      },
+      {
+          "@search.text": "1708 Main Divide Drive",
+          "id": "d91ec9bf-3b1c-30f5-d21c-046c510dd2bd",
+          "address": "1708 Main Divide Drive",
+          "city": "Wake Forest",
+          "stateCode": "NC",
+          "zipCode": "27587"
+      },
+      {
+          "@search.text": "10988 Main St",
+          "id": "da674eb3-5e9f-d1ca-89f5-ded534588426",
+          "address": "10988 Main St",
+          "city": "Cincinnati",
+          "stateCode": "OH",
+          "zipCode": "45241"
+      },
+      {
+          "@search.text": "3116 Main Street",
+          "id": "83e43a8f-6a8d-9daa-c0d5-592276d65bb6",
+          "address": "3116 Main Street",
+          "city": "Granbury",
+          "stateCode": "TX",
+          "zipCode": "76049"
+      },
+      {
+          "@search.text": "3750 Village Main Street",
+          "id": "a27d72a2-873d-f44c-93a9-efce48014098",
+          "address": "3750 Village Main Street",
+          "city": "Loganville",
+          "stateCode": "GA",
+          "zipCode": "30052"
+      }
+  ]
+}

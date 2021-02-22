@@ -10,7 +10,10 @@
     "watch": false,
     "traceResolution": false,
     "importHelpers": true,
+    "resolveJsonModule": true,
     "lib": [
+      "DOM",
+      "DOM.Iterable",
       "es2015"
     ],
     "forceConsistentCasingInFileNames": true,

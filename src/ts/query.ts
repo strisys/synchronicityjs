@@ -1,5 +1,102 @@
 import { Enum, Identifiable, IdentifiableMap, isNullOrUndefined } from './entity';
 
+export type AndOrCode = ('null' | 'and' | 'or');
+
+export class AndOr extends Enum<AndOr> {
+  private static readonly TypeName = 'and-or';
+  public static readonly Null = new AndOr('0', 'null');
+  public static readonly And = new AndOr('1', 'and');
+  public static readonly Or = new AndOr('2', 'or');
+
+  private constructor(id: string, value: AndOrCode) {
+    super(AndOr.TypeName, id, value);
+  }
+
+  public get isAnd(): boolean {
+    return this.is(AndOr.And);
+  }
+
+  public get isOr(): boolean {
+    return this.is(AndOr.Or);
+  }
+
+  public static tryParse(keyOrValue: (string | AndOrCode)): AndOr {
+    return (<AndOr>AndOr.attemptParse(AndOr.TypeName, keyOrValue));
+  }
+
+  public static get size(): number {
+    return AndOr.getSize(AndOr.TypeName);
+  }
+
+  public static get random(): AndOr {
+    return (AndOr.getRandom(AndOr.TypeName) as AndOr);
+  }
+
+  public static get entries(): AndOr[] {
+    return (AndOr.getEntries(AndOr.TypeName) as AndOr[]);
+  }
+
+  public static get keys(): string[] {
+    return AndOr.getKeys(AndOr.TypeName);
+  }
+
+  public static get values(): AndOrCode[] {
+    return (AndOr.getValues(AndOr.TypeName) as AndOrCode[]);
+  }
+
+  public static forEach(fn: (value: AndOr, index: number) => void): void {
+    AndOr.forEachOne(AndOr.TypeName, fn);
+  }
+}
+
+export type AscDescCode = ('null' | 'asc' | 'desc');
+export class AscDesc extends Enum<AscDescCode> {
+  private static readonly TypeName = 'AscDesc';
+  public static readonly Null = new AscDesc('0', 'null');
+  public static readonly Asc = new AscDesc('1', 'asc');
+  public static readonly Desc = new AscDesc('2', 'desc');
+
+  private constructor(id: string, value: AscDescCode) {
+    super(AscDesc.TypeName, id, value);
+  }
+
+  public get isAsc(): boolean {
+    return this.is(AscDesc.Asc);
+  }
+
+  public get isDesc(): boolean {
+    return this.is(AscDesc.Desc);
+  }
+
+  public static tryParse(keyOrValue: (string | AscDescCode)): AscDesc {
+    return (AscDesc.attemptParse(AscDesc.TypeName, keyOrValue) as AscDesc);
+  }
+
+  public static get size(): number {
+    return AscDesc.getSize(AscDesc.TypeName);
+  }
+
+  public static get random(): AscDesc {
+    return (AscDesc.getRandom(AscDesc.TypeName) as AscDesc);
+  }
+
+  public static get entries(): AscDesc[] {
+    return (AscDesc.getEntries(AscDesc.TypeName) as AscDesc[]);
+  }
+
+  public static get keys(): string[] {
+    return AscDesc.getKeys(AscDesc.TypeName);
+  }
+
+  public static get values(): AscDescCode[] {
+    return (AscDesc.getValues(AscDesc.TypeName) as AscDescCode[]);
+  }
+
+  public static forEach(fn: (value: AscDesc, index: number) => void): void {
+    AscDesc.forEachOne(AscDesc.TypeName, fn);
+  }
+}
+
 export class EntityQueryParameters {
   public static readonly Null: EntityQueryParameters = new EntityQueryParameters(0, 0, '');
 

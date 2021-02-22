@@ -1,4 +1,38 @@
 import { Enum, Identifiable, IdentifiableMap } from './entity';
+export declare type AndOrCode = ('null' | 'and' | 'or');
+export declare class AndOr extends Enum<AndOr> {
+    private static readonly TypeName;
+    static readonly Null: AndOr;
+    static readonly And: AndOr;
+    static readonly Or: AndOr;
+    private constructor();
+    get isAnd(): boolean;
+    get isOr(): boolean;
+    static tryParse(keyOrValue: (string | AndOrCode)): AndOr;
+    static get size(): number;
+    static get random(): AndOr;
+    static get entries(): AndOr[];
+    static get keys(): string[];
+    static get values(): AndOrCode[];
+    static forEach(fn: (value: AndOr, index: number) => void): void;
+}
+export declare type AscDescCode = ('null' | 'asc' | 'desc');
+export declare class AscDesc extends Enum<AscDescCode> {
+    private static readonly TypeName;
+    static readonly Null: AscDesc;
+    static readonly Asc: AscDesc;
+    static readonly Desc: AscDesc;
+    private constructor();
+    get isAsc(): boolean;
+    get isDesc(): boolean;
+    static tryParse(keyOrValue: (string | AscDescCode)): AscDesc;
+    static get size(): number;
+    static get random(): AscDesc;
+    static get entries(): AscDesc[];
+    static get keys(): string[];
+    static get values(): AscDescCode[];
+    static forEach(fn: (value: AscDesc, index: number) => void): void;
+}
 export declare class EntityQueryParameters {
     static readonly Null: EntityQueryParameters;
     private _pageNumber;

@@ -1,7 +1,81 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DataTable = exports.RowMap = exports.Row = exports.CellMap = exports.Cell = exports.DataTableColumnMap = exports.ColumnMap = exports.Column = exports.ColumnType = exports.PageDirection = exports.EntityQueryPage = exports.EntityQueryParameters = void 0;
+exports.DataTable = exports.RowMap = exports.Row = exports.CellMap = exports.Cell = exports.DataTableColumnMap = exports.ColumnMap = exports.Column = exports.ColumnType = exports.PageDirection = exports.EntityQueryPage = exports.EntityQueryParameters = exports.AscDesc = exports.AndOr = void 0;
 const entity_1 = require("./entity");
+class AndOr extends entity_1.Enum {
+    constructor(id, value) {
+        super(AndOr.TypeName, id, value);
+    }
+    get isAnd() {
+        return this.is(AndOr.And);
+    }
+    get isOr() {
+        return this.is(AndOr.Or);
+    }
+    static tryParse(keyOrValue) {
+        return AndOr.attemptParse(AndOr.TypeName, keyOrValue);
+    }
+    static get size() {
+        return AndOr.getSize(AndOr.TypeName);
+    }
+    static get random() {
+        return AndOr.getRandom(AndOr.TypeName);
+    }
+    static get entries() {
+        return AndOr.getEntries(AndOr.TypeName);
+    }
+    static get keys() {
+        return AndOr.getKeys(AndOr.TypeName);
+    }
+    static get values() {
+        return AndOr.getValues(AndOr.TypeName);
+    }
+    static forEach(fn) {
+        AndOr.forEachOne(AndOr.TypeName, fn);
+    }
+}
+exports.AndOr = AndOr;
+AndOr.TypeName = 'and-or';
+AndOr.Null = new AndOr('0', 'null');
+AndOr.And = new AndOr('1', 'and');
+AndOr.Or = new AndOr('2', 'or');
+class AscDesc extends entity_1.Enum {
+    constructor(id, value) {
+        super(AscDesc.TypeName, id, value);
+    }
+    get isAsc() {
+        return this.is(AscDesc.Asc);
+    }
+    get isDesc() {
+        return this.is(AscDesc.Desc);
+    }
+    static tryParse(keyOrValue) {
+        return AscDesc.attemptParse(AscDesc.TypeName, keyOrValue);
+    }
+    static get size() {
+        return AscDesc.getSize(AscDesc.TypeName);
+    }
+    static get random() {
+        return AscDesc.getRandom(AscDesc.TypeName);
+    }
+    static get entries() {
+        return AscDesc.getEntries(AscDesc.TypeName);
+    }
+    static get keys() {
+        return AscDesc.getKeys(AscDesc.TypeName);
+    }
+    static get values() {
+        return AscDesc.getValues(AscDesc.TypeName);
+    }
+    static forEach(fn) {
+        AscDesc.forEachOne(AscDesc.TypeName, fn);
+    }
+}
+exports.AscDesc = AscDesc;
+AscDesc.TypeName = 'AscDesc';
+AscDesc.Null = new AscDesc('0', 'null');
+AscDesc.Asc = new AscDesc('1', 'asc');
+AscDesc.Desc = new AscDesc('2', 'desc');
 class EntityQueryParameters {
     constructor(pageNumber, pageSize, searchString = null, previous = null) {
         this.toJsonObject = () => {

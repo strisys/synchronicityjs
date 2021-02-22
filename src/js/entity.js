@@ -7,9 +7,10 @@ const uuid_1 = require("uuid");
 const guid = () => {
     return uuid_1.v4();
 };
-exports.isNullOrUndefined = (val) => {
+const isNullOrUndefined = (val) => {
     return ((val === null) || (val === undefined));
 };
+exports.isNullOrUndefined = isNullOrUndefined;
 const equals = (primary, other) => {
     if (exports.isNullOrUndefined(primary)) {
         return false;
