@@ -251,7 +251,6 @@ describe('Search Suggestion Service', () => {
         const ss = new SearchSuggestionDataAccessService();
         const pm = new __1.SearchSuggestionQueryParameters('property', 'address', 'main*');
         const pg = (yield ss.get(pm));
-        console.log(pg.value.data.rows.size);
         chai_1.assert.isTrue(pg.value.data.rows.size === 10);
     }));
 });
