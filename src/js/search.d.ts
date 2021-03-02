@@ -1,4 +1,21 @@
 import { AndOr, AscDesc, Enum, EntityQueryPage, EntityQueryParameters, Identifiable, IdentifiableMap, DataTable } from '.';
+export declare type DialectTypeCode = ('null' | 'lucene-azure' | 'mango');
+export declare class DialectType extends Enum<DialectType> {
+    private static readonly TypeName;
+    static readonly Null: DialectType;
+    static readonly LuceneAzure: DialectType;
+    static readonly Mango: DialectType;
+    private constructor();
+    get isLuceneAzure(): boolean;
+    get isMango(): boolean;
+    static tryParse(keyOrValue: (string | DialectTypeCode)): DialectType;
+    static get size(): number;
+    static get random(): DialectType;
+    static get entries(): DialectType[];
+    static get keys(): string[];
+    static get values(): DialectTypeCode[];
+    static forEach(fn: (value: DialectType, index: number) => void): void;
+}
 export declare type QueryTypeCode = ('null' | 'simple' | 'complex');
 export declare class QueryType extends Enum<QueryType> {
     private static readonly TypeName;
@@ -32,11 +49,11 @@ export declare class FilterOperator extends Enum<FilterOperator> {
     static get random(): FilterOperator;
     static get entries(): FilterOperator[];
     static get keys(): string[];
-    static get values(): QueryTypeCode[];
+    static get values(): FilterOperatorCode[];
     static forEach(fn: (value: FilterOperator, index: number) => void): void;
 }
 export declare abstract class Filter extends Identifiable {
-    abstract toString(): string;
+    abstract toQueryString(dialect: (DialectType | string)): string;
 }
 export declare class CompositeFilter extends Filter {
     private readonly _filters;
@@ -44,7 +61,7 @@ export declare class CompositeFilter extends Filter {
     constructor(filters: Filter[], operator?: AndOr);
     get filters(): Filter[];
     get operator(): AndOr;
-    toString(): string;
+    toQueryString(dialect: (DialectType | string)): string;
 }
 export declare class SimpleFilter extends Filter {
     private readonly _fieldName;
@@ -56,14 +73,14 @@ export declare class SimpleFilter extends Filter {
     get operator(): FilterOperator;
     get value(): any;
     get displayName(): string;
-    toString(): string;
+    toQueryString(dialect: (DialectType | string)): string;
 }
 export declare class FilterMap extends IdentifiableMap<Filter> {
     private _operator;
     constructor(entities?: (Filter | Filter[]));
     get operator(): AndOr;
     set operator(andOr: AndOr);
-    toJson(): string;
+    toJson(dialect: (DialectType | string)): string;
 }
 export declare class OrderElement extends Identifiable {
     private readonly _fieldName;
@@ -122,7 +139,9 @@ export declare class SearchQueryParameters extends EntityQueryParameters {
     get skip(): number;
     set skip(value: number);
     get page(): number;
-    toJson(): any;
+    toJson(dialect?: (DialectType | string)): any;
+    protected onToJson(dialect: (DialectType | string)): any;
+    protected toLuceneAzureJson(): any;
 }
 export declare class FieldElement extends Identifiable {
     private readonly _displayName;
@@ -154,7 +173,9 @@ export declare class SearchSuggestionQueryParameters extends EntityQueryParamete
     get selectFields(): FieldMap;
     get useFuzzySearch(): boolean;
     set useFuzzySearch(value: boolean);
-    toJson(): any;
+    toJson(dialect?: (DialectType | string)): any;
+    protected onToJson(dialect: (DialectType | string)): any;
+    protected toLuceneAzureJson(): any;
 }
 export declare class FacetResultValue extends Identifiable {
     private readonly _value;

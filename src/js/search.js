@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SearchSuggestionResultPage = exports.SearchSuggestionResult = exports.SearchResultPage = exports.SearchResult = exports.FacetResultMap = exports.FacetResult = exports.FacetResultValueMap = exports.FacetResultValue = exports.SearchSuggestionQueryParameters = exports.FieldMap = exports.FieldElement = exports.SearchQueryParameters = exports.FacetMap = exports.Facet = exports.OrderElementMap = exports.OrderElementDesc = exports.OrderElementAsc = exports.OrderElement = exports.FilterMap = exports.SimpleFilter = exports.CompositeFilter = exports.Filter = exports.FilterOperator = exports.QueryType = void 0;
+exports.SearchSuggestionResultPage = exports.SearchSuggestionResult = exports.SearchResultPage = exports.SearchResult = exports.FacetResultMap = exports.FacetResult = exports.FacetResultValueMap = exports.FacetResultValue = exports.SearchSuggestionQueryParameters = exports.FieldMap = exports.FieldElement = exports.SearchQueryParameters = exports.FacetMap = exports.Facet = exports.OrderElementMap = exports.OrderElementDesc = exports.OrderElementAsc = exports.OrderElement = exports.FilterMap = exports.SimpleFilter = exports.CompositeFilter = exports.Filter = exports.FilterOperator = exports.QueryType = exports.DialectType = void 0;
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const _1 = require(".");
@@ -9,6 +9,43 @@ const delimiterReducer = (delimiter) => {
 };
 const andReducer = delimiterReducer(' and ');
 const orReducer = delimiterReducer(' or ');
+class DialectType extends _1.Enum {
+    constructor(id, value) {
+        super(DialectType.TypeName, id, value);
+    }
+    get isLuceneAzure() {
+        return this.is(DialectType.LuceneAzure);
+    }
+    get isMango() {
+        return this.is(DialectType.Mango);
+    }
+    static tryParse(keyOrValue) {
+        return DialectType.attemptParse(DialectType.TypeName, keyOrValue);
+    }
+    static get size() {
+        return DialectType.getSize(DialectType.TypeName);
+    }
+    static get random() {
+        return DialectType.getRandom(DialectType.TypeName);
+    }
+    static get entries() {
+        return DialectType.getEntries(DialectType.TypeName);
+    }
+    static get keys() {
+        return DialectType.getKeys(DialectType.TypeName);
+    }
+    static get values() {
+        return DialectType.getValues(DialectType.TypeName);
+    }
+    static forEach(fn) {
+        DialectType.forEachOne(DialectType.TypeName, fn);
+    }
+}
+exports.DialectType = DialectType;
+DialectType.TypeName = 'DialectType';
+DialectType.Null = new DialectType('0', 'null');
+DialectType.LuceneAzure = new DialectType('1', 'lucene-azure');
+DialectType.Mango = new DialectType('2', 'mango');
 class QueryType extends _1.Enum {
     constructor(id, value) {
         super(QueryType.TypeName, id, value);
@@ -103,9 +140,9 @@ class CompositeFilter extends Filter {
     get operator() {
         return this._operator;
     }
-    toString() {
+    toQueryString(dialect) {
         const reducer = ((_1.AndOr.And.value === this.operator.value) ? andReducer : orReducer);
-        return `(${this.filters.map((f) => f.toString()).reduce(reducer)})`;
+        return `(${this.filters.map((f) => f.toQueryString(dialect)).reduce(reducer)})`;
     }
 }
 exports.CompositeFilter = CompositeFilter;
@@ -129,7 +166,7 @@ class SimpleFilter extends Filter {
     get displayName() {
         return (this._displayName || this._fieldName);
     }
-    toString() {
+    toQueryString(dialect) {
         const val = ((typeof this.value === 'string') ? `'${this.value}'` : this.value);
         return `(${this.fieldName} ${this.operator.value} ${val})`;
     }
@@ -147,12 +184,12 @@ class FilterMap extends _1.IdentifiableMap {
         this._operator = andOr;
     }
     // https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents#bkmk_examples
-    toJson() {
+    toJson(dialect) {
         if (this.isEmpty) {
             return '';
         }
         const reducer = ((_1.AndOr.And.value === this.operator.value) ? andReducer : orReducer);
-        const val = `(${this.map((f) => f.toString()).reduce(reducer)})`;
+        const val = `(${this.map((f) => f.toQueryString(dialect)).reduce(reducer)})`;
         return val;
     }
 }
@@ -294,11 +331,20 @@ class SearchQueryParameters extends _1.EntityQueryParameters {
         return ((this.skip / this.pageSize) + 1);
     }
     // https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents#bkmk_examples
-    toJson() {
+    toJson(dialect = DialectType.LuceneAzure) {
+        return this.onToJson(dialect);
+    }
+    onToJson(dialect) {
+        if ((DialectType.LuceneAzure.value === dialect) || (DialectType.LuceneAzure.value === dialect['_value'])) {
+            return this.toLuceneAzureJson();
+        }
+        throw new Error(`The specified dialect '[(${dialect || 'null'})] is not supported.`);
+    }
+    toLuceneAzureJson() {
         const json = {
             queryType: this.queryType.toString(),
             search: this.searchString,
-            filter: this.filters.toJson(),
+            filter: this.filters.toJson(DialectType.LuceneAzure),
             facets: this.facets.toJson(),
             orderby: this.orderBy.toJson(),
             top: this.pageSize,
@@ -389,14 +435,23 @@ class SearchSuggestionQueryParameters extends _1.EntityQueryParameters {
     set useFuzzySearch(value) {
         this._useFuzzySearch = (value || false);
     }
+    toJson(dialect = DialectType.LuceneAzure) {
+        return this.onToJson(dialect);
+    }
+    onToJson(dialect) {
+        if ((DialectType.LuceneAzure.value === dialect) || (DialectType.LuceneAzure.value === dialect['_value'])) {
+            return this.toLuceneAzureJson();
+        }
+        throw new Error(`The specified dialect '[(${dialect || 'null'})] is not supported.`);
+    }
     // https://docs.microsoft.com/en-us/rest/api/searchservice/suggestions#query-parameters
-    toJson() {
+    toLuceneAzureJson() {
         const json = {
             suggesterName: this.suggesterName,
             search: this.searchString,
             select: this.selectFields.toJson(),
             searchFields: this.searchFields.toJson(),
-            filter: this.filters.toJson(),
+            filter: this.filters.toJson(DialectType.LuceneAzure),
             orderby: this.orderBy.toJson(),
             top: this.pageSize,
             fuzzy: this.useFuzzySearch,

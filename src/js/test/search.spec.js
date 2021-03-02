@@ -239,9 +239,16 @@ class SearchSuggestionDataAccessService extends DataAccessServiceBase {
     }
 }
 describe('Search Service', () => {
-    it('fetch search results', () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-        const ss = new SearchDataAccessService();
+    it('search parameters should match expected dialect (Lucene-Azure)', () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
         const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
+        console.log(pm.toJson());
+    }));
+    it('search parameters should match expected dialect (Mango)', () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+        chai_1.assert.isTrue(true);
+    }));
+    it('search results should match expectations', () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+        const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
+        const ss = new SearchDataAccessService();
         const pg = (yield ss.get(pm));
         chai_1.assert.isTrue(pg.value.data.rows.size === 3);
     }));

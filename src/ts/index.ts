@@ -24,6 +24,7 @@ export { AndOrCode,
          DataTable } from './query';
 export { QueryTypeCode,
          QueryType,
+         DialectType,
          FilterOperatorCode,
          FilterOperator,
          Filter,

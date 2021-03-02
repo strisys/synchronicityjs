@@ -9,6 +9,55 @@ const delimiterReducer = (delimiter: string) => {
 const andReducer =  delimiterReducer(' and ');
 const orReducer =  delimiterReducer(' or ');
 
+export type DialectTypeCode = ('null' | 'lucene-azure' | 'mango');
+
+export class DialectType extends Enum<DialectType> {
+  private static readonly TypeName = 'DialectType';
+  public static readonly Null = new DialectType('0', 'null');
+  public static readonly LuceneAzure = new DialectType('1', 'lucene-azure');
+  public static readonly Mango = new DialectType('2', 'mango');
+
+  private constructor(id: string, value: DialectTypeCode) {
+    super(DialectType.TypeName, id, value);
+  }
+
+  public get isLuceneAzure(): boolean {
+    return this.is(DialectType.LuceneAzure);
+  }
+
+  public get isMango(): boolean {
+    return this.is(DialectType.Mango);
+  }
+
+  public static tryParse(keyOrValue: (string | DialectTypeCode)): DialectType {
+    return (DialectType.attemptParse(DialectType.TypeName, keyOrValue) as DialectType);
+  }
+
+  public static get size(): number {
+    return DialectType.getSize(DialectType.TypeName);
+  }
+
+  public static get random(): DialectType {
+    return (DialectType.getRandom(DialectType.TypeName) as DialectType);
+  }
+
+  public static get entries(): DialectType[] {
+    return (DialectType.getEntries(DialectType.TypeName) as DialectType[]);
+  }
+
+  public static get keys(): string[] {
+    return DialectType.getKeys(DialectType.TypeName);
+  }
+
+  public static get values(): DialectTypeCode[] {
+    return (DialectType.getValues(DialectType.TypeName) as DialectTypeCode[]);
+  }
+
+  public static forEach(fn: (value: DialectType, index: number) => void): void {
+    DialectType.forEachOne(DialectType.TypeName, fn);
+  }
+}
+
 export type QueryTypeCode = ('null' | 'simple' | 'complex');
 
 export class QueryType extends Enum<QueryType> {
@@ -103,8 +152,8 @@ export class FilterOperator extends Enum<FilterOperator> {
     return FilterOperator.getKeys(FilterOperator.TypeName);
   }
 
-  public static get values(): QueryTypeCode[] {
-    return (FilterOperator.getValues(FilterOperator.TypeName) as QueryTypeCode[]);
+  public static get values(): FilterOperatorCode[] {
+    return (FilterOperator.getValues(FilterOperator.TypeName) as FilterOperatorCode[]);
   }
 
   public static forEach(fn: (value: FilterOperator, index: number) => void): void {
@@ -113,7 +162,7 @@ export class FilterOperator extends Enum<FilterOperator> {
 }
 
 export abstract class Filter extends Identifiable {
-  public abstract toString(): string;
+  public abstract toQueryString(dialect: (DialectType | string)): string;
 }
 
 export class CompositeFilter extends Filter {
@@ -134,9 +183,9 @@ export class CompositeFilter extends Filter {
     return this._operator;
   }
 
-  public toString(): string {
+  public toQueryString(dialect: (DialectType | string)): string {
     const reducer = ((AndOr.And.value === this.operator.value) ? andReducer : orReducer);
-    return `(${this.filters.map((f) => f.toString()).reduce(reducer)})`;
+    return `(${this.filters.map((f) => f.toQueryString(dialect)).reduce(reducer)})`;
   }
 }
 
@@ -171,7 +220,7 @@ export class SimpleFilter extends Filter {
     return (this._displayName || this._fieldName);
   }
 
-  public toString(): string {
+  public toQueryString(dialect: (DialectType | string)): string {
     const val = ((typeof this.value === 'string') ? `'${this.value}'` : this.value);
     return `(${this.fieldName} ${this.operator.value} ${val})`;
   }
@@ -193,13 +242,13 @@ export class FilterMap extends IdentifiableMap<Filter> {
   }
 
   // https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents#bkmk_examples
-  public toJson(): string {
+  public toJson(dialect: (DialectType | string)): string {
     if (this.isEmpty) {
       return '';
     }
 
     const reducer = ((AndOr.And.value === this.operator.value) ? andReducer : orReducer);
-    const val = `(${this.map((f) => f.toString()).reduce(reducer)})`;
+    const val = `(${this.map((f) => f.toQueryString(dialect)).reduce(reducer)})`;
 
     return val;
   }
@@ -383,11 +432,23 @@ export class SearchQueryParameters extends EntityQueryParameters {
   }
 
   // https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents#bkmk_examples
-  public toJson(): any {
+  public toJson(dialect: (DialectType | string) = DialectType.LuceneAzure): any {
+    return this.onToJson(dialect);
+  }
+
+  protected onToJson(dialect: (DialectType | string)): any {
+    if ((DialectType.LuceneAzure.value === dialect) || (DialectType.LuceneAzure.value === dialect['_value'])) {
+      return this.toLuceneAzureJson();
+    }
+
+    throw new Error(`The specified dialect '[(${dialect || 'null'})] is not supported.`);
+  }
+
+  protected toLuceneAzureJson(): any {
     const json = {
       queryType: this.queryType.toString(),
       search: this.searchString,
-      filter: this.filters.toJson(),
+      filter: this.filters.toJson(DialectType.LuceneAzure),
       facets: this.facets.toJson(),
       orderby: this.orderBy.toJson(),
       top: this.pageSize,
@@ -505,15 +566,27 @@ export class SearchSuggestionQueryParameters extends EntityQueryParameters {
   public set useFuzzySearch(value: boolean) {
     this._useFuzzySearch = (value || false);
   }
+  
+  public toJson(dialect: (DialectType | string) = DialectType.LuceneAzure): any {
+    return this.onToJson(dialect);
+  }
+
+  protected onToJson(dialect: (DialectType | string)): any {
+    if ((DialectType.LuceneAzure.value === dialect) || (DialectType.LuceneAzure.value === dialect['_value'])) {
+      return this.toLuceneAzureJson();
+    }
+
+    throw new Error(`The specified dialect '[(${dialect || 'null'})] is not supported.`);
+  }
 
   // https://docs.microsoft.com/en-us/rest/api/searchservice/suggestions#query-parameters
-  public toJson(): any {
+  protected toLuceneAzureJson(): any {
     const json = {
       suggesterName: this.suggesterName,
       search: this.searchString,
       select: this.selectFields.toJson(),
       searchFields: this.searchFields.toJson(),
-      filter: this.filters.toJson(),
+      filter: this.filters.toJson(DialectType.LuceneAzure),
       orderby: this.orderBy.toJson(),
       top: this.pageSize,
       fuzzy: this.useFuzzySearch,
