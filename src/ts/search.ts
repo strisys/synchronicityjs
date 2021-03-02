@@ -166,11 +166,12 @@ export abstract class Filter extends Identifiable {
 }
 
 export class CompositeFilter extends Filter {
+  private static _counter: number = 0;
   private readonly _filters: Filter[];
   private readonly _operator: AndOr = AndOr.And;
 
   constructor(filters: Filter[], operator: AndOr = AndOr.And) {
-    super();
+    super(`${CompositeFilter._counter++}`);
     this._filters = (filters || []);
     this._operator = operator;
   }
@@ -189,15 +190,15 @@ export class CompositeFilter extends Filter {
   }
 }
 
-
 export class SimpleFilter extends Filter {
+  private static _counter: number = 0;
   private readonly _fieldName: string;
   private readonly _operator: FilterOperator;
   private readonly _displayName: string;
   private readonly _value: any;
 
   constructor(fieldName: string, operator: FilterOperator, value: any, displayName: string = null) {
-    super(fieldName);
+    super(`${SimpleFilter._counter++}`);
     this._fieldName = fieldName;
     this._displayName = displayName;
     this._operator = operator;

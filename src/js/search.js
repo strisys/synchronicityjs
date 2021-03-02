@@ -129,7 +129,7 @@ class Filter extends _1.Identifiable {
 exports.Filter = Filter;
 class CompositeFilter extends Filter {
     constructor(filters, operator = _1.AndOr.And) {
-        super();
+        super(`${CompositeFilter._counter++}`);
         this._operator = _1.AndOr.And;
         this._filters = (filters || []);
         this._operator = operator;
@@ -146,9 +146,10 @@ class CompositeFilter extends Filter {
     }
 }
 exports.CompositeFilter = CompositeFilter;
+CompositeFilter._counter = 0;
 class SimpleFilter extends Filter {
     constructor(fieldName, operator, value, displayName = null) {
-        super(fieldName);
+        super(`${SimpleFilter._counter++}`);
         this._fieldName = fieldName;
         this._displayName = displayName;
         this._operator = operator;
@@ -172,6 +173,7 @@ class SimpleFilter extends Filter {
     }
 }
 exports.SimpleFilter = SimpleFilter;
+SimpleFilter._counter = 0;
 class FilterMap extends _1.IdentifiableMap {
     constructor(entities) {
         super(entities);

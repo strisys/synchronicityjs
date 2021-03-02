@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { DataTable, FacetResult, FacetResultMap, FacetResultValue, SearchQueryParameters, SearchResult, SearchResultPage, SearchSuggestionResultPage, SearchSuggestionQueryParameters, SearchSuggestionResult } from '..';
+import { AndOr, DataTable, DialectType, FacetResult, FacetResultMap, FacetResultValue, SearchQueryParameters, SearchResult, SearchResultPage, SearchSuggestionResultPage, SearchSuggestionQueryParameters, SearchSuggestionResult, SimpleFilter, CompositeFilter, Filter, FilterOperator } from '..';
 import searchResultJson = require('./search-result.json');
 import suggestionResultJson = require('./suggestion-result.json');
 
@@ -312,16 +312,86 @@ class SearchSuggestionDataAccessService extends DataAccessServiceBase {
   }
 }
 
-describe('Search Service', () => {
-  it('search parameters should match expected dialect (Lucene-Azure)', async () => {
-    const pm = new SearchQueryParameters('property', 'main*', 0, 0, 100);
-    console.log(pm.toJson());
-  });
+describe('SearchQueryParameters', () => {
+  describe(`Dialect: ${DialectType.LuceneAzure}`, () => {
+    const createSimpleFilters = (values: string[], operator: FilterOperator): Filter[] => {
+      return values.map((c) => {
+        return (new SimpleFilter('company', operator, c));
+      })
+    }
 
-  it('search parameters should match expected dialect (Mango)', async () => {
-    assert.isTrue(true);
-  });
+    it(`search parameters should match expected dialect`, async () => {
+      const pm = new SearchQueryParameters('property', 'main*', 0, 0, 100);
+       
+      assert.deepEqual(pm.toJson(DialectType.LuceneAzure), {
+        queryType: 'simple',
+        search: 'main*',
+        filter: '',
+        facets: [],
+        top: 100,
+        count: true,
+        skip: 0
+      });
+    });
 
+    it(`search parameters should match expected dialect - Simple Filter`, async () => {
+      const pm = new SearchQueryParameters('property', 'main*', 0, 0, 100);
+
+      const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], FilterOperator.Equal);
+      pm.filters.set(filters);
+
+      assert.deepEqual(pm.toJson(DialectType.LuceneAzure), {
+        queryType: 'simple',
+        search: 'main*',
+        filter: "((company eq 'microsoft') and (company eq 'google') and (company eq 'nvidia'))",
+        facets: [],
+        top: 100,
+        count: true,
+        skip: 0
+      });
+    });
+
+    it(`search parameters should match expected dialect - Composite Filter`, async () => {
+      const pm = new SearchQueryParameters('property', 'main*', 0, 0, 100);
+
+      const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], FilterOperator.Equal);
+      pm.filters.set(new CompositeFilter(filters, AndOr.Or));
+
+      assert.deepEqual(pm.toJson(DialectType.LuceneAzure), {
+        queryType: 'simple',
+        search: 'main*',
+        filter: "(((company eq 'microsoft') or (company eq 'google') or (company eq 'nvidia')))",
+        facets: [],
+        top: 100,
+        count: true,
+        skip: 0
+      });
+    });
+
+    it(`search parameters should match expected dialect - Complex Filter`, async () => {
+      const pm = new SearchQueryParameters('property', 'main*', 0, 0, 100);
+
+      const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], FilterOperator.Equal);
+      pm.filters.set(new CompositeFilter(filters, AndOr.Or));
+      pm.filters.set(filters);
+      
+      assert.deepEqual(pm.toJson(DialectType.LuceneAzure), {
+        queryType: 'simple',
+        search: 'main*',
+        filter: "(((company eq 'microsoft') or (company eq 'google') or (company eq 'nvidia')) and (company eq 'microsoft') and (company eq 'google') and (company eq 'nvidia'))",
+        facets: [],
+        top: 100,
+        count: true,
+        skip: 0
+      });
+    });
+  })
+
+  describe(`Dialect: ${DialectType.Mango}`, () => {
+  });
+});
+
+describe('SearchService', () => {
   it('search results should match expectations', async () => {
     const pm = new SearchQueryParameters('property', 'main*', 0, 0, 100);
 
@@ -332,7 +402,7 @@ describe('Search Service', () => {
   });
 });
 
-describe('Search Suggestion Service', () => {
+describe('SearchSuggestionService', () => {
   it('fetch search suggestion results', async () => {
     const ss = new SearchSuggestionDataAccessService();
     const pm = new SearchSuggestionQueryParameters('property', 'address', 'main*');

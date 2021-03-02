@@ -238,14 +238,74 @@ class SearchSuggestionDataAccessService extends DataAccessServiceBase {
         return `/search-service/indexes/${this._index}/docs/suggest/?api-version=${apiVersion}`;
     }
 }
-describe('Search Service', () => {
-    it('search parameters should match expected dialect (Lucene-Azure)', () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-        const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
-        console.log(pm.toJson());
-    }));
-    it('search parameters should match expected dialect (Mango)', () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-        chai_1.assert.isTrue(true);
-    }));
+describe('SearchQueryParameters', () => {
+    describe(`Dialect: ${__1.DialectType.LuceneAzure}`, () => {
+        const createSimpleFilters = (values, operator) => {
+            return values.map((c) => {
+                return (new __1.SimpleFilter('company', operator, c));
+            });
+        };
+        it(`search parameters should match expected dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
+            chai_1.assert.deepEqual(pm.toJson(__1.DialectType.LuceneAzure), {
+                queryType: 'simple',
+                search: 'main*',
+                filter: '',
+                facets: [],
+                top: 100,
+                count: true,
+                skip: 0
+            });
+        }));
+        it(`search parameters should match expected dialect - Simple Filter`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
+            const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
+            pm.filters.set(filters);
+            chai_1.assert.deepEqual(pm.toJson(__1.DialectType.LuceneAzure), {
+                queryType: 'simple',
+                search: 'main*',
+                filter: "((company eq 'microsoft') and (company eq 'google') and (company eq 'nvidia'))",
+                facets: [],
+                top: 100,
+                count: true,
+                skip: 0
+            });
+        }));
+        it(`search parameters should match expected dialect - Composite Filter`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
+            const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
+            pm.filters.set(new __1.CompositeFilter(filters, __1.AndOr.Or));
+            chai_1.assert.deepEqual(pm.toJson(__1.DialectType.LuceneAzure), {
+                queryType: 'simple',
+                search: 'main*',
+                filter: "(((company eq 'microsoft') or (company eq 'google') or (company eq 'nvidia')))",
+                facets: [],
+                top: 100,
+                count: true,
+                skip: 0
+            });
+        }));
+        it(`search parameters should match expected dialect - Complex Filter`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
+            const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
+            pm.filters.set(new __1.CompositeFilter(filters, __1.AndOr.Or));
+            pm.filters.set(filters);
+            console.log(pm.toJson(__1.DialectType.LuceneAzure));
+            chai_1.assert.deepEqual(pm.toJson(__1.DialectType.LuceneAzure), {
+                queryType: 'simple',
+                search: 'main*',
+                filter: "(((company eq 'microsoft') or (company eq 'google') or (company eq 'nvidia')) and (company eq 'microsoft') and (company eq 'google') and (company eq 'nvidia'))",
+                facets: [],
+                top: 100,
+                count: true,
+                skip: 0
+            });
+        }));
+    });
+    describe(`Dialect: ${__1.DialectType.Mango}`, () => {
+    });
+});
+describe('SearchService', () => {
     it('search results should match expectations', () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
         const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
         const ss = new SearchDataAccessService();
@@ -253,7 +313,7 @@ describe('Search Service', () => {
         chai_1.assert.isTrue(pg.value.data.rows.size === 3);
     }));
 });
-describe('Search Suggestion Service', () => {
+describe('SearchSuggestionService', () => {
     it('fetch search suggestion results', () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
         const ss = new SearchSuggestionDataAccessService();
         const pm = new __1.SearchSuggestionQueryParameters('property', 'address', 'main*');

@@ -56,6 +56,7 @@ export declare abstract class Filter extends Identifiable {
     abstract toQueryString(dialect: (DialectType | string)): string;
 }
 export declare class CompositeFilter extends Filter {
+    private static _counter;
     private readonly _filters;
     private readonly _operator;
     constructor(filters: Filter[], operator?: AndOr);
@@ -64,6 +65,7 @@ export declare class CompositeFilter extends Filter {
     toQueryString(dialect: (DialectType | string)): string;
 }
 export declare class SimpleFilter extends Filter {
+    private static _counter;
     private readonly _fieldName;
     private readonly _operator;
     private readonly _displayName;
