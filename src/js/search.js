@@ -124,6 +124,7 @@ FilterOperator.Null = new FilterOperator('0', 'null');
 FilterOperator.Equal = new FilterOperator('1', 'eq');
 FilterOperator.LessThan = new FilterOperator('2', 'lt');
 FilterOperator.GreaterThan = new FilterOperator('3', 'gt');
+FilterOperator.NotEqual = new FilterOperator('4', 'ne');
 class Filter extends _1.Identifiable {
 }
 exports.Filter = Filter;
@@ -463,7 +464,7 @@ class SearchQueryParameters extends _1.EntityQueryParameters {
         const json = {
             selector: this.filters.toJson(dialect),
             fields: [],
-            sort: []
+            sort: this.orderBy.toJson(dialect),
         };
         return json;
     }

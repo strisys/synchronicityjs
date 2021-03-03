@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { AndOr, DataTable, DialectType, FacetResult, FacetResultMap, FacetResultValue, SearchQueryParameters, SearchResult, SearchResultPage, SearchSuggestionResultPage, SearchSuggestionQueryParameters, SearchSuggestionResult, SimpleFilter, CompositeFilter, Filter, FilterOperator } from '..';
+import { AndOr, AscDesc, DataTable, DialectType, FacetResult, FacetResultMap, FacetResultValue, OrderElement, SearchQueryParameters, SearchResult, SearchResultPage, SearchSuggestionResultPage, SearchSuggestionQueryParameters, SearchSuggestionResult, SimpleFilter, CompositeFilter, Filter, FilterOperator } from '..';
 import searchResultJson = require('./search-result.json');
 import suggestionResultJson = require('./suggestion-result.json');
 
@@ -425,7 +425,7 @@ describe('SearchQueryParameters', () => {
             skip: 0
           });
         });
-      })
+      });
     });
 
     describe(`Dialect: ${DialectType.Mango}`, () => {
@@ -438,7 +438,7 @@ describe('SearchQueryParameters', () => {
           sp = new SearchQueryParameters('property', 'main*', 0, 0, 100);
         }); 
     
-        it(`selector shape should match expected shape given the simple filters (0), composite filters (0), simpler filter operators (-), composite filter operators (-)`, async () => {  
+        it(`selector shape should match expected shape given the simple filters (0), composite filters (0), simple filter operators (-), composite filter operators (-)`, async () => {  
           // Act
           const actual = sp.toJson(dialect);
     
@@ -450,7 +450,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simpler filter operators (eq), composite filter operators (-)`, async () => {  
+        it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (eq), composite filter operators (-)`, async () => {  
           // Arrange
           const filters = createSimpleFilters(companies, FilterOperator.Equal);
           sp.filters.set(filters);
@@ -466,7 +466,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`selector shape should match expected shape given the simple filters (1), composite filters (0), simpler filter operators (eq), composite filter operators (-)`, async () => {  
+        it(`selector shape should match expected shape given the simple filters (1), composite filters (0), simple filter operators (eq), composite filter operators (-)`, async () => {  
           // Arrange
           const filters = createSimpleFilters([companies[0]], FilterOperator.Equal);
           sp.filters.set(filters);
@@ -482,7 +482,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simpler filter operators (gt), composite filter operators (-)`, async () => {  
+        it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (gt), composite filter operators (-)`, async () => {  
           // Arrange
           const filters = createSimpleFilters(companies, FilterOperator.GreaterThan);
           sp.filters.set(filters);
@@ -498,7 +498,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simpler filter operators (lt), composite filter operators (-)`, async () => {  
+        it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (lt), composite filter operators (-)`, async () => {  
           // Arrange
           const filters = createSimpleFilters(companies, FilterOperator.LessThan);
           sp.filters.set(filters);
@@ -514,7 +514,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`selector shape should match expected shape given the simple filters (0), composite filters (1), simpler filter operators (eq), composite filter operators (or)`, async () => {            // Arrange
+        it(`selector shape should match expected shape given the simple filters (0), composite filters (1), simple filter operators (eq), composite filter operators (or)`, async () => {            // Arrange
           const filter = new CompositeFilter(createSimpleFilters(companies, FilterOperator.Equal), AndOr.Or);
           sp.filters.set(filter);
     
@@ -529,7 +529,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`selector shape should match expected shape given the simple filters (0), composite filters (1), simpler filter operators (gt), composite filter operators (and)`, async () => {            // Arrange
+        it(`selector shape should match expected shape given the simple filters (0), composite filters (1), simple filter operators (gt), composite filter operators (and)`, async () => {            // Arrange
           // Arrange
           const filter = new CompositeFilter(createSimpleFilters(companies, FilterOperator.GreaterThan), AndOr.And);
           sp.filters.set(filter);
@@ -542,6 +542,81 @@ describe('SearchQueryParameters', () => {
             selector: { $and: [{company: {$gt: 'microsoft'}}, {company: {$gt: 'google'}}, {'company': {$gt: 'nvidia'}}] },
             fields: [],
             sort: []
+          });
+        });
+
+        it(`selector shape should match expected shape given the simple filters (2), composite filters (1), simple filter operators (eq), composite filter operators (and)`, async () => {            // Arrange
+          // Arrange
+          const simpleFilters = [new SimpleFilter('company', FilterOperator.Equal, 'goog'), new SimpleFilter('company', FilterOperator.NotEqual, 'fb')];
+          const compositeFilter = new CompositeFilter(createSimpleFilters(['msft', 'nvda'], FilterOperator.GreaterThan), AndOr.And);
+          
+          sp.filters.set(simpleFilters);
+          sp.filters.set(compositeFilter);
+    
+          // Act
+          const actual = sp.toJson(dialect);
+          const expectedShape = { $and: [{company:{$eq: 'goog'}},{company:{$ne:'fb'}}, { $and:[{company:{$gt: 'msft'}}, {company:{$gt: 'nvda'}}]}]};
+    
+          // Assert
+          assert.deepEqual(actual, {
+            selector: expectedShape,
+            fields: [],
+            sort: []
+          });
+        });
+      });
+
+      describe('fields', () => {
+      });
+
+      describe('sort', () => {
+        let sp: SearchQueryParameters;
+    
+        beforeEach(() => {
+          sp = new SearchQueryParameters('property', 'main*', 0, 0, 100);
+        }); 
+    
+        it(`sort shape should match expected shape give orderBy of fields (0)`, async () => {  
+          // Arrange
+
+          // Act
+          const actual = sp.toJson(dialect);
+    
+          // Assert
+          assert.deepEqual(actual, {
+              selector: {},
+              fields: [],
+              sort: []
+          });
+        });
+
+        it(`sort shape should match expected shape give orderBy of fields (1)`, async () => {  
+          // Arrange
+          sp.orderBy.set([new OrderElement('company', AscDesc.Asc)]);
+
+          // Act
+          const actual = sp.toJson(dialect);
+    
+          // Assert
+          assert.deepEqual(actual, {
+              selector: {},
+              fields: [],
+              sort: [{company: 'asc'}]
+          });
+        });
+
+        it(`sort shape should match expected shape give orderBy of fields (2)`, async () => {  
+          // Arrange
+          sp.orderBy.set([new OrderElement('company', AscDesc.Asc), new OrderElement('address', AscDesc.Desc)]);
+
+          // Act
+          const actual = sp.toJson(dialect);
+    
+          // Assert
+          assert.deepEqual(actual, {
+              selector: {},
+              fields: [],
+              sort: [{company: 'asc'}, {address: 'desc'}]
           });
         });
       });

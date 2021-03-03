@@ -33,13 +33,14 @@ export declare class QueryType extends Enum<QueryType> {
     static get values(): QueryTypeCode[];
     static forEach(fn: (value: QueryType, index: number) => void): void;
 }
-export declare type FilterOperatorCode = ('null' | 'eq' | 'lt' | 'gt');
+export declare type FilterOperatorCode = ('null' | 'eq' | 'lt' | 'gt' | 'ne');
 export declare class FilterOperator extends Enum<FilterOperator> {
     private static readonly TypeName;
     static readonly Null: FilterOperator;
     static readonly Equal: FilterOperator;
     static readonly LessThan: FilterOperator;
     static readonly GreaterThan: FilterOperator;
+    static readonly NotEqual: FilterOperator;
     private constructor();
     get isEqualTo(): boolean;
     get isLessThan(): boolean;

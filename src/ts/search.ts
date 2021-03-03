@@ -107,7 +107,7 @@ export class QueryType extends Enum<QueryType> {
   }
 }
 
-export type FilterOperatorCode = ('null' | 'eq' | 'lt' | 'gt');
+export type FilterOperatorCode = ('null' | 'eq' | 'lt' | 'gt' | 'ne');
 
 export class FilterOperator extends Enum<FilterOperator> {
   private static readonly TypeName = 'FilterOperator';
@@ -115,6 +115,7 @@ export class FilterOperator extends Enum<FilterOperator> {
   public static readonly Equal = new FilterOperator('1', 'eq');
   public static readonly LessThan = new FilterOperator('2', 'lt');
   public static readonly GreaterThan = new FilterOperator('3', 'gt');
+  public static readonly NotEqual = new FilterOperator('4', 'ne');
 
   private constructor(id: string, value: FilterOperatorCode) {
     super(FilterOperator.TypeName, id, value);
@@ -603,7 +604,7 @@ export class SearchQueryParameters extends EntityQueryParameters {
     const json = {
       selector: this.filters.toJson(dialect),
       fields: [],
-      sort: []
+      sort: this.orderBy.toJson(dialect),
     };
 
     return json;

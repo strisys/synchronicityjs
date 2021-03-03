@@ -342,7 +342,7 @@ describe('SearchQueryParameters', () => {
                 beforeEach(() => {
                     sp = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
                 });
-                it(`selector shape should match expected shape given the simple filters (0), composite filters (0), simpler filter operators (-), composite filter operators (-)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+                it(`selector shape should match expected shape given the simple filters (0), composite filters (0), simple filter operators (-), composite filter operators (-)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
                     // Act
                     const actual = sp.toJson(dialect);
                     // Assert
@@ -352,7 +352,7 @@ describe('SearchQueryParameters', () => {
                         sort: []
                     });
                 }));
-                it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simpler filter operators (eq), composite filter operators (-)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+                it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (eq), composite filter operators (-)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
                     // Arrange
                     const filters = createSimpleFilters(companies, __1.FilterOperator.Equal);
                     sp.filters.set(filters);
@@ -365,7 +365,7 @@ describe('SearchQueryParameters', () => {
                         sort: []
                     });
                 }));
-                it(`selector shape should match expected shape given the simple filters (1), composite filters (0), simpler filter operators (eq), composite filter operators (-)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+                it(`selector shape should match expected shape given the simple filters (1), composite filters (0), simple filter operators (eq), composite filter operators (-)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
                     // Arrange
                     const filters = createSimpleFilters([companies[0]], __1.FilterOperator.Equal);
                     sp.filters.set(filters);
@@ -378,7 +378,7 @@ describe('SearchQueryParameters', () => {
                         sort: []
                     });
                 }));
-                it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simpler filter operators (gt), composite filter operators (-)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+                it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (gt), composite filter operators (-)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
                     // Arrange
                     const filters = createSimpleFilters(companies, __1.FilterOperator.GreaterThan);
                     sp.filters.set(filters);
@@ -391,7 +391,7 @@ describe('SearchQueryParameters', () => {
                         sort: []
                     });
                 }));
-                it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simpler filter operators (lt), composite filter operators (-)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+                it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (lt), composite filter operators (-)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
                     // Arrange
                     const filters = createSimpleFilters(companies, __1.FilterOperator.LessThan);
                     sp.filters.set(filters);
@@ -404,7 +404,7 @@ describe('SearchQueryParameters', () => {
                         sort: []
                     });
                 }));
-                it(`selector shape should match expected shape given the simple filters (0), composite filters (1), simpler filter operators (eq), composite filter operators (or)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+                it(`selector shape should match expected shape given the simple filters (0), composite filters (1), simple filter operators (eq), composite filter operators (or)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
                     const filter = new __1.CompositeFilter(createSimpleFilters(companies, __1.FilterOperator.Equal), __1.AndOr.Or);
                     sp.filters.set(filter);
                     // Act
@@ -416,7 +416,7 @@ describe('SearchQueryParameters', () => {
                         sort: []
                     });
                 }));
-                it(`selector shape should match expected shape given the simple filters (0), composite filters (1), simpler filter operators (gt), composite filter operators (and)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+                it(`selector shape should match expected shape given the simple filters (0), composite filters (1), simple filter operators (gt), composite filter operators (and)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
                     // Arrange
                     const filter = new __1.CompositeFilter(createSimpleFilters(companies, __1.FilterOperator.GreaterThan), __1.AndOr.And);
                     sp.filters.set(filter);
@@ -427,6 +427,67 @@ describe('SearchQueryParameters', () => {
                         selector: { $and: [{ company: { $gt: 'microsoft' } }, { company: { $gt: 'google' } }, { 'company': { $gt: 'nvidia' } }] },
                         fields: [],
                         sort: []
+                    });
+                }));
+                it(`selector shape should match expected shape given the simple filters (2), composite filters (1), simple filter operators (eq), composite filter operators (and)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+                    // Arrange
+                    const simpleFilters = [new __1.SimpleFilter('company', __1.FilterOperator.Equal, 'goog'), new __1.SimpleFilter('company', __1.FilterOperator.NotEqual, 'fb')];
+                    const compositeFilter = new __1.CompositeFilter(createSimpleFilters(['msft', 'nvda'], __1.FilterOperator.GreaterThan), __1.AndOr.And);
+                    sp.filters.set(simpleFilters);
+                    sp.filters.set(compositeFilter);
+                    // Act
+                    const actual = sp.toJson(dialect);
+                    const expectedShape = { $and: [{ company: { $eq: 'goog' } }, { company: { $ne: 'fb' } }, { $and: [{ company: { $gt: 'msft' } }, { company: { $gt: 'nvda' } }] }] };
+                    // Assert
+                    chai_1.assert.deepEqual(actual, {
+                        selector: expectedShape,
+                        fields: [],
+                        sort: []
+                    });
+                }));
+            });
+            describe('fields', () => {
+            });
+            describe('sort', () => {
+                let sp;
+                beforeEach(() => {
+                    sp = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
+                });
+                it(`sort shape should match expected shape give orderBy of fields (0)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+                    // Arrange
+                    // Act
+                    const actual = sp.toJson(dialect);
+                    // Assert
+                    chai_1.assert.deepEqual(actual, {
+                        selector: {},
+                        fields: [],
+                        sort: []
+                    });
+                }));
+                it(`sort shape should match expected shape give orderBy of fields (1)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+                    // Arrange
+                    sp.orderBy.set([new __1.OrderElement('company', __1.AscDesc.Asc)]);
+                    // Act
+                    const actual = sp.toJson(dialect);
+                    console.log(JSON.stringify(actual));
+                    // Assert
+                    chai_1.assert.deepEqual(actual, {
+                        selector: {},
+                        fields: [],
+                        sort: [{ company: 'asc' }]
+                    });
+                }));
+                it(`sort shape should match expected shape give orderBy of fields (2)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+                    // Arrange
+                    sp.orderBy.set([new __1.OrderElement('company', __1.AscDesc.Asc), new __1.OrderElement('address', __1.AscDesc.Desc)]);
+                    // Act
+                    const actual = sp.toJson(dialect);
+                    console.log(JSON.stringify(actual));
+                    // Assert
+                    chai_1.assert.deepEqual(actual, {
+                        selector: {},
+                        fields: [],
+                        sort: [{ company: 'asc' }, { address: 'desc' }]
                     });
                 }));
             });
