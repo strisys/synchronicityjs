@@ -6,8 +6,8 @@ const delimiterReducer = (delimiter: string) => {
   return (accumulator, currentValue) => `${accumulator}${delimiter}${currentValue}`;
 }
 
-const andReducer =  delimiterReducer(' and ');
-const orReducer =  delimiterReducer(' or ');
+const andReducer = delimiterReducer(' and ');
+const orReducer = delimiterReducer(' or ');
 
 export type DialectTypeCode = ('null' | 'lucene-azure' | 'mango');
 
@@ -205,8 +205,8 @@ export class CompositeFilter extends Filter {
     return `(${this.filters.map((f) => f.toQueryExpression(DialectType.LuceneAzure)).reduce(reducer)})`;
   }
 
-  protected toQueryExpressionMango(): string {
-    return 'mango';
+  protected toQueryExpressionMango(): any {
+    return { [`$${this.operator.value}`]: this.filters.map((f) => f.toQueryExpression(DialectType.Mango)) };
   }
 }
 
@@ -315,7 +315,11 @@ export class FilterMap extends IdentifiableMap<Filter> {
       return {};
     }
 
-    return { [`$${this.operator.value}`]: this.map((f) => f.toQueryExpression(DialectType.Mango)) };
+    if (this.size > 1) {
+      return { [`$${this.operator.value}`]: this.map((f) => f.toQueryExpression(DialectType.Mango)) };
+    }
+
+    return this.get(0).toQueryExpression(DialectType.Mango);
   }
 }
 

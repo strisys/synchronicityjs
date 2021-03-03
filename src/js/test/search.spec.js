@@ -245,6 +245,7 @@ describe('SearchQueryParameters', () => {
         });
     };
     describe(`Dialect: ${__1.DialectType.LuceneAzure}`, () => {
+        const companies = ['microsoft', 'google', 'nvidia'];
         const dialect = __1.DialectType.LuceneAzure;
         let pm;
         beforeEach(() => {
@@ -262,7 +263,7 @@ describe('SearchQueryParameters', () => {
             });
         }));
         it(`search parameters should match expected dialect - Simple Filter`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-            const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
+            const filters = createSimpleFilters(companies, __1.FilterOperator.Equal);
             pm.filters.set(filters);
             chai_1.assert.deepEqual(pm.toJson(dialect), {
                 queryType: 'simple',
@@ -275,7 +276,7 @@ describe('SearchQueryParameters', () => {
             });
         }));
         it(`search parameters should match expected dialect - Composite Filter`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-            const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
+            const filters = createSimpleFilters(companies, __1.FilterOperator.Equal);
             pm.filters.set(new __1.CompositeFilter(filters, __1.AndOr.Or));
             chai_1.assert.deepEqual(pm.toJson(dialect), {
                 queryType: 'simple',
@@ -288,7 +289,7 @@ describe('SearchQueryParameters', () => {
             });
         }));
         it(`search parameters should match expected dialect - Complex Filter`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-            const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
+            const filters = createSimpleFilters(companies, __1.FilterOperator.Equal);
             pm.filters.set(new __1.CompositeFilter(filters, __1.AndOr.Or));
             pm.filters.set(filters);
             chai_1.assert.deepEqual(pm.toJson(dialect), {
@@ -303,23 +304,93 @@ describe('SearchQueryParameters', () => {
         }));
     });
     describe(`Dialect: ${__1.DialectType.Mango}`, () => {
-        let pm;
-        beforeEach(() => {
-            pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
-        });
+        const companies = ['microsoft', 'google', 'nvidia'];
         const dialect = __1.DialectType.Mango;
-        it(`search parameters should match expected dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-            chai_1.assert.deepEqual(pm.toJson(dialect), {
+        let sp;
+        beforeEach(() => {
+            sp = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
+        });
+        it(`selector structure should match expected shape given this filters (0) specified and dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            // Act
+            const actual = sp.toJson(dialect);
+            chai_1.assert.deepEqual(actual, {
                 selector: {},
                 fields: [],
                 sort: []
             });
         }));
-        it(`selector structure should match expected shape for the filter and dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-            const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
-            pm.filters.set(filters);
-            chai_1.assert.deepEqual(pm.toJson(dialect), {
+        it(`selector structure should match expected shape given the filters (3) and operator (eq) and dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            // Arrange
+            const filters = createSimpleFilters(companies, __1.FilterOperator.Equal);
+            sp.filters.set(filters);
+            // Act
+            const actual = sp.toJson(dialect);
+            // Assert
+            chai_1.assert.deepEqual(actual, {
                 selector: { $and: [{ company: { $eq: 'microsoft' } }, { company: { $eq: 'google' } }, { company: { $eq: 'nvidia' } }] },
+                fields: [],
+                sort: []
+            });
+        }));
+        it(`selector structure should match expected shape given the filters (1) and operator (eq) and dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            // Arrange
+            const filters = createSimpleFilters([companies[0]], __1.FilterOperator.Equal);
+            sp.filters.set(filters);
+            // Act
+            const actual = sp.toJson(dialect);
+            // Assert
+            chai_1.assert.deepEqual(actual, {
+                selector: { company: { $eq: 'microsoft' } },
+                fields: [],
+                sort: []
+            });
+        }));
+        it(`selector structure should match expected shape given the filters (3) and operator (gt) and dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            // Arrange
+            const filters = createSimpleFilters(companies, __1.FilterOperator.GreaterThan);
+            sp.filters.set(filters);
+            // Act
+            const actual = sp.toJson(dialect);
+            // Assert
+            chai_1.assert.deepEqual(actual, {
+                selector: { $and: [{ company: { $gt: 'microsoft' } }, { company: { $gt: 'google' } }, { company: { $gt: 'nvidia' } }] },
+                fields: [],
+                sort: []
+            });
+        }));
+        it(`selector structure should match expected shape given the filter (3) and operator (lt) and dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            // Arrange
+            const filters = createSimpleFilters(companies, __1.FilterOperator.LessThan);
+            sp.filters.set(filters);
+            // Act
+            const actual = sp.toJson(dialect);
+            // Assert
+            chai_1.assert.deepEqual(actual, {
+                selector: { $and: [{ company: { $lt: 'microsoft' } }, { company: { $lt: 'google' } }, { company: { $lt: 'nvidia' } }] },
+                fields: [],
+                sort: []
+            });
+        }));
+        it(`selector structure should match expected shape given the filter (1 composite), composite operator (or), and filter operator (eq) and dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            // Arrange
+            const filter = new __1.CompositeFilter(createSimpleFilters(companies, __1.FilterOperator.Equal), __1.AndOr.Or);
+            sp.filters.set(filter);
+            // Act
+            const actual = sp.toJson(dialect);
+            chai_1.assert.deepEqual(actual, {
+                selector: { $or: [{ company: { $eq: 'microsoft' } }, { company: { $eq: 'google' } }, { 'company': { $eq: 'nvidia' } }] },
+                fields: [],
+                sort: []
+            });
+        }));
+        it(`selector structure should match expected shape given the filter (1 composite), composite operator (and), and filter operator (gt) and dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            // Arrange
+            const filter = new __1.CompositeFilter(createSimpleFilters(companies, __1.FilterOperator.GreaterThan), __1.AndOr.And);
+            sp.filters.set(filter);
+            // Act
+            const actual = sp.toJson(dialect);
+            chai_1.assert.deepEqual(actual, {
+                selector: { $and: [{ company: { $gt: 'microsoft' } }, { company: { $gt: 'google' } }, { 'company': { $gt: 'nvidia' } }] },
                 fields: [],
                 sort: []
             });

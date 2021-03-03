@@ -65,7 +65,7 @@ export declare class CompositeFilter extends Filter {
     toQueryExpression(dialect: (DialectType | string)): any;
     protected onToQueryExpression(dialect: (DialectType | string)): any;
     protected toQueryExpressionLuceneAzure(): string;
-    protected toQueryExpressionMango(): string;
+    protected toQueryExpressionMango(): any;
 }
 export declare class SimpleFilter extends Filter {
     private readonly _fieldName;

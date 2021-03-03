@@ -158,7 +158,7 @@ class CompositeFilter extends Filter {
         return `(${this.filters.map((f) => f.toQueryExpression(DialectType.LuceneAzure)).reduce(reducer)})`;
     }
     toQueryExpressionMango() {
-        return 'mango';
+        return { [`$${this.operator.value}`]: this.filters.map((f) => f.toQueryExpression(DialectType.Mango)) };
     }
 }
 exports.CompositeFilter = CompositeFilter;
@@ -240,7 +240,10 @@ class FilterMap extends _1.IdentifiableMap {
         if (this.isEmpty) {
             return {};
         }
-        return { [`$${this.operator.value}`]: this.map((f) => f.toQueryExpression(DialectType.Mango)) };
+        if (this.size > 1) {
+            return { [`$${this.operator.value}`]: this.map((f) => f.toQueryExpression(DialectType.Mango)) };
+        }
+        return this.get(0).toQueryExpression(DialectType.Mango);
     }
 }
 exports.FilterMap = FilterMap;
