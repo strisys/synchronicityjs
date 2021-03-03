@@ -127,9 +127,10 @@ FilterOperator.GreaterThan = new FilterOperator('3', 'gt');
 class Filter extends _1.Identifiable {
 }
 exports.Filter = Filter;
+Filter._instanceCounter = 0;
 class CompositeFilter extends Filter {
     constructor(filters, operator = _1.AndOr.And) {
-        super(`${CompositeFilter._counter++}`);
+        super(`cf-${Filter._instanceCounter++}`);
         this._operator = _1.AndOr.And;
         this._filters = (filters || []);
         this._operator = operator;
@@ -140,16 +141,30 @@ class CompositeFilter extends Filter {
     get operator() {
         return this._operator;
     }
-    toQueryString(dialect) {
+    toQueryExpression(dialect) {
+        return this.onToQueryExpression(dialect);
+    }
+    onToQueryExpression(dialect) {
+        if (DialectType.LuceneAzure.is(dialect)) {
+            return this.toQueryExpressionLuceneAzure();
+        }
+        if (DialectType.Mango.is(dialect)) {
+            return this.toQueryExpressionMango();
+        }
+        throw new Error(`The specified dialect [${dialect || 'null'}] is not supported.`);
+    }
+    toQueryExpressionLuceneAzure() {
         const reducer = ((_1.AndOr.And.value === this.operator.value) ? andReducer : orReducer);
-        return `(${this.filters.map((f) => f.toQueryString(dialect)).reduce(reducer)})`;
+        return `(${this.filters.map((f) => f.toQueryExpression(DialectType.LuceneAzure)).reduce(reducer)})`;
+    }
+    toQueryExpressionMango() {
+        return 'mango';
     }
 }
 exports.CompositeFilter = CompositeFilter;
-CompositeFilter._counter = 0;
 class SimpleFilter extends Filter {
     constructor(fieldName, operator, value, displayName = null) {
-        super(`${SimpleFilter._counter++}`);
+        super(`sf-${Filter._instanceCounter++}`);
         this._fieldName = fieldName;
         this._displayName = displayName;
         this._operator = operator;
@@ -167,13 +182,28 @@ class SimpleFilter extends Filter {
     get displayName() {
         return (this._displayName || this._fieldName);
     }
-    toQueryString(dialect) {
+    toQueryExpression(dialect) {
+        return this.onToQueryExpression(dialect);
+    }
+    onToQueryExpression(dialect) {
+        if (DialectType.LuceneAzure.is(dialect)) {
+            return this.toQueryExpressionLuceneAzure();
+        }
+        if (DialectType.Mango.is(dialect)) {
+            return this.toQueryExpressionMango();
+        }
+        throw new Error(`The specified dialect [${dialect || 'null'}] is not supported.`);
+    }
+    toQueryExpressionLuceneAzure() {
         const val = ((typeof this.value === 'string') ? `'${this.value}'` : this.value);
         return `(${this.fieldName} ${this.operator.value} ${val})`;
     }
+    toQueryExpressionMango() {
+        const operator = `$${this.operator.value}`;
+        return { [this.fieldName]: { [operator]: this.value } };
+    }
 }
 exports.SimpleFilter = SimpleFilter;
-SimpleFilter._counter = 0;
 class FilterMap extends _1.IdentifiableMap {
     constructor(entities) {
         super(entities);
@@ -185,14 +215,32 @@ class FilterMap extends _1.IdentifiableMap {
     set operator(andOr) {
         this._operator = andOr;
     }
-    // https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents#bkmk_examples
     toJson(dialect) {
+        return this.onToJson(dialect);
+    }
+    onToJson(dialect) {
+        if (DialectType.LuceneAzure.is(dialect)) {
+            return this.toJsonLuceneAzure();
+        }
+        if (DialectType.Mango.is(dialect)) {
+            return this.toJsonMango();
+        }
+        throw new Error(`The specified dialect [${dialect || 'null'}] is not supported.`);
+    }
+    // https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents#bkmk_examples
+    toJsonLuceneAzure() {
         if (this.isEmpty) {
             return '';
         }
         const reducer = ((_1.AndOr.And.value === this.operator.value) ? andReducer : orReducer);
-        const val = `(${this.map((f) => f.toQueryString(dialect)).reduce(reducer)})`;
+        const val = `(${this.map((f) => f.toQueryExpression(DialectType.LuceneAzure)).reduce(reducer)})`;
         return val;
+    }
+    toJsonMango() {
+        if (this.isEmpty) {
+            return {};
+        }
+        return { [`$${this.operator.value}`]: this.map((f) => f.toQueryExpression(DialectType.Mango)) };
     }
 }
 exports.FilterMap = FilterMap;
@@ -209,7 +257,25 @@ class OrderElement extends _1.Identifiable {
         return this._direction;
     }
     toString() {
+        return this.toExpression(DialectType.LuceneAzure);
+    }
+    toExpression(dialect) {
+        return this.onToExpression(dialect);
+    }
+    onToExpression(dialect) {
+        if (DialectType.LuceneAzure.is(dialect)) {
+            return this.toExpressionLuceneAzure();
+        }
+        if (DialectType.Mango.is(dialect)) {
+            return this.toExpressionMango();
+        }
+        throw new Error(`The specified dialect [${dialect || 'null'}] is not supported.`);
+    }
+    toExpressionLuceneAzure() {
         return `${this.fieldName} ${this.direction}`;
+    }
+    toExpressionMango() {
+        return { [this.fieldName]: this.direction.toString() };
     }
 }
 exports.OrderElement = OrderElement;
@@ -237,13 +303,28 @@ class OrderElementMap extends _1.IdentifiableMap {
         this.set(OrderElementDesc.searchScore);
         return this;
     }
-    toJson() {
+    toJson(dialect) {
+        return this.onToJson(dialect);
+    }
+    onToJson(dialect) {
+        if (DialectType.LuceneAzure.is(dialect)) {
+            return this.toJsonLuceneAzure();
+        }
+        if (DialectType.Mango.is(dialect)) {
+            return this.toJsonMango();
+        }
+        throw new Error(`The specified dialect [${dialect || 'null'}] is not supported.`);
+    }
+    toJsonLuceneAzure() {
         if (this.isEmpty) {
             return '';
         }
         // https://docs.microsoft.com/en-us/azure/search/search-query-odata-orderby
         const expression = this.map((f) => f.toString()).reduce(OrderElementMap.reducer);
         return (expression.endsWith(',') ? expression.substring(0, (expression.length - 1)) : expression);
+    }
+    toJsonMango() {
+        return this.map((v) => v.toExpression(DialectType.Mango));
     }
 }
 exports.OrderElementMap = OrderElementMap;
@@ -332,23 +413,27 @@ class SearchQueryParameters extends _1.EntityQueryParameters {
         }
         return ((this.skip / this.pageSize) + 1);
     }
-    // https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents#bkmk_examples
     toJson(dialect = DialectType.LuceneAzure) {
         return this.onToJson(dialect);
     }
     onToJson(dialect) {
-        if ((DialectType.LuceneAzure.value === dialect) || (DialectType.LuceneAzure.value === dialect['_value'])) {
+        if (DialectType.LuceneAzure.is(dialect)) {
             return this.toLuceneAzureJson();
         }
-        throw new Error(`The specified dialect '[(${dialect || 'null'})] is not supported.`);
+        if (DialectType.Mango.is(dialect)) {
+            return this.toMangoJson();
+        }
+        throw new Error(`The specified dialect [${dialect || 'null'}] is not supported by default.`);
     }
+    // https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents#bkmk_examples
     toLuceneAzureJson() {
+        const dialect = DialectType.LuceneAzure;
         const json = {
             queryType: this.queryType.toString(),
             search: this.searchString,
-            filter: this.filters.toJson(DialectType.LuceneAzure),
+            filter: this.filters.toJson(dialect),
             facets: this.facets.toJson(),
-            orderby: this.orderBy.toJson(),
+            orderby: this.orderBy.toJson(dialect),
             top: this.pageSize,
             count: this.count,
             skip: this.skip,
@@ -362,6 +447,15 @@ class SearchQueryParameters extends _1.EntityQueryParameters {
         if (this.orderBy.isEmpty) {
             delete json['orderby'];
         }
+        return json;
+    }
+    toMangoJson() {
+        const dialect = DialectType.Mango;
+        const json = {
+            selector: this.filters.toJson(dialect),
+            fields: [],
+            sort: []
+        };
         return json;
     }
 }
@@ -441,20 +535,24 @@ class SearchSuggestionQueryParameters extends _1.EntityQueryParameters {
         return this.onToJson(dialect);
     }
     onToJson(dialect) {
-        if ((DialectType.LuceneAzure.value === dialect) || (DialectType.LuceneAzure.value === dialect['_value'])) {
+        if (DialectType.LuceneAzure.is(dialect)) {
             return this.toLuceneAzureJson();
         }
-        throw new Error(`The specified dialect '[(${dialect || 'null'})] is not supported.`);
+        if (DialectType.Mango.is(dialect)) {
+            return this.toMangoJson();
+        }
+        throw new Error(`The specified dialect [${dialect || 'null'}] is not supported by default.`);
     }
     // https://docs.microsoft.com/en-us/rest/api/searchservice/suggestions#query-parameters
     toLuceneAzureJson() {
+        const dialect = DialectType.LuceneAzure;
         const json = {
             suggesterName: this.suggesterName,
             search: this.searchString,
             select: this.selectFields.toJson(),
             searchFields: this.searchFields.toJson(),
-            filter: this.filters.toJson(DialectType.LuceneAzure),
-            orderby: this.orderBy.toJson(),
+            filter: this.filters.toJson(dialect),
+            orderby: this.orderBy.toJson(dialect),
             top: this.pageSize,
             fuzzy: this.useFuzzySearch,
         };
@@ -470,6 +568,10 @@ class SearchSuggestionQueryParameters extends _1.EntityQueryParameters {
         if (this.searchFields.isEmpty) {
             delete json['searchFields'];
         }
+        return json;
+    }
+    toMangoJson() {
+        const json = {};
         return json;
     }
 }

@@ -18,7 +18,7 @@ export declare abstract class Enum<T> implements IEnum {
     get isNull(): boolean;
     get id(): string;
     get value(): string;
-    is(other: Enum<T>): boolean;
+    is(other: (Enum<T> | string)): boolean;
     static getSize(enumTypeName: string): number;
     private static getMap;
     protected static attemptGet: (enumTypeName: string, cacheType: EnumCacheType, value: string, isCaseInsensitive?: boolean) => IEnum;

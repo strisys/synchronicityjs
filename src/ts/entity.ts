@@ -71,8 +71,20 @@ export abstract class Enum<T> implements IEnum {
     return this._value;
   }
 
-  public is(other: Enum<T>): boolean {
-    return other && (this === other || (this._value === other.value));
+  public is(other: (Enum<T> | string)): boolean {
+    if (!other) {
+      return false;
+    }
+
+    if (this === other) {
+      return true;
+    }
+
+    if (typeof(other) === 'string') {
+      return (other === this.value || other === this.id);
+    }
+
+    return ((this._id === other.id) || (this._value === other.value));
   }
 
   public static getSize(enumTypeName: string): number {

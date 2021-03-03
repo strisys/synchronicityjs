@@ -239,15 +239,16 @@ class SearchSuggestionDataAccessService extends DataAccessServiceBase {
     }
 }
 describe('SearchQueryParameters', () => {
+    const createSimpleFilters = (values, operator) => {
+        return values.map((c) => {
+            return (new __1.SimpleFilter('company', operator, c));
+        });
+    };
     describe(`Dialect: ${__1.DialectType.LuceneAzure}`, () => {
-        const createSimpleFilters = (values, operator) => {
-            return values.map((c) => {
-                return (new __1.SimpleFilter('company', operator, c));
-            });
-        };
+        const dialect = __1.DialectType.LuceneAzure;
         it(`search parameters should match expected dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
             const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
-            chai_1.assert.deepEqual(pm.toJson(__1.DialectType.LuceneAzure), {
+            chai_1.assert.deepEqual(pm.toJson(dialect), {
                 queryType: 'simple',
                 search: 'main*',
                 filter: '',
@@ -261,7 +262,7 @@ describe('SearchQueryParameters', () => {
             const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
             const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
             pm.filters.set(filters);
-            chai_1.assert.deepEqual(pm.toJson(__1.DialectType.LuceneAzure), {
+            chai_1.assert.deepEqual(pm.toJson(dialect), {
                 queryType: 'simple',
                 search: 'main*',
                 filter: "((company eq 'microsoft') and (company eq 'google') and (company eq 'nvidia'))",
@@ -275,7 +276,7 @@ describe('SearchQueryParameters', () => {
             const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
             const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
             pm.filters.set(new __1.CompositeFilter(filters, __1.AndOr.Or));
-            chai_1.assert.deepEqual(pm.toJson(__1.DialectType.LuceneAzure), {
+            chai_1.assert.deepEqual(pm.toJson(dialect), {
                 queryType: 'simple',
                 search: 'main*',
                 filter: "(((company eq 'microsoft') or (company eq 'google') or (company eq 'nvidia')))",
@@ -290,8 +291,7 @@ describe('SearchQueryParameters', () => {
             const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
             pm.filters.set(new __1.CompositeFilter(filters, __1.AndOr.Or));
             pm.filters.set(filters);
-            console.log(pm.toJson(__1.DialectType.LuceneAzure));
-            chai_1.assert.deepEqual(pm.toJson(__1.DialectType.LuceneAzure), {
+            chai_1.assert.deepEqual(pm.toJson(dialect), {
                 queryType: 'simple',
                 search: 'main*',
                 filter: "(((company eq 'microsoft') or (company eq 'google') or (company eq 'nvidia')) and (company eq 'microsoft') and (company eq 'google') and (company eq 'nvidia'))",
@@ -303,6 +303,25 @@ describe('SearchQueryParameters', () => {
         }));
     });
     describe(`Dialect: ${__1.DialectType.Mango}`, () => {
+        const dialect = __1.DialectType.Mango;
+        it(`search parameters should match expected dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            const pm = new __1.SearchQueryParameters('property', '*', 0, 0, 100);
+            chai_1.assert.deepEqual(pm.toJson(dialect), {
+                selector: {},
+                fields: [],
+                sort: []
+            });
+        }));
+        it(`search parameters should match expected dialect - Simple Filter`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
+            const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
+            pm.filters.set(filters);
+            chai_1.assert.deepEqual(pm.toJson(dialect), {
+                selector: { $and: [{ company: { $eq: 'microsoft' } }, { company: { $eq: 'google' } }, { company: { $eq: 'nvidia' } }] },
+                fields: [],
+                sort: []
+            });
+        }));
     });
 });
 describe('SearchService', () => {

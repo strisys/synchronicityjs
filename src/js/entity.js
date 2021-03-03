@@ -56,7 +56,16 @@ class Enum {
         return this._value;
     }
     is(other) {
-        return other && (this === other || (this._value === other.value));
+        if (!other) {
+            return false;
+        }
+        if (this === other) {
+            return true;
+        }
+        if (typeof (other) === 'string') {
+            return (other === this.value || other === this.id);
+        }
+        return ((this._id === other.id) || (this._value === other.value));
     }
     static getSize(enumTypeName) {
         return Enum.getEntries(enumTypeName).length;

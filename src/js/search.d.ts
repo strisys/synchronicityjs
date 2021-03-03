@@ -53,19 +53,21 @@ export declare class FilterOperator extends Enum<FilterOperator> {
     static forEach(fn: (value: FilterOperator, index: number) => void): void;
 }
 export declare abstract class Filter extends Identifiable {
-    abstract toQueryString(dialect: (DialectType | string)): string;
+    protected static _instanceCounter: number;
+    abstract toQueryExpression(dialect: (DialectType | string)): any;
 }
 export declare class CompositeFilter extends Filter {
-    private static _counter;
     private readonly _filters;
     private readonly _operator;
     constructor(filters: Filter[], operator?: AndOr);
     get filters(): Filter[];
     get operator(): AndOr;
-    toQueryString(dialect: (DialectType | string)): string;
+    toQueryExpression(dialect: (DialectType | string)): any;
+    protected onToQueryExpression(dialect: (DialectType | string)): any;
+    protected toQueryExpressionLuceneAzure(): string;
+    protected toQueryExpressionMango(): string;
 }
 export declare class SimpleFilter extends Filter {
-    private static _counter;
     private readonly _fieldName;
     private readonly _operator;
     private readonly _displayName;
@@ -75,7 +77,10 @@ export declare class SimpleFilter extends Filter {
     get operator(): FilterOperator;
     get value(): any;
     get displayName(): string;
-    toQueryString(dialect: (DialectType | string)): string;
+    toQueryExpression(dialect: (DialectType | string)): any;
+    protected onToQueryExpression(dialect: (DialectType | string)): any;
+    protected toQueryExpressionLuceneAzure(): string;
+    protected toQueryExpressionMango(): any;
 }
 export declare class FilterMap extends IdentifiableMap<Filter> {
     private _operator;
@@ -83,6 +88,9 @@ export declare class FilterMap extends IdentifiableMap<Filter> {
     get operator(): AndOr;
     set operator(andOr: AndOr);
     toJson(dialect: (DialectType | string)): string;
+    protected onToJson(dialect: (DialectType | string)): any;
+    protected toJsonLuceneAzure(): string;
+    protected toJsonMango(): any;
 }
 export declare class OrderElement extends Identifiable {
     private readonly _fieldName;
@@ -91,6 +99,10 @@ export declare class OrderElement extends Identifiable {
     get fieldName(): string;
     get direction(): AscDesc;
     toString(): string;
+    toExpression(dialect: (DialectType | string)): any;
+    protected onToExpression(dialect: (DialectType | string)): any;
+    protected toExpressionLuceneAzure(): string;
+    protected toExpressionMango(): any;
 }
 export declare class OrderElementAsc extends OrderElement {
     constructor(fieldName: string);
@@ -104,7 +116,10 @@ export declare class OrderElementMap extends IdentifiableMap<OrderElement> {
     private static readonly reducer;
     constructor(entities?: (OrderElement | OrderElement[]));
     setSearchScore(): OrderElementMap;
-    toJson(): string;
+    toJson(dialect: (DialectType | string)): any;
+    protected onToJson(dialect: (DialectType | string)): any;
+    protected toJsonLuceneAzure(): string;
+    protected toJsonMango(): any;
 }
 export declare class Facet extends Identifiable {
     private readonly _fieldName;
@@ -144,6 +159,7 @@ export declare class SearchQueryParameters extends EntityQueryParameters {
     toJson(dialect?: (DialectType | string)): any;
     protected onToJson(dialect: (DialectType | string)): any;
     protected toLuceneAzureJson(): any;
+    protected toMangoJson(): any;
 }
 export declare class FieldElement extends Identifiable {
     private readonly _displayName;
@@ -156,7 +172,7 @@ export declare class FieldMap extends IdentifiableMap<FieldElement> {
     constructor(entities?: (string | string[]));
     private static tryConvertOne;
     private static tryConvert;
-    toJson(): string;
+    toJson(): any;
 }
 export declare class SearchSuggestionQueryParameters extends EntityQueryParameters {
     private readonly _filters;
@@ -178,6 +194,7 @@ export declare class SearchSuggestionQueryParameters extends EntityQueryParamete
     toJson(dialect?: (DialectType | string)): any;
     protected onToJson(dialect: (DialectType | string)): any;
     protected toLuceneAzureJson(): any;
+    protected toMangoJson(): any;
 }
 export declare class FacetResultValue extends Identifiable {
     private readonly _value;

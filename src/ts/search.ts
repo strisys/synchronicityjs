@@ -162,16 +162,16 @@ export class FilterOperator extends Enum<FilterOperator> {
 }
 
 export abstract class Filter extends Identifiable {
-  public abstract toQueryString(dialect: (DialectType | string)): string;
+  protected static _instanceCounter: number = 0;
+  public abstract toQueryExpression(dialect: (DialectType | string)): any;
 }
 
 export class CompositeFilter extends Filter {
-  private static _counter: number = 0;
   private readonly _filters: Filter[];
   private readonly _operator: AndOr = AndOr.And;
 
   constructor(filters: Filter[], operator: AndOr = AndOr.And) {
-    super(`${CompositeFilter._counter++}`);
+    super(`cf-${Filter._instanceCounter++}`);
     this._filters = (filters || []);
     this._operator = operator;
   }
@@ -184,21 +184,40 @@ export class CompositeFilter extends Filter {
     return this._operator;
   }
 
-  public toQueryString(dialect: (DialectType | string)): string {
+  public toQueryExpression(dialect: (DialectType | string)): any {
+    return this.onToQueryExpression(dialect);
+  }
+
+  protected onToQueryExpression(dialect: (DialectType | string)): any {
+    if (DialectType.LuceneAzure.is(dialect)) {
+      return this.toQueryExpressionLuceneAzure();
+    }
+
+    if (DialectType.Mango.is(dialect)) {
+      return this.toQueryExpressionMango();
+    }
+
+    throw new Error(`The specified dialect [${dialect || 'null'}] is not supported.`);
+  }
+
+  protected toQueryExpressionLuceneAzure(): string {
     const reducer = ((AndOr.And.value === this.operator.value) ? andReducer : orReducer);
-    return `(${this.filters.map((f) => f.toQueryString(dialect)).reduce(reducer)})`;
+    return `(${this.filters.map((f) => f.toQueryExpression(DialectType.LuceneAzure)).reduce(reducer)})`;
+  }
+
+  protected toQueryExpressionMango(): string {
+    return 'mango';
   }
 }
 
 export class SimpleFilter extends Filter {
-  private static _counter: number = 0;
   private readonly _fieldName: string;
   private readonly _operator: FilterOperator;
   private readonly _displayName: string;
   private readonly _value: any;
 
   constructor(fieldName: string, operator: FilterOperator, value: any, displayName: string = null) {
-    super(`${SimpleFilter._counter++}`);
+    super(`sf-${Filter._instanceCounter++}`);
     this._fieldName = fieldName;
     this._displayName = displayName;
     this._operator = operator;
@@ -221,9 +240,30 @@ export class SimpleFilter extends Filter {
     return (this._displayName || this._fieldName);
   }
 
-  public toQueryString(dialect: (DialectType | string)): string {
+  public toQueryExpression(dialect: (DialectType | string)): any {
+    return this.onToQueryExpression(dialect);
+  }
+
+  protected onToQueryExpression(dialect: (DialectType | string)): any {
+    if (DialectType.LuceneAzure.is(dialect)) {
+      return this.toQueryExpressionLuceneAzure();
+    }
+
+    if (DialectType.Mango.is(dialect)) {
+      return this.toQueryExpressionMango();
+    }
+
+    throw new Error(`The specified dialect [${dialect || 'null'}] is not supported.`);
+  }
+
+  protected toQueryExpressionLuceneAzure(): string {
     const val = ((typeof this.value === 'string') ? `'${this.value}'` : this.value);
     return `(${this.fieldName} ${this.operator.value} ${val})`;
+  }
+
+  protected toQueryExpressionMango(): any {
+    const operator = `$${this.operator.value}`;
+    return { [this.fieldName]: {[operator]: this.value }};
   }
 }
 
@@ -241,17 +281,41 @@ export class FilterMap extends IdentifiableMap<Filter> {
   public set operator(andOr: AndOr) {
     this._operator = andOr;
   }
+  
+  public toJson(dialect: (DialectType | string)): string {
+    return this.onToJson(dialect);
+  }
+
+  protected onToJson(dialect: (DialectType | string)): any {
+    if (DialectType.LuceneAzure.is(dialect)) {
+      return this.toJsonLuceneAzure();
+    }
+
+    if (DialectType.Mango.is(dialect)) {
+      return this.toJsonMango();
+    }
+
+    throw new Error(`The specified dialect [${dialect || 'null'}] is not supported.`);
+  }
 
   // https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents#bkmk_examples
-  public toJson(dialect: (DialectType | string)): string {
+  protected toJsonLuceneAzure(): string {
     if (this.isEmpty) {
       return '';
     }
 
     const reducer = ((AndOr.And.value === this.operator.value) ? andReducer : orReducer);
-    const val = `(${this.map((f) => f.toQueryString(dialect)).reduce(reducer)})`;
+    const val = `(${this.map((f) => f.toQueryExpression(DialectType.LuceneAzure)).reduce(reducer)})`;
 
     return val;
+  }
+
+  protected toJsonMango(): any {
+    if (this.isEmpty) {
+      return {};
+    }
+
+    return { [`$${this.operator.value}`]: this.map((f) => f.toQueryExpression(DialectType.Mango)) };
   }
 }
 
@@ -274,7 +338,31 @@ export class OrderElement extends Identifiable {
   }
 
   public toString(): string {
+    return this.toExpression(DialectType.LuceneAzure);
+  }
+
+  public toExpression(dialect: (DialectType | string)): any {
+    return this.onToExpression(dialect);
+  }
+
+  protected onToExpression(dialect: (DialectType | string)): any {
+    if (DialectType.LuceneAzure.is(dialect)) {
+      return this.toExpressionLuceneAzure();
+    }
+
+    if (DialectType.Mango.is(dialect)) {
+      return this.toExpressionMango();
+    }
+
+    throw new Error(`The specified dialect [${dialect || 'null'}] is not supported.`);
+  }
+
+  protected toExpressionLuceneAzure(): string {
     return `${this.fieldName} ${this.direction}`;
+  }
+
+  protected toExpressionMango(): any {
+    return { [this.fieldName]: this.direction.toString() };
   }
 }
 
@@ -309,7 +397,23 @@ export class OrderElementMap extends IdentifiableMap<OrderElement> {
     return this;
   }
 
-  public toJson(): string {
+  public toJson(dialect: (DialectType | string)): any {
+    return this.onToJson(dialect);
+  }
+
+  protected onToJson(dialect: (DialectType | string)): any {
+    if (DialectType.LuceneAzure.is(dialect)) {
+      return this.toJsonLuceneAzure();
+    }
+
+    if (DialectType.Mango.is(dialect)) {
+      return this.toJsonMango();
+    }
+
+    throw new Error(`The specified dialect [${dialect || 'null'}] is not supported.`);
+  }
+
+  protected toJsonLuceneAzure(): string {
     if (this.isEmpty) {
       return '';
     }
@@ -318,8 +422,11 @@ export class OrderElementMap extends IdentifiableMap<OrderElement> {
     const expression: string =  this.map((f) => f.toString()).reduce(OrderElementMap.reducer);
     return (expression.endsWith(',') ? expression.substring(0, (expression.length - 1)) : expression);
   }
-}
 
+  protected toJsonMango(): any {
+    return this.map((v) => v.toExpression(DialectType.Mango));
+  }
+}
 
 export class Facet extends Identifiable {
   private readonly _fieldName: string;
@@ -431,27 +538,33 @@ export class SearchQueryParameters extends EntityQueryParameters {
 
     return ((this.skip / this.pageSize) + 1);
   }
-
-  // https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents#bkmk_examples
+  
   public toJson(dialect: (DialectType | string) = DialectType.LuceneAzure): any {
     return this.onToJson(dialect);
   }
 
   protected onToJson(dialect: (DialectType | string)): any {
-    if ((DialectType.LuceneAzure.value === dialect) || (DialectType.LuceneAzure.value === dialect['_value'])) {
+    if (DialectType.LuceneAzure.is(dialect)) {
       return this.toLuceneAzureJson();
     }
 
-    throw new Error(`The specified dialect '[(${dialect || 'null'})] is not supported.`);
+    if (DialectType.Mango.is(dialect)) {
+      return this.toMangoJson();
+    }
+
+    throw new Error(`The specified dialect [${dialect || 'null'}] is not supported by default.`);
   }
 
+  // https://docs.microsoft.com/en-us/rest/api/searchservice/search-documents#bkmk_examples
   protected toLuceneAzureJson(): any {
+    const dialect = DialectType.LuceneAzure;
+
     const json = {
       queryType: this.queryType.toString(),
       search: this.searchString,
-      filter: this.filters.toJson(DialectType.LuceneAzure),
+      filter: this.filters.toJson(dialect),
       facets: this.facets.toJson(),
-      orderby: this.orderBy.toJson(),
+      orderby: this.orderBy.toJson(dialect),
       top: this.pageSize,
       count: this.count,
       skip: this.skip,
@@ -468,6 +581,18 @@ export class SearchQueryParameters extends EntityQueryParameters {
     if (this.orderBy.isEmpty) {
       delete json['orderby'];
     }
+
+    return json;
+  }
+
+  protected toMangoJson(): any {
+    const dialect = DialectType.Mango;
+
+    const json = {
+      selector: this.filters.toJson(dialect),
+      fields: [],
+      sort: []
+    };
 
     return json;
   }
@@ -491,7 +616,7 @@ export class FieldElement extends Identifiable {
 }
 
 export class FieldMap extends IdentifiableMap<FieldElement> {
-  private static readonly reducer =  (accumulator, currentValue) => `${accumulator},${currentValue}`;
+  private static readonly reducer = (accumulator, currentValue) => `${accumulator},${currentValue}`;
 
   constructor(entities?: (string | string[])) {
     super(FieldMap.tryConvert(entities));
@@ -509,7 +634,7 @@ export class FieldMap extends IdentifiableMap<FieldElement> {
     return (elements as []).map(FieldMap.tryConvertOne);
   }
 
-  public toJson(): string {
+  public toJson(): any {
     if (this.isEmpty) {
       return '';
     }
@@ -573,22 +698,28 @@ export class SearchSuggestionQueryParameters extends EntityQueryParameters {
   }
 
   protected onToJson(dialect: (DialectType | string)): any {
-    if ((DialectType.LuceneAzure.value === dialect) || (DialectType.LuceneAzure.value === dialect['_value'])) {
+    if (DialectType.LuceneAzure.is(dialect)) {
       return this.toLuceneAzureJson();
     }
 
-    throw new Error(`The specified dialect '[(${dialect || 'null'})] is not supported.`);
+    if (DialectType.Mango.is(dialect)) {
+      return this.toMangoJson();
+    }
+
+    throw new Error(`The specified dialect [${dialect || 'null'}] is not supported by default.`);
   }
 
   // https://docs.microsoft.com/en-us/rest/api/searchservice/suggestions#query-parameters
   protected toLuceneAzureJson(): any {
+    const dialect = DialectType.LuceneAzure;
+
     const json = {
       suggesterName: this.suggesterName,
       search: this.searchString,
       select: this.selectFields.toJson(),
       searchFields: this.searchFields.toJson(),
-      filter: this.filters.toJson(DialectType.LuceneAzure),
-      orderby: this.orderBy.toJson(),
+      filter: this.filters.toJson(dialect),
+      orderby: this.orderBy.toJson(dialect),
       top: this.pageSize,
       fuzzy: this.useFuzzySearch,
     }
@@ -608,6 +739,13 @@ export class SearchSuggestionQueryParameters extends EntityQueryParameters {
     if (this.searchFields.isEmpty) {
       delete json['searchFields'];
     }
+
+    return json;
+  }
+
+  protected toMangoJson(): any {
+    const json = {
+    };
 
     return json;
   }
