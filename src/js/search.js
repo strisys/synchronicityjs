@@ -158,7 +158,13 @@ class CompositeFilter extends Filter {
         return `(${this.filters.map((f) => f.toQueryExpression(DialectType.LuceneAzure)).reduce(reducer)})`;
     }
     toQueryExpressionMango() {
-        return { [`$${this.operator.value}`]: this.filters.map((f) => f.toQueryExpression(DialectType.Mango)) };
+        if (this.filters.length > 1) {
+            return { [`$${this.operator.value}`]: this.filters.map((f) => f.toQueryExpression(DialectType.Mango)) };
+        }
+        if (this.filters.length === 1) {
+            return this.filters[0].toQueryExpression(DialectType.Mango);
+        }
+        return {};
     }
 }
 exports.CompositeFilter = CompositeFilter;

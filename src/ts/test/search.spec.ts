@@ -479,6 +479,7 @@ describe('SearchQueryParameters', () => {
       // Act
       const actual = sp.toJson(dialect);
 
+      // Assert
       assert.deepEqual(actual, {
         selector: { $or: [{company: {$eq: 'microsoft'}}, {company: {$eq: 'google'}}, {'company': {$eq: 'nvidia'}}] },
         fields: [],
@@ -494,6 +495,7 @@ describe('SearchQueryParameters', () => {
       // Act
       const actual = sp.toJson(dialect);
 
+      // Assert
       assert.deepEqual(actual, {
         selector: { $and: [{company: {$gt: 'microsoft'}}, {company: {$gt: 'google'}}, {'company': {$gt: 'nvidia'}}] },
         fields: [],

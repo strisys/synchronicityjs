@@ -54,7 +54,7 @@ export declare class FilterOperator extends Enum<FilterOperator> {
 }
 export declare abstract class Filter extends Identifiable {
     protected static _instanceCounter: number;
-    abstract toQueryExpression(dialect: (DialectType | string)): any;
+    abstract toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
 }
 export declare class CompositeFilter extends Filter {
     private readonly _filters;
@@ -62,8 +62,8 @@ export declare class CompositeFilter extends Filter {
     constructor(filters: Filter[], operator?: AndOr);
     get filters(): Filter[];
     get operator(): AndOr;
-    toQueryExpression(dialect: (DialectType | string)): any;
-    protected onToQueryExpression(dialect: (DialectType | string)): any;
+    toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
+    protected onToQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
     protected toQueryExpressionLuceneAzure(): string;
     protected toQueryExpressionMango(): any;
 }
@@ -77,8 +77,8 @@ export declare class SimpleFilter extends Filter {
     get operator(): FilterOperator;
     get value(): any;
     get displayName(): string;
-    toQueryExpression(dialect: (DialectType | string)): any;
-    protected onToQueryExpression(dialect: (DialectType | string)): any;
+    toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
+    protected onToQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
     protected toQueryExpressionLuceneAzure(): string;
     protected toQueryExpressionMango(): any;
 }
@@ -87,8 +87,8 @@ export declare class FilterMap extends IdentifiableMap<Filter> {
     constructor(entities?: (Filter | Filter[]));
     get operator(): AndOr;
     set operator(andOr: AndOr);
-    toJson(dialect: (DialectType | string)): string;
-    protected onToJson(dialect: (DialectType | string)): any;
+    toJson(dialect: (DialectType | DialectTypeCode | string)): string;
+    protected onToJson(dialect: (DialectType | DialectTypeCode | string)): any;
     protected toJsonLuceneAzure(): string;
     protected toJsonMango(): any;
 }
@@ -99,8 +99,8 @@ export declare class OrderElement extends Identifiable {
     get fieldName(): string;
     get direction(): AscDesc;
     toString(): string;
-    toExpression(dialect: (DialectType | string)): any;
-    protected onToExpression(dialect: (DialectType | string)): any;
+    toExpression(dialect: (DialectType | DialectTypeCode | string)): any;
+    protected onToExpression(dialect: (DialectType | DialectTypeCode | string)): any;
     protected toExpressionLuceneAzure(): string;
     protected toExpressionMango(): any;
 }
@@ -116,8 +116,8 @@ export declare class OrderElementMap extends IdentifiableMap<OrderElement> {
     private static readonly reducer;
     constructor(entities?: (OrderElement | OrderElement[]));
     setSearchScore(): OrderElementMap;
-    toJson(dialect: (DialectType | string)): any;
-    protected onToJson(dialect: (DialectType | string)): any;
+    toJson(dialect: (DialectType | DialectTypeCode | string)): any;
+    protected onToJson(dialect: (DialectType | DialectTypeCode | string)): any;
     protected toJsonLuceneAzure(): string;
     protected toJsonMango(): any;
 }
@@ -156,8 +156,8 @@ export declare class SearchQueryParameters extends EntityQueryParameters {
     get skip(): number;
     set skip(value: number);
     get page(): number;
-    toJson(dialect?: (DialectType | string)): any;
-    protected onToJson(dialect: (DialectType | string)): any;
+    toJson(dialect?: (DialectType | DialectTypeCode | string)): any;
+    protected onToJson(dialect: (DialectType | DialectTypeCode | string)): any;
     protected toLuceneAzureJson(): any;
     protected toMangoJson(): any;
 }
@@ -191,8 +191,8 @@ export declare class SearchSuggestionQueryParameters extends EntityQueryParamete
     get selectFields(): FieldMap;
     get useFuzzySearch(): boolean;
     set useFuzzySearch(value: boolean);
-    toJson(dialect?: (DialectType | string)): any;
-    protected onToJson(dialect: (DialectType | string)): any;
+    toJson(dialect?: (DialectType | DialectTypeCode | string)): any;
+    protected onToJson(dialect: (DialectType | DialectTypeCode | string)): any;
     protected toLuceneAzureJson(): any;
     protected toMangoJson(): any;
 }

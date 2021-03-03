@@ -163,7 +163,7 @@ export class FilterOperator extends Enum<FilterOperator> {
 
 export abstract class Filter extends Identifiable {
   protected static _instanceCounter: number = 0;
-  public abstract toQueryExpression(dialect: (DialectType | string)): any;
+  public abstract toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
 }
 
 export class CompositeFilter extends Filter {
@@ -184,11 +184,11 @@ export class CompositeFilter extends Filter {
     return this._operator;
   }
 
-  public toQueryExpression(dialect: (DialectType | string)): any {
+  public toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any {
     return this.onToQueryExpression(dialect);
   }
 
-  protected onToQueryExpression(dialect: (DialectType | string)): any {
+  protected onToQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any {
     if (DialectType.LuceneAzure.is(dialect)) {
       return this.toQueryExpressionLuceneAzure();
     }
@@ -206,7 +206,15 @@ export class CompositeFilter extends Filter {
   }
 
   protected toQueryExpressionMango(): any {
-    return { [`$${this.operator.value}`]: this.filters.map((f) => f.toQueryExpression(DialectType.Mango)) };
+    if (this.filters.length > 1) {
+      return { [`$${this.operator.value}`]: this.filters.map((f) => f.toQueryExpression(DialectType.Mango)) };
+    }
+
+    if (this.filters.length === 1) {
+      return this.filters[0].toQueryExpression(DialectType.Mango);
+    }
+
+    return {};
   }
 }
 
@@ -240,11 +248,11 @@ export class SimpleFilter extends Filter {
     return (this._displayName || this._fieldName);
   }
 
-  public toQueryExpression(dialect: (DialectType | string)): any {
+  public toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any {
     return this.onToQueryExpression(dialect);
   }
 
-  protected onToQueryExpression(dialect: (DialectType | string)): any {
+  protected onToQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any {
     if (DialectType.LuceneAzure.is(dialect)) {
       return this.toQueryExpressionLuceneAzure();
     }
@@ -282,11 +290,11 @@ export class FilterMap extends IdentifiableMap<Filter> {
     this._operator = andOr;
   }
   
-  public toJson(dialect: (DialectType | string)): string {
+  public toJson(dialect: (DialectType | DialectTypeCode | string)): string {
     return this.onToJson(dialect);
   }
 
-  protected onToJson(dialect: (DialectType | string)): any {
+  protected onToJson(dialect: (DialectType | DialectTypeCode | string)): any {
     if (DialectType.LuceneAzure.is(dialect)) {
       return this.toJsonLuceneAzure();
     }
@@ -345,11 +353,11 @@ export class OrderElement extends Identifiable {
     return this.toExpression(DialectType.LuceneAzure);
   }
 
-  public toExpression(dialect: (DialectType | string)): any {
+  public toExpression(dialect: (DialectType | DialectTypeCode | string)): any {
     return this.onToExpression(dialect);
   }
 
-  protected onToExpression(dialect: (DialectType | string)): any {
+  protected onToExpression(dialect: (DialectType | DialectTypeCode | string)): any {
     if (DialectType.LuceneAzure.is(dialect)) {
       return this.toExpressionLuceneAzure();
     }
@@ -401,11 +409,11 @@ export class OrderElementMap extends IdentifiableMap<OrderElement> {
     return this;
   }
 
-  public toJson(dialect: (DialectType | string)): any {
+  public toJson(dialect: (DialectType | DialectTypeCode | string)): any {
     return this.onToJson(dialect);
   }
 
-  protected onToJson(dialect: (DialectType | string)): any {
+  protected onToJson(dialect: (DialectType | DialectTypeCode | string)): any {
     if (DialectType.LuceneAzure.is(dialect)) {
       return this.toJsonLuceneAzure();
     }
@@ -543,11 +551,11 @@ export class SearchQueryParameters extends EntityQueryParameters {
     return ((this.skip / this.pageSize) + 1);
   }
   
-  public toJson(dialect: (DialectType | string) = DialectType.LuceneAzure): any {
+  public toJson(dialect: (DialectType | DialectTypeCode | string) = DialectType.LuceneAzure): any {
     return this.onToJson(dialect);
   }
 
-  protected onToJson(dialect: (DialectType | string)): any {
+  protected onToJson(dialect: (DialectType | DialectTypeCode | string)): any {
     if (DialectType.LuceneAzure.is(dialect)) {
       return this.toLuceneAzureJson();
     }
@@ -697,11 +705,11 @@ export class SearchSuggestionQueryParameters extends EntityQueryParameters {
     this._useFuzzySearch = (value || false);
   }
   
-  public toJson(dialect: (DialectType | string) = DialectType.LuceneAzure): any {
+  public toJson(dialect: (DialectType | DialectTypeCode | string) = DialectType.LuceneAzure): any {
     return this.onToJson(dialect);
   }
 
-  protected onToJson(dialect: (DialectType | string)): any {
+  protected onToJson(dialect: (DialectType | DialectTypeCode | string)): any {
     if (DialectType.LuceneAzure.is(dialect)) {
       return this.toLuceneAzureJson();
     }
