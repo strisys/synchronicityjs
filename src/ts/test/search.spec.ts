@@ -321,10 +321,13 @@ describe('SearchQueryParameters', () => {
 
   describe(`Dialect: ${DialectType.LuceneAzure}`, () => {
     const dialect = DialectType.LuceneAzure;
+    let pm: SearchQueryParameters;
 
-    it(`search parameters should match expected dialect`, async () => {
-      const pm = new SearchQueryParameters('property', 'main*', 0, 0, 100);
-       
+    beforeEach(() => {
+      pm = new SearchQueryParameters('property', 'main*', 0, 0, 100);
+    });
+
+    it(`search parameters should match expected dialect`, async () => {       
       assert.deepEqual(pm.toJson(dialect), {
         queryType: 'simple',
         search: 'main*',
@@ -337,8 +340,6 @@ describe('SearchQueryParameters', () => {
     });
 
     it(`search parameters should match expected dialect - Simple Filter`, async () => {
-      const pm = new SearchQueryParameters('property', 'main*', 0, 0, 100);
-
       const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], FilterOperator.Equal);
       pm.filters.set(filters);
 
@@ -354,8 +355,6 @@ describe('SearchQueryParameters', () => {
     });
 
     it(`search parameters should match expected dialect - Composite Filter`, async () => {
-      const pm = new SearchQueryParameters('property', 'main*', 0, 0, 100);
-
       const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], FilterOperator.Equal);
       pm.filters.set(new CompositeFilter(filters, AndOr.Or));
 
@@ -371,8 +370,6 @@ describe('SearchQueryParameters', () => {
     });
 
     it(`search parameters should match expected dialect - Complex Filter`, async () => {
-      const pm = new SearchQueryParameters('property', 'main*', 0, 0, 100);
-
       const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], FilterOperator.Equal);
       pm.filters.set(new CompositeFilter(filters, AndOr.Or));
       pm.filters.set(filters);
@@ -390,11 +387,15 @@ describe('SearchQueryParameters', () => {
   })
 
   describe(`Dialect: ${DialectType.Mango}`, () => {
+    let pm: SearchQueryParameters;
+
+    beforeEach(() => {
+      pm = new SearchQueryParameters('property', 'main*', 0, 0, 100);
+    });
+
     const dialect = DialectType.Mango;
 
-    it(`search parameters should match expected dialect`, async () => {
-      const pm = new SearchQueryParameters('property', '*', 0, 0, 100);
-       
+    it(`search parameters should match expected dialect`, async () => {      
       assert.deepEqual(pm.toJson(dialect), {
           selector: {},
           fields: [],
@@ -402,9 +403,7 @@ describe('SearchQueryParameters', () => {
       });
     });
 
-    it(`search parameters should match expected dialect - Simple Filter`, async () => {
-      const pm = new SearchQueryParameters('property', 'main*', 0, 0, 100);
-  
+    it(`selector structure should match expected shape for the filter and dialect`, async () => {
       const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], FilterOperator.Equal);
       pm.filters.set(filters);
 

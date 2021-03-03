@@ -246,8 +246,11 @@ describe('SearchQueryParameters', () => {
     };
     describe(`Dialect: ${__1.DialectType.LuceneAzure}`, () => {
         const dialect = __1.DialectType.LuceneAzure;
+        let pm;
+        beforeEach(() => {
+            pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
+        });
         it(`search parameters should match expected dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-            const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
             chai_1.assert.deepEqual(pm.toJson(dialect), {
                 queryType: 'simple',
                 search: 'main*',
@@ -259,7 +262,6 @@ describe('SearchQueryParameters', () => {
             });
         }));
         it(`search parameters should match expected dialect - Simple Filter`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-            const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
             const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
             pm.filters.set(filters);
             chai_1.assert.deepEqual(pm.toJson(dialect), {
@@ -273,7 +275,6 @@ describe('SearchQueryParameters', () => {
             });
         }));
         it(`search parameters should match expected dialect - Composite Filter`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-            const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
             const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
             pm.filters.set(new __1.CompositeFilter(filters, __1.AndOr.Or));
             chai_1.assert.deepEqual(pm.toJson(dialect), {
@@ -287,7 +288,6 @@ describe('SearchQueryParameters', () => {
             });
         }));
         it(`search parameters should match expected dialect - Complex Filter`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-            const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
             const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
             pm.filters.set(new __1.CompositeFilter(filters, __1.AndOr.Or));
             pm.filters.set(filters);
@@ -303,17 +303,19 @@ describe('SearchQueryParameters', () => {
         }));
     });
     describe(`Dialect: ${__1.DialectType.Mango}`, () => {
+        let pm;
+        beforeEach(() => {
+            pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
+        });
         const dialect = __1.DialectType.Mango;
         it(`search parameters should match expected dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-            const pm = new __1.SearchQueryParameters('property', '*', 0, 0, 100);
             chai_1.assert.deepEqual(pm.toJson(dialect), {
                 selector: {},
                 fields: [],
                 sort: []
             });
         }));
-        it(`search parameters should match expected dialect - Simple Filter`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-            const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
+        it(`selector structure should match expected shape for the filter and dialect`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
             const filters = createSimpleFilters(['microsoft', 'google', 'nvidia'], __1.FilterOperator.Equal);
             pm.filters.set(filters);
             chai_1.assert.deepEqual(pm.toJson(dialect), {
