@@ -7,13 +7,29 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Mocha",
+      "name": "Mocha (JS)",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": [
           "-u", "bdd",
           "--timeout", "999999",
-          "--colors", "--recursive",
+          "--colors", 
+          "--recursive",
           "${workspaceFolder}/src/js/test/**/*.spec.js"
+      ],
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Mocha (TS)",
+      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+      "args": [
+        "--require", "ts-node/register",
+        "-u", "bdd",
+        "--timeout", "999999",
+        "--colors", 
+        "--recursive",
+        "${workspaceFolder}/src/ts/test/**/*.spec.ts"
       ],
       "internalConsoleOptions": "openOnSessionStart"
     }
