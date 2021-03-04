@@ -136,7 +136,14 @@ export declare class FacetMap extends IdentifiableMap<Facet> {
     constructor(entities?: (Facet | Facet[]));
     toJson(): string[];
 }
-export declare class SearchQueryParameters extends EntityQueryParameters {
+export declare class SearchQueryParametersBase extends EntityQueryParameters {
+    private _searchFields;
+    private _selectFields;
+    constructor(searchString: string, pageNumber: number, pageSize: number);
+    get searchFields(): FieldMap;
+    get selectFields(): FieldMap;
+}
+export declare class SearchQueryParameters extends SearchQueryParametersBase {
     private readonly _facets;
     private readonly _filters;
     private readonly _orderElements;
@@ -167,6 +174,7 @@ export declare class FieldElement extends Identifiable {
     constructor(physicalName: string, displayName?: string);
     get physicalName(): string;
     get displayName(): string;
+    static from(physicalNames: string[]): FieldElement[];
 }
 export declare class FieldMap extends IdentifiableMap<FieldElement> {
     private static readonly reducer;
@@ -175,21 +183,17 @@ export declare class FieldMap extends IdentifiableMap<FieldElement> {
     private static tryConvert;
     toJson(): any;
 }
-export declare class SearchSuggestionQueryParameters extends EntityQueryParameters {
+export declare class SearchSuggestionQueryParameters extends SearchQueryParametersBase {
     private readonly _filters;
     private readonly _orderElements;
     private _indexName;
     private _suggesterName;
-    private _searchFields;
-    private _selectFields;
     private _useFuzzySearch;
     constructor(indexName: string, suggesterName: string, searchString: string, searchFields?: string[], selectFields?: string[], pageSize?: number);
     get indexName(): string;
     get suggesterName(): string;
     get filters(): FilterMap;
     get orderBy(): OrderElementMap;
-    get searchFields(): FieldMap;
-    get selectFields(): FieldMap;
     get useFuzzySearch(): boolean;
     set useFuzzySearch(value: boolean);
     toJson(dialect?: (DialectType | DialectTypeCode | string)): any;

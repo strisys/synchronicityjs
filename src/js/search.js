@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SearchSuggestionResultPage = exports.SearchSuggestionResult = exports.SearchResultPage = exports.SearchResult = exports.FacetResultMap = exports.FacetResult = exports.FacetResultValueMap = exports.FacetResultValue = exports.SearchSuggestionQueryParameters = exports.FieldMap = exports.FieldElement = exports.SearchQueryParameters = exports.FacetMap = exports.Facet = exports.OrderElementMap = exports.OrderElementDesc = exports.OrderElementAsc = exports.OrderElement = exports.FilterMap = exports.SimpleFilter = exports.CompositeFilter = exports.Filter = exports.FilterOperator = exports.QueryType = exports.DialectType = void 0;
+exports.SearchSuggestionResultPage = exports.SearchSuggestionResult = exports.SearchResultPage = exports.SearchResult = exports.FacetResultMap = exports.FacetResult = exports.FacetResultValueMap = exports.FacetResultValue = exports.SearchSuggestionQueryParameters = exports.FieldMap = exports.FieldElement = exports.SearchQueryParameters = exports.SearchQueryParametersBase = exports.FacetMap = exports.Facet = exports.OrderElementMap = exports.OrderElementDesc = exports.OrderElementAsc = exports.OrderElement = exports.FilterMap = exports.SimpleFilter = exports.CompositeFilter = exports.Filter = exports.FilterOperator = exports.QueryType = exports.DialectType = void 0;
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const _1 = require(".");
@@ -258,7 +258,7 @@ class OrderElement extends _1.Identifiable {
     constructor(fieldName, direction = _1.AscDesc.Asc) {
         super(fieldName);
         this._fieldName = fieldName;
-        this._direction = (((typeof (direction) === 'string') ? _1.AscDesc.tryParse(direction) : direction) || _1.AscDesc.Null);
+        this._direction = (((typeof (direction) === 'string') ? _1.AscDesc.tryParse(direction) : direction) || _1.AscDesc.Asc);
     }
     get fieldName() {
         return this._fieldName;
@@ -373,9 +373,23 @@ class FacetMap extends _1.IdentifiableMap {
     }
 }
 exports.FacetMap = FacetMap;
-class SearchQueryParameters extends _1.EntityQueryParameters {
-    constructor(indexName, searchString, skip = 0, pageNumber, pageSize) {
+class SearchQueryParametersBase extends _1.EntityQueryParameters {
+    constructor(searchString, pageNumber, pageSize) {
         super(pageNumber, pageSize, searchString);
+        this._searchFields = new FieldMap();
+        this._selectFields = new FieldMap();
+    }
+    get searchFields() {
+        return this._searchFields;
+    }
+    get selectFields() {
+        return this._selectFields;
+    }
+}
+exports.SearchQueryParametersBase = SearchQueryParametersBase;
+class SearchQueryParameters extends SearchQueryParametersBase {
+    constructor(indexName, searchString, skip = 0, pageNumber, pageSize) {
+        super(searchString, pageNumber, pageSize);
         this._facets = new FacetMap();
         this._filters = new FilterMap();
         this._orderElements = new OrderElementMap();
@@ -481,6 +495,9 @@ class FieldElement extends _1.Identifiable {
     get displayName() {
         return this._displayName;
     }
+    static from(physicalNames) {
+        return (physicalNames || []).map((s) => new FieldElement(s));
+    }
 }
 exports.FieldElement = FieldElement;
 class FieldMap extends _1.IdentifiableMap {
@@ -506,16 +523,16 @@ class FieldMap extends _1.IdentifiableMap {
 }
 exports.FieldMap = FieldMap;
 FieldMap.reducer = (accumulator, currentValue) => `${accumulator},${currentValue}`;
-class SearchSuggestionQueryParameters extends _1.EntityQueryParameters {
+class SearchSuggestionQueryParameters extends SearchQueryParametersBase {
     constructor(indexName, suggesterName, searchString, searchFields = [], selectFields = [], pageSize = 5) {
-        super(0, pageSize, searchString);
+        super(searchString, 0, pageSize);
         this._filters = new FilterMap();
         this._orderElements = new OrderElementMap();
         this._useFuzzySearch = true;
         this._indexName = indexName;
         this._suggesterName = suggesterName;
-        this._searchFields = new FieldMap(searchFields);
-        this._selectFields = new FieldMap(selectFields);
+        this.searchFields.set(FieldElement.from(searchFields));
+        this.selectFields.set(FieldElement.from(selectFields));
     }
     get indexName() {
         return this._indexName;
@@ -528,12 +545,6 @@ class SearchSuggestionQueryParameters extends _1.EntityQueryParameters {
     }
     get orderBy() {
         return this._orderElements;
-    }
-    get searchFields() {
-        return this._searchFields;
-    }
-    get selectFields() {
-        return this._selectFields;
     }
     get useFuzzySearch() {
         return (this._useFuzzySearch || false);

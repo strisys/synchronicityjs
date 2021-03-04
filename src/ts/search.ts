@@ -339,7 +339,7 @@ export class OrderElement extends Identifiable {
   constructor(fieldName: string, direction: (AscDesc | AscDescCode) = AscDesc.Asc) {
     super(fieldName);
     this._fieldName = fieldName;
-    this._direction = (((typeof(direction) === 'string') ? AscDesc.tryParse(direction) : direction) || AscDesc.Null);
+    this._direction = (((typeof(direction) === 'string') ? AscDesc.tryParse(direction) : direction) || AscDesc.Asc);
   }
 
   public get fieldName(): string {
@@ -485,7 +485,27 @@ export class FacetMap extends IdentifiableMap<Facet> {
   }
 }
 
-export class SearchQueryParameters extends EntityQueryParameters {
+export class SearchQueryParametersBase extends EntityQueryParameters {
+  private _searchFields: FieldMap;
+  private _selectFields: FieldMap;
+
+  constructor(searchString: string, pageNumber: number, pageSize: number) {
+    super(pageNumber, pageSize, searchString);
+
+    this._searchFields = new FieldMap();
+    this._selectFields = new FieldMap();
+  }
+
+  public get searchFields(): FieldMap {
+    return this._searchFields;
+  }
+
+  public get selectFields(): FieldMap {
+    return this._selectFields;
+  }
+}
+
+export class SearchQueryParameters extends SearchQueryParametersBase {
   private readonly _facets = new FacetMap();
   private readonly _filters = new FilterMap();
   private readonly _orderElements = new OrderElementMap();
@@ -495,7 +515,7 @@ export class SearchQueryParameters extends EntityQueryParameters {
   private _skip;
 
   constructor(indexName: string, searchString: string, skip = 0, pageNumber: number, pageSize: number) {
-    super(pageNumber, pageSize, searchString);
+    super(searchString, pageNumber, pageSize);
     this._indexName = indexName;
     this._skip = skip;
   }
@@ -603,7 +623,7 @@ export class SearchQueryParameters extends EntityQueryParameters {
 
     const json = {
       selector: this.filters.toJson(dialect),
-      fields: [],
+      fields: [], // this.selectFields.toJson(dialect),
       sort: this.orderBy.toJson(dialect),
     };
 
@@ -625,6 +645,10 @@ export class FieldElement extends Identifiable {
 
   public get displayName(): string {
     return this._displayName;
+  }
+
+  public static from(physicalNames: string[]): FieldElement[] {
+    return (physicalNames || []).map((s) => new FieldElement(s));
   }
 }
 
@@ -657,21 +681,19 @@ export class FieldMap extends IdentifiableMap<FieldElement> {
   }
 }
 
-export class SearchSuggestionQueryParameters extends EntityQueryParameters {
+export class SearchSuggestionQueryParameters extends SearchQueryParametersBase {
   private readonly _filters = new FilterMap();
   private readonly _orderElements = new OrderElementMap();
   private _indexName: string;
   private _suggesterName: string;
-  private _searchFields: FieldMap;
-  private _selectFields: FieldMap;
   private _useFuzzySearch = true;
 
   constructor(indexName: string, suggesterName: string, searchString: string, searchFields: string[] = [], selectFields: string[] = [], pageSize = 5) {
-    super(0, pageSize, searchString);
+    super(searchString, 0, pageSize);
     this._indexName = indexName;
     this._suggesterName = suggesterName;
-    this._searchFields = new FieldMap(searchFields);
-    this._selectFields = new FieldMap(selectFields);
+    this.searchFields.set(FieldElement.from(searchFields));
+    this.selectFields.set(FieldElement.from(selectFields));
   }
 
   public get indexName(): string {
@@ -688,14 +710,6 @@ export class SearchSuggestionQueryParameters extends EntityQueryParameters {
 
   public get orderBy(): OrderElementMap {
     return this._orderElements;
-  }
-
-  public get searchFields(): FieldMap {
-    return this._searchFields;
-  }
-
-  public get selectFields(): FieldMap {
-    return this._selectFields;
   }
 
   public get useFuzzySearch(): boolean {
