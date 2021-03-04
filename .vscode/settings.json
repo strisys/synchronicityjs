@@ -1,0 +1,15 @@
+{
+  "files.exclude": {
+    "node_modules": true,
+    "src/js": false,
+    "dist": false,
+    "dist/.well-known": true,
+    "dist/img": false,
+    "dist/css": true,
+    ".gitignore": true,
+    ".eslintrc.js": true,
+    "tsconfig.json": false,
+    ".nycrc": true,
+    ".nyc_output": true
+  }
+}

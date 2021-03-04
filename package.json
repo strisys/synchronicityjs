@@ -16,10 +16,12 @@
     "transpile": "npm-run-all transpile-clean tsc-version tsc",
     "mocha": "mocha --reporter spec ./src/js/test/**/*.spec.js",
     "mocha:ts": "mocha --require ts-node/register ./src/ts/test/**/*.spec.ts",
+    "mocha:ts:watch": "mocha --require ts-node/register ./src/ts/test/**/*.spec.ts --watch",
     "lint": "eslint",
     "test:ts": "npm-run-all mocha:ts",
-    "test": "npm-run-all transpile lint mocha",
-    "coverage": "nyc npm run test"
+    "test": "npm-run-all mocha:ts:watch",
+    "test-full": "npm-run-all transpile lint mocha",
+    "coverage": "nyc npm run test-full"
   },
   "husky": {
     "hooks": {
