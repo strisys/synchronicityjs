@@ -466,10 +466,9 @@ describe('SearchQueryParameters', () => {
                 }));
                 it(`sort shape should match expected shape give orderBy of fields (1)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
                     // Arrange
-                    sp.orderBy.set([new __1.OrderElement('company', __1.AscDesc.Asc)]);
+                    sp.orderBy.set(new __1.OrderElement('company', 'asc'));
                     // Act
                     const actual = sp.toJson(dialect);
-                    console.log(JSON.stringify(actual));
                     // Assert
                     chai_1.assert.deepEqual(actual, {
                         selector: {},
@@ -479,10 +478,9 @@ describe('SearchQueryParameters', () => {
                 }));
                 it(`sort shape should match expected shape give orderBy of fields (2)`, () => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
                     // Arrange
-                    sp.orderBy.set([new __1.OrderElement('company', __1.AscDesc.Asc), new __1.OrderElement('address', __1.AscDesc.Desc)]);
+                    sp.orderBy.set([new __1.OrderElement('company', 'asc'), new __1.OrderElement('address', 'desc')]);
                     // Act
                     const actual = sp.toJson(dialect);
-                    console.log(JSON.stringify(actual));
                     // Assert
                     chai_1.assert.deepEqual(actual, {
                         selector: {},

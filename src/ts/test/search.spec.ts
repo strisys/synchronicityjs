@@ -592,7 +592,7 @@ describe('SearchQueryParameters', () => {
 
         it(`sort shape should match expected shape give orderBy of fields (1)`, async () => {  
           // Arrange
-          sp.orderBy.set([new OrderElement('company', AscDesc.Asc)]);
+          sp.orderBy.set(new OrderElement('company', 'asc'));
 
           // Act
           const actual = sp.toJson(dialect);
@@ -607,7 +607,7 @@ describe('SearchQueryParameters', () => {
 
         it(`sort shape should match expected shape give orderBy of fields (2)`, async () => {  
           // Arrange
-          sp.orderBy.set([new OrderElement('company', AscDesc.Asc), new OrderElement('address', AscDesc.Desc)]);
+          sp.orderBy.set([new OrderElement('company', 'asc'), new OrderElement('address', 'desc')]);
 
           // Act
           const actual = sp.toJson(dialect);

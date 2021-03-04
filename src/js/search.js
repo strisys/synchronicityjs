@@ -258,7 +258,7 @@ class OrderElement extends _1.Identifiable {
     constructor(fieldName, direction = _1.AscDesc.Asc) {
         super(fieldName);
         this._fieldName = fieldName;
-        this._direction = direction;
+        this._direction = (((typeof (direction) === 'string') ? _1.AscDesc.tryParse(direction) : direction) || _1.AscDesc.Null);
     }
     get fieldName() {
         return this._fieldName;

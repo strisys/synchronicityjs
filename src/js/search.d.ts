@@ -1,4 +1,4 @@
-import { AndOr, AscDesc, Enum, EntityQueryPage, EntityQueryParameters, Identifiable, IdentifiableMap, DataTable } from '.';
+import { AndOr, AscDesc, AscDescCode, Enum, EntityQueryPage, EntityQueryParameters, Identifiable, IdentifiableMap, DataTable } from '.';
 export declare type DialectTypeCode = ('null' | 'lucene-azure' | 'mango');
 export declare class DialectType extends Enum<DialectType> {
     private static readonly TypeName;
@@ -96,7 +96,7 @@ export declare class FilterMap extends IdentifiableMap<Filter> {
 export declare class OrderElement extends Identifiable {
     private readonly _fieldName;
     private readonly _direction;
-    constructor(fieldName: string, direction?: AscDesc);
+    constructor(fieldName: string, direction?: (AscDesc | AscDescCode));
     get fieldName(): string;
     get direction(): AscDesc;
     toString(): string;

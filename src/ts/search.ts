@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AndOr, AscDesc, Enum, EntityQueryPage, EntityQueryParameters, Identifiable, IdentifiableMap, DataTable } from '.';
+import { AndOr, AscDesc, AscDescCode, Enum, EntityQueryPage, EntityQueryParameters, Identifiable, IdentifiableMap, DataTable } from '.';
 
 const delimiterReducer = (delimiter: string) => {
   return (accumulator, currentValue) => `${accumulator}${delimiter}${currentValue}`;
@@ -336,10 +336,10 @@ export class OrderElement extends Identifiable {
   private readonly _fieldName: string;
   private readonly _direction: AscDesc;
 
-  constructor(fieldName: string, direction: AscDesc = AscDesc.Asc) {
+  constructor(fieldName: string, direction: (AscDesc | AscDescCode) = AscDesc.Asc) {
     super(fieldName);
     this._fieldName = fieldName;
-    this._direction = direction;
+    this._direction = (((typeof(direction) === 'string') ? AscDesc.tryParse(direction) : direction) || AscDesc.Null);
   }
 
   public get fieldName(): string {
