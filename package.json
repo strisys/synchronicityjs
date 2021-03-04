@@ -15,8 +15,9 @@
     "transpile-clean": "rimraf ./src/js",
     "transpile": "npm-run-all transpile-clean tsc-version tsc",
     "mocha": "mocha --reporter spec ./src/js/test/**/*.spec.js",
+    "mocha:ts": "mocha --require ts-node/register ./src/ts/test/**/*.spec.ts",
     "lint": "eslint",
-    "test:ts": "npm-run-all transpile lint mocha",
+    "test:ts": "npm-run-all mocha:ts",
     "test": "npm-run-all transpile lint mocha",
     "coverage": "nyc npm run test"
   },
