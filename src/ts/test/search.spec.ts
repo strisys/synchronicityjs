@@ -1,5 +1,6 @@
 import { assert } from 'chai';
 import { AndOr, AscDesc, DataTable, DialectType, FacetResult, FacetResultMap, FacetResultValue, OrderElement, SearchQueryParameters, SearchResult, SearchResultPage, SearchSuggestionResultPage, SearchSuggestionQueryParameters, SearchSuggestionResult, SimpleFilter, CompositeFilter, Filter, FilterOperator } from '..';
+import { FieldElement } from '../search';
 import searchResultJson = require('./search-result.json');
 import suggestionResultJson = require('./suggestion-result.json');
 
@@ -567,16 +568,13 @@ describe('SearchQueryParameters', () => {
       });
 
       describe('fields', () => {
-      });
-
-      describe('sort', () => {
         let sp: SearchQueryParameters;
     
         beforeEach(() => {
           sp = new SearchQueryParameters('property', 'main*', 0, 0, 100);
         }); 
-    
-        it(`sort shape should match expected shape give orderBy of fields (0)`, function() {  
+
+        it(`fields shape should match expected shape given 'selectFields' (0)`, function() {  
           // Arrange
 
           // Act
@@ -590,7 +588,44 @@ describe('SearchQueryParameters', () => {
           });
         });
 
-        it(`sort shape should match expected shape give orderBy of fields (1)`, function() {  
+        it(`fields shape should match expected shape given 'selectFields' (1)`, function() {  
+          // Arrange
+          sp.selectFields.set(new FieldElement('company'));
+
+          // Act
+          const actual = sp.toJson(dialect);
+    
+          // Assert
+          assert.deepEqual(actual, {
+              selector: {},
+              fields: ['company'],
+              sort: []
+          });
+        });
+      });
+
+      describe('sort', () => {
+        let sp: SearchQueryParameters;
+    
+        beforeEach(() => {
+          sp = new SearchQueryParameters('property', 'main*', 0, 0, 100);
+        }); 
+    
+        it(`sort shape should match expected shape given 'orderBy' fields (0)`, function() {  
+          // Arrange
+
+          // Act
+          const actual = sp.toJson(dialect);
+    
+          // Assert
+          assert.deepEqual(actual, {
+              selector: {},
+              fields: [],
+              sort: []
+          });
+        });
+
+        it(`sort shape should match expected shape given 'orderBy' of fields (1)`, function() {  
           // Arrange
           sp.orderBy.set(new OrderElement('company', 'asc'));
 
@@ -605,7 +640,7 @@ describe('SearchQueryParameters', () => {
           });
         });
 
-        it(`sort shape should match expected shape give orderBy of fields (2)`, function() {  
+        it(`sort shape should match expected shape given 'orderBy' of fields (2)`, function() {  
           // Arrange
           sp.orderBy.set([new OrderElement('company', 'asc'), new OrderElement('address', 'desc')]);
 

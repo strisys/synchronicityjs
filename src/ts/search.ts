@@ -618,12 +618,13 @@ export class SearchQueryParameters extends SearchQueryParametersBase {
     return json;
   }
 
+  // https://github.com/pouchdb/pouchdb/blob/7532eb30f514d37b94f829ed22e70da7f3c1ed3a/tests/find/test-suite-1/test.eq.js
   protected toMangoJson(): any {
     const dialect = DialectType.Mango;
 
     const json = {
       selector: this.filters.toJson(dialect),
-      fields: [], // this.selectFields.toJson(dialect),
+      fields: this.selectFields.toJson(dialect),
       sort: this.orderBy.toJson(dialect),
     };
 
@@ -671,13 +672,37 @@ export class FieldMap extends IdentifiableMap<FieldElement> {
     return (elements as []).map(FieldMap.tryConvertOne);
   }
 
-  public toJson(): any {
+  public toJson(dialect: (DialectType | DialectTypeCode | string)): any {
+    return this.onToJson(dialect);
+  }
+
+  protected onToJson(dialect: (DialectType | DialectTypeCode | string)): any {
+    if (DialectType.LuceneAzure.is(dialect)) {
+      return this.toLuceneAzureJson();
+    }
+
+    if (DialectType.Mango.is(dialect)) {
+      return this.toMangoJson();
+    }
+
+    throw new Error(`The specified dialect [${dialect || 'null'}] is not supported by default.`);
+  }
+
+  protected toLuceneAzureJson(): any {
     if (this.isEmpty) {
       return '';
     }
 
     const expression: string =  this.map((f) => f.physicalName).reduce(FieldMap.reducer);
     return (expression.endsWith(',') ? expression.substring(0, (expression.length - 1)) : expression);
+  }
+
+  protected toMangoJson(): any {
+    if (this.isEmpty) {
+      return [];
+    }
+
+    return this.map((f) => f.physicalName);
   }
 }
 
@@ -743,8 +768,8 @@ export class SearchSuggestionQueryParameters extends SearchQueryParametersBase {
     const json = {
       suggesterName: this.suggesterName,
       search: this.searchString,
-      select: this.selectFields.toJson(),
-      searchFields: this.searchFields.toJson(),
+      select: this.selectFields.toJson(dialect),
+      searchFields: this.searchFields.toJson(dialect),
       filter: this.filters.toJson(dialect),
       orderby: this.orderBy.toJson(dialect),
       top: this.pageSize,

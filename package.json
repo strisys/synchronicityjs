@@ -19,7 +19,8 @@
     "mocha:ts:watch": "mocha --require ts-node/register ./src/ts/test/**/*.spec.ts --watch",
     "lint": "eslint",
     "test:ts": "npm-run-all mocha:ts",
-    "test": "npm-run-all mocha:ts:watch",
+    "test": "npm-run-all mocha:ts",
+    "test-w": "npm-run-all mocha:ts:watch",
     "test-full": "npm-run-all transpile lint mocha",
     "coverage": "nyc npm run test-full"
   },
