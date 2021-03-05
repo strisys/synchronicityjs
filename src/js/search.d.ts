@@ -181,7 +181,10 @@ export declare class FieldMap extends IdentifiableMap<FieldElement> {
     constructor(entities?: (string | string[]));
     private static tryConvertOne;
     private static tryConvert;
-    toJson(): any;
+    toJson(dialect: (DialectType | DialectTypeCode | string)): any;
+    protected onToJson(dialect: (DialectType | DialectTypeCode | string)): any;
+    protected toLuceneAzureJson(): any;
+    protected toMangoJson(): any;
 }
 export declare class SearchSuggestionQueryParameters extends SearchQueryParametersBase {
     private readonly _filters;

@@ -225,11 +225,11 @@ export class SimpleFilter extends Filter {
   private readonly _displayName: string;
   private readonly _value: any;
 
-  constructor(fieldName: string, operator: FilterOperator, value: any, displayName: string = null) {
+  constructor(fieldName: string, operator: (FilterOperator | FilterOperatorCode), value: any, displayName: string = null) {
     super(`sf-${Filter._instanceCounter++}`);
     this._fieldName = fieldName;
     this._displayName = displayName;
-    this._operator = operator;
+    this._operator = (((typeof operator === 'string') ? FilterOperator.tryParse(operator) : operator) || FilterOperator.Equal);
     this._value = value;
   }
 

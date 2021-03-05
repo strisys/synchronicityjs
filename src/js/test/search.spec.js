@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const chai_1 = require("chai");
 const __1 = require("..");
+const search_1 = require("../search");
+const PouchDB = require("pouchdb");
 const searchResultJson = require("./search-result.json");
 const suggestionResultJson = require("./suggestion-result.json");
 const apiVersion = '2019-05-06';
@@ -447,13 +449,11 @@ describe('SearchQueryParameters', () => {
                 });
             });
             describe('fields', () => {
-            });
-            describe('sort', () => {
                 let sp;
                 beforeEach(() => {
                     sp = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
                 });
-                it(`sort shape should match expected shape give orderBy of fields (0)`, function () {
+                it(`fields shape should match expected shape given 'selectFields' (0)`, function () {
                     // Arrange
                     // Act
                     const actual = sp.toJson(dialect);
@@ -464,7 +464,36 @@ describe('SearchQueryParameters', () => {
                         sort: []
                     });
                 });
-                it(`sort shape should match expected shape give orderBy of fields (1)`, function () {
+                it(`fields shape should match expected shape given 'selectFields' (1)`, function () {
+                    // Arrange
+                    sp.selectFields.set(new search_1.FieldElement('company'));
+                    // Act
+                    const actual = sp.toJson(dialect);
+                    // Assert
+                    chai_1.assert.deepEqual(actual, {
+                        selector: {},
+                        fields: ['company'],
+                        sort: []
+                    });
+                });
+            });
+            describe('sort', () => {
+                let sp;
+                beforeEach(() => {
+                    sp = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
+                });
+                it(`sort shape should match expected shape given 'orderBy' fields (0)`, function () {
+                    // Arrange
+                    // Act
+                    const actual = sp.toJson(dialect);
+                    // Assert
+                    chai_1.assert.deepEqual(actual, {
+                        selector: {},
+                        fields: [],
+                        sort: []
+                    });
+                });
+                it(`sort shape should match expected shape given 'orderBy' of fields (1)`, function () {
                     // Arrange
                     sp.orderBy.set(new __1.OrderElement('company', 'asc'));
                     // Act
@@ -476,7 +505,7 @@ describe('SearchQueryParameters', () => {
                         sort: [{ company: 'asc' }]
                     });
                 });
-                it(`sort shape should match expected shape give orderBy of fields (2)`, function () {
+                it(`sort shape should match expected shape given 'orderBy' of fields (2)`, function () {
                     // Arrange
                     sp.orderBy.set([new __1.OrderElement('company', 'asc'), new __1.OrderElement('address', 'desc')]);
                     // Act
@@ -489,6 +518,43 @@ describe('SearchQueryParameters', () => {
                     });
                 });
             });
+            describe('pouchdb', () => {
+                let db;
+                beforeEach('create and hydrate pouchdb', function () {
+                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        db = new PouchDB('test-db');
+                        // Hydrate db
+                        let result = (yield db.bulkDocs(searchResultJson['value']));
+                        // Validate result
+                        const reducer = (accumulator, currentValue) => {
+                            if (currentValue.ok) {
+                                return (accumulator + 1);
+                            }
+                            return null;
+                        };
+                        let oks = result.reduce(reducer, 0);
+                        console.log(oks);
+                        console.log(oks);
+                        // let docs = (await db.allDocs({
+                        //   include_docs: true,
+                        //   attachments: true
+                        // }));
+                        // docs.rows.forEach(element => {
+                        //   console.log(element['doc']);
+                        // });
+                    });
+                });
+                afterEach('destroy pouchdb', function () {
+                    return db.destroy(() => {
+                        console.log('db destroyed');
+                    });
+                });
+                it('query against db should return expected results given parameters', function () {
+                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        chai_1.expect(db).is.not.null;
+                    });
+                });
+            });
         });
     });
 });
@@ -498,6 +564,7 @@ describe('SearchService', () => {
             const pm = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
             const ss = new SearchDataAccessService();
             const pg = (yield ss.get(pm));
+            // TODO: More testing
             chai_1.assert.isTrue(pg.value.data.rows.size === 3);
         });
     });
@@ -508,6 +575,7 @@ describe('SearchSuggestionService', () => {
             const ss = new SearchSuggestionDataAccessService();
             const pm = new __1.SearchSuggestionQueryParameters('property', 'address', 'main*');
             const pg = (yield ss.get(pm));
+            // TODO: More testing
             chai_1.assert.isTrue(pg.value.data.rows.size === 10);
         });
     });

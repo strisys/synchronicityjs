@@ -1,6 +1,11 @@
-import { assert } from 'chai';
+import { assert, expect } from 'chai';
 import { AndOr, AscDesc, DataTable, DialectType, FacetResult, FacetResultMap, FacetResultValue, OrderElement, SearchQueryParameters, SearchResult, SearchResultPage, SearchSuggestionResultPage, SearchSuggestionQueryParameters, SearchSuggestionResult, SimpleFilter, CompositeFilter, Filter, FilterOperator } from '..';
 import { FieldElement } from '../search';
+import * as PouchDB from 'pouchdb';
+
+// Load plug-in
+PouchDB.plugin(require('pouchdb-find'));
+
 import searchResultJson = require('./search-result.json');
 import suggestionResultJson = require('./suggestion-result.json');
 
@@ -655,9 +660,82 @@ describe('SearchQueryParameters', () => {
           });
         });
       });
+
+      describe('pouchdb', () => {
+        let sp: SearchQueryParameters;
+        const dbName = 'test-db';
+        let db;
+
+        beforeEach('create and hydrate pouchdb', async function() {
+          sp = new SearchQueryParameters('property', 'main*', 0, 0, 100);
+          db  = new PouchDB(dbName);
+
+          // Hydrate db
+          let result = (await db.bulkDocs(searchResultJson['value']));
+
+          // Validate result
+          const reducer = (accumulator, currentValue) => {
+            if (currentValue.ok) {
+              return (accumulator + 1);
+            }
+            
+            return null;
+          }
+
+          let oks = result.reduce(reducer, 0);
+          expect(oks).to.be.eq(3);
+
+          // let docs = (await db.allDocs({
+          //   include_docs: true,
+          //   attachments: true
+          // }));
+
+          // docs.rows.forEach(element => {
+          //   console.log(element['doc']);
+          // });
+         
+        });
+
+        afterEach(`destroy pouchdb [${dbName}]`, function() {
+          return db.destroy(() => {
+            console.log('db destroyed');
+          });
+        });
+
+        // https://pouchdb.com/api.html#query_index
+        it('query against db should return expected results given parameters', async function() {
+          // Arrange
+          sp.selectFields.set(new FieldElement('address'));
+          sp.filters.set(new SimpleFilter('address', 'eq', '3731 Village Main Street'));
+          sp.orderBy.set(new OrderElement('_id', 'asc'));
+          
+          const query = sp.toJson(dialect);
+          // console.log(query);
+
+          db.createIndex({
+            index: {
+              fields: ['_id', 'address'],
+              name: 'myindex',
+            }
+          });
+
+          // Act
+          let docs = (await db.find(query));
+          // console.log(docs);
+
+          // Assert
+          expect(docs).to.be.eql({
+            docs: [ { address: '3731 Village Main Street' } ],
+            warning: 'No matching index found, create an index to optimize query time.'
+          })
+        });
+      });
     });
   });
 });
+
+
+
 
 describe('SearchService', () => {
   it('search results should match expectations', async function() {
@@ -666,6 +744,7 @@ describe('SearchService', () => {
     const ss = new SearchDataAccessService();
     const pg: SearchResultPage = (await ss.get(pm));
 
+    // TODO: More testing
     assert.isTrue(pg.value.data.rows.size === 3);
   });
 });
@@ -676,6 +755,7 @@ describe('SearchSuggestionService', () => {
     const pm = new SearchSuggestionQueryParameters('property', 'address', 'main*');
     const pg: SearchSuggestionResultPage = (await ss.get(pm));
 
+    // TODO: More testing
     assert.isTrue(pg.value.data.rows.size === 10);
   });
 });

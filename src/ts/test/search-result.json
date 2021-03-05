@@ -5,6 +5,7 @@
       {
           "@search.score": 0.96380013,
           "id": "892daff0-307b-cce7-58ca-3dc3dbec12b7",
+          "_id": "892daff0-307b-cce7-58ca-3dc3dbec12b7",
           "address": "3731 Village Main Street",
           "city": "Loganville",
           "stateCode": "GA",
@@ -40,6 +41,7 @@
       {
           "@search.score": 0.91165805,
           "id": "83e43a8f-6a8d-9daa-c0d5-592276d65bb6",
+          "_id": "83e43a8f-6a8d-9daa-c0d5-592276d65bb6",
           "address": "3116 Main Street",
           "city": "Granbury",
           "stateCode": "TX",
@@ -75,6 +77,7 @@
       {
           "@search.score": 0.91165805,
           "id": "a27d72a2-873d-f44c-93a9-efce48014098",
+          "_id": "a27d72a2-873d-f44c-93a9-efce48014098",
           "address": "3750 Village Main Street",
           "city": "Loganville",
           "stateCode": "GA",
