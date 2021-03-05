@@ -313,18 +313,18 @@ class SearchSuggestionDataAccessService extends DataAccessServiceBase {
 }
 
 describe('DialectType', () => {
-  it(`should have two dialects that are supported at the current time`, async () => {    
+  it(`should have two dialects that are supported at the current time`, function() {    
     assert.equal(DialectType.length, 2);
     assert.isObject(DialectType.LuceneAzure);
     assert.isObject(DialectType.Mango);
   });
 
-  it(`should be able to resolve to dialect based on string (lucene-azure)`, async () => {    
+  it(`should be able to resolve to dialect based on string (lucene-azure)`, function() {    
     assert.isTrue(DialectType.LuceneAzure.is('lucene-azure'));
     assert.isFalse(DialectType.LuceneAzure.is('lucene-aws'));
   });
 
-  it(`should be able to resolve to dialect based on string (mango)`, async () => {    
+  it(`should be able to resolve to dialect based on string (mango)`, function() {    
     assert.isTrue(DialectType.Mango.is('mango'));
     assert.isFalse(DialectType.Mango.is('peach'));
   });
@@ -350,7 +350,7 @@ describe('SearchQueryParameters', () => {
           sp = new SearchQueryParameters('property', 'main*', 0, 0, 100);
         });
     
-        it(`filter string should match expected string given simple filters (0), composite filters (0), composite operator (-), and filter operator (-)`, async () => {
+        it(`filter string should match expected string given simple filters (0), composite filters (0), composite operator (-), and filter operator (-)`, function() {
           // Act
           let actual = sp.toJson(dialect);
           
@@ -366,7 +366,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`filter string should match expected string given simple filters (3), composite filters (0), composite operator (-), and filter operator (eq)`, async () => {
+        it(`filter string should match expected string given simple filters (3), composite filters (0), composite operator (-), and filter operator (eq)`, function() {
           // Arrange
           const filters = createSimpleFilters(companies, FilterOperator.Equal);
           sp.filters.set(filters);
@@ -386,7 +386,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`filter string should match expected string dialect given simple filters (0), composite filters (1), composite operator (or), and filter operator (eq)`, async () => {
+        it(`filter string should match expected string dialect given simple filters (0), composite filters (1), composite operator (or), and filter operator (eq)`, function() {
           // Arrange
           const filters = createSimpleFilters(companies, FilterOperator.Equal);
           sp.filters.set(new CompositeFilter(filters, AndOr.Or));
@@ -405,7 +405,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`filter string should match expected string dialect given composite filters (1), composite operator (or), and filter operator (eq)`, async () => {
+        it(`filter string should match expected string dialect given composite filters (1), composite operator (or), and filter operator (eq)`, function() {
           // Arrange
           const filters = createSimpleFilters(companies, FilterOperator.Equal);
           sp.filters.set(new CompositeFilter(filters, AndOr.Or));
@@ -438,7 +438,7 @@ describe('SearchQueryParameters', () => {
           sp = new SearchQueryParameters('property', 'main*', 0, 0, 100);
         }); 
     
-        it(`selector shape should match expected shape given the simple filters (0), composite filters (0), simple filter operators (-), composite filter operators (-)`, async () => {  
+        it(`selector shape should match expected shape given the simple filters (0), composite filters (0), simple filter operators (-), composite filter operators (-)`, function() {  
           // Act
           const actual = sp.toJson(dialect);
     
@@ -450,7 +450,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (eq), composite filter operators (-)`, async () => {  
+        it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (eq), composite filter operators (-)`, function() {  
           // Arrange
           const filters = createSimpleFilters(companies, FilterOperator.Equal);
           sp.filters.set(filters);
@@ -466,7 +466,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`selector shape should match expected shape given the simple filters (1), composite filters (0), simple filter operators (eq), composite filter operators (-)`, async () => {  
+        it(`selector shape should match expected shape given the simple filters (1), composite filters (0), simple filter operators (eq), composite filter operators (-)`, function() {  
           // Arrange
           const filters = createSimpleFilters([companies[0]], FilterOperator.Equal);
           sp.filters.set(filters);
@@ -482,7 +482,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (gt), composite filter operators (-)`, async () => {  
+        it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (gt), composite filter operators (-)`, function() {  
           // Arrange
           const filters = createSimpleFilters(companies, FilterOperator.GreaterThan);
           sp.filters.set(filters);
@@ -498,7 +498,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (lt), composite filter operators (-)`, async () => {  
+        it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (lt), composite filter operators (-)`, function() {  
           // Arrange
           const filters = createSimpleFilters(companies, FilterOperator.LessThan);
           sp.filters.set(filters);
@@ -514,7 +514,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`selector shape should match expected shape given the simple filters (0), composite filters (1), simple filter operators (eq), composite filter operators (or)`, async () => {            // Arrange
+        it(`selector shape should match expected shape given the simple filters (0), composite filters (1), simple filter operators (eq), composite filter operators (or)`, function() {            // Arrange
           const filter = new CompositeFilter(createSimpleFilters(companies, FilterOperator.Equal), AndOr.Or);
           sp.filters.set(filter);
     
@@ -529,7 +529,7 @@ describe('SearchQueryParameters', () => {
           });
         });
     
-        it(`selector shape should match expected shape given the simple filters (0), composite filters (1), simple filter operators (gt), composite filter operators (and)`, async () => {            // Arrange
+        it(`selector shape should match expected shape given the simple filters (0), composite filters (1), simple filter operators (gt), composite filter operators (and)`, function() {            // Arrange
           // Arrange
           const filter = new CompositeFilter(createSimpleFilters(companies, FilterOperator.GreaterThan), AndOr.And);
           sp.filters.set(filter);
@@ -545,7 +545,7 @@ describe('SearchQueryParameters', () => {
           });
         });
 
-        it(`selector shape should match expected shape given the simple filters (2), composite filters (1), simple filter operators (eq), composite filter operators (and)`, async () => {            // Arrange
+        it(`selector shape should match expected shape given the simple filters (2), composite filters (1), simple filter operators (eq), composite filter operators (and)`, function() {            // Arrange
           // Arrange
           const simpleFilters = [new SimpleFilter('company', FilterOperator.Equal, 'goog'), new SimpleFilter('company', FilterOperator.NotEqual, 'fb')];
           const compositeFilter = new CompositeFilter(createSimpleFilters(['msft', 'nvda'], FilterOperator.GreaterThan), AndOr.And);
@@ -576,7 +576,7 @@ describe('SearchQueryParameters', () => {
           sp = new SearchQueryParameters('property', 'main*', 0, 0, 100);
         }); 
     
-        it(`sort shape should match expected shape give orderBy of fields (0)`, async () => {  
+        it(`sort shape should match expected shape give orderBy of fields (0)`, function() {  
           // Arrange
 
           // Act
@@ -590,7 +590,7 @@ describe('SearchQueryParameters', () => {
           });
         });
 
-        it(`sort shape should match expected shape give orderBy of fields (1)`, async () => {  
+        it(`sort shape should match expected shape give orderBy of fields (1)`, function() {  
           // Arrange
           sp.orderBy.set(new OrderElement('company', 'asc'));
 
@@ -605,7 +605,7 @@ describe('SearchQueryParameters', () => {
           });
         });
 
-        it(`sort shape should match expected shape give orderBy of fields (2)`, async () => {  
+        it(`sort shape should match expected shape give orderBy of fields (2)`, function() {  
           // Arrange
           sp.orderBy.set([new OrderElement('company', 'asc'), new OrderElement('address', 'desc')]);
 
@@ -625,7 +625,7 @@ describe('SearchQueryParameters', () => {
 });
 
 describe('SearchService', () => {
-  it('search results should match expectations', async () => {
+  it('search results should match expectations', async function() {
     const pm = new SearchQueryParameters('property', 'main*', 0, 0, 100);
 
     const ss = new SearchDataAccessService();
@@ -636,7 +636,7 @@ describe('SearchService', () => {
 });
 
 describe('SearchSuggestionService', () => {
-  it('fetch search suggestion results', async () => {
+  it('fetch search suggestion results', async function() {
     const ss = new SearchSuggestionDataAccessService();
     const pm = new SearchSuggestionQueryParameters('property', 'address', 'main*');
     const pg: SearchSuggestionResultPage = (await ss.get(pm));
