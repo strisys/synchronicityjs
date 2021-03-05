@@ -576,7 +576,7 @@ describe('SearchQueryParameters', () => {
 
         it(`fields shape should match expected shape given 'selectFields' (0)`, function() {  
           // Arrange
-
+        
           // Act
           const actual = sp.toJson(dialect);
     

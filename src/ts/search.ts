@@ -764,7 +764,7 @@ export class SearchSuggestionQueryParameters extends SearchQueryParametersBase {
   // https://docs.microsoft.com/en-us/rest/api/searchservice/suggestions#query-parameters
   protected toLuceneAzureJson(): any {
     const dialect = DialectType.LuceneAzure;
-
+    
     const json = {
       suggesterName: this.suggesterName,
       search: this.searchString,
