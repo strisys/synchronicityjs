@@ -450,8 +450,8 @@ describe('SearchQueryParameters', () => {
     
           // Assert
           assert.deepEqual(actual, {
-              selector: {},
-              fields: []
+              // use_index: 'property',
+              selector: {}
           });
         });
     
@@ -465,8 +465,8 @@ describe('SearchQueryParameters', () => {
     
           // Assert
           assert.deepEqual(actual, {
-            selector: { $and: [{company: { $eq: 'microsoft' }}, {company: { $eq: 'google' }}, {company: { $eq: 'nvidia' }}] },
-            fields: []
+            // use_index: 'property',
+            selector: { $and: [{company: { $eq: 'microsoft' }}, {company: { $eq: 'google' }}, {company: { $eq: 'nvidia' }}] }
           });
         });
     
@@ -480,8 +480,8 @@ describe('SearchQueryParameters', () => {
     
           // Assert
           assert.deepEqual(actual, {
-            selector: { company: { $eq: 'microsoft' } },
-            fields: []
+            // use_index: 'property',
+            selector: { company: { $eq: 'microsoft' } }
           });
         });
     
@@ -495,8 +495,8 @@ describe('SearchQueryParameters', () => {
     
           // Assert
           assert.deepEqual(actual, {
-            selector: { $and: [{company: { $gt: 'microsoft' }}, {company: { $gt: 'google' }}, {company: { $gt: 'nvidia' }}] },
-            fields: []
+            // use_index: 'property',
+            selector: { $and: [{company: { $gt: 'microsoft' }}, {company: { $gt: 'google' }}, {company: { $gt: 'nvidia' }}] }
           });
         });
     
@@ -510,8 +510,8 @@ describe('SearchQueryParameters', () => {
     
           // Assert
           assert.deepEqual(actual, {
-            selector: { $and: [{company: { $lt: 'microsoft' }}, {company: { $lt: 'google' }}, {company: { $lt: 'nvidia' }}] },
-            fields: []
+            // use_index: 'property',
+            selector: { $and: [{company: { $lt: 'microsoft' }}, {company: { $lt: 'google' }}, {company: { $lt: 'nvidia' }}] }
           });
         });
     
@@ -524,8 +524,8 @@ describe('SearchQueryParameters', () => {
     
           // Assert
           assert.deepEqual(actual, {
-            selector: { $or: [{company: {$eq: 'microsoft'}}, {company: {$eq: 'google'}}, {'company': {$eq: 'nvidia'}}] },
-            fields: []
+            // use_index: 'property',
+            selector: { $or: [{company: {$eq: 'microsoft'}}, {company: {$eq: 'google'}}, {'company': {$eq: 'nvidia'}}] }
           });
         });
     
@@ -539,8 +539,8 @@ describe('SearchQueryParameters', () => {
     
           // Assert
           assert.deepEqual(actual, {
-            selector: { $and: [{company: {$gt: 'microsoft'}}, {company: {$gt: 'google'}}, {'company': {$gt: 'nvidia'}}] },
-            fields: []
+            // use_index: 'property',
+            selector: { $and: [{company: {$gt: 'microsoft'}}, {company: {$gt: 'google'}}, {'company': {$gt: 'nvidia'}}] }
           });
         });
 
@@ -554,12 +554,14 @@ describe('SearchQueryParameters', () => {
     
           // Act
           const actual = sp.toJson(dialect);
-          const expectedShape = { $and: [{company:{$eq: 'goog'}},{company:{$ne:'fb'}}, { $and:[{company:{$gt: 'msft'}}, {company:{$gt: 'nvda'}}]}]};
+          const expectedSelectorShape = { 
+            $and: [{company:{$eq: 'goog'}},{company:{$ne:'fb'}}, { $and:[{company:{$gt: 'msft'}}, {company:{$gt: 'nvda'}}]}]
+          };
     
           // Assert
           assert.deepEqual(actual, {
-            selector: expectedShape,
-            fields: []
+            // use_index: 'property',
+            selector: expectedSelectorShape
           });
         });
       });
@@ -579,8 +581,8 @@ describe('SearchQueryParameters', () => {
     
           // Assert
           assert.deepEqual(actual, {
-              selector: {},
-              fields: []
+              // use_index: 'property',
+              selector: {}
           });
         });
 
@@ -593,6 +595,7 @@ describe('SearchQueryParameters', () => {
     
           // Assert
           assert.deepEqual(actual, {
+              // use_index: 'property',
               selector: {},
               fields: ['company']
           });
@@ -614,8 +617,8 @@ describe('SearchQueryParameters', () => {
     
           // Assert
           assert.deepEqual(actual, {
-              selector: {},
-              fields: []
+              // use_index: 'property',
+              selector: {}
           });
         });
 
@@ -628,8 +631,8 @@ describe('SearchQueryParameters', () => {
     
           // Assert
           assert.deepEqual(actual, {
+              // use_index: 'property',
               selector: {},
-              fields: [],
               sort: [{company: 'asc'}]
           });
         });
@@ -643,14 +646,15 @@ describe('SearchQueryParameters', () => {
     
           // Assert
           assert.deepEqual(actual, {
+              // use_index: 'property',
               selector: {},
-              fields: [],
               sort: [{company: 'asc'}, {address: 'desc'}]
           });
         });
       });
 
       describe('pouchdb', () => {
+        let debugOn = false;
         let sp: SearchQueryParameters;
         const dbName = 'test-db';
         let db;
@@ -674,34 +678,45 @@ describe('SearchQueryParameters', () => {
           let oks = result.reduce(reducer, 0);
           expect(oks).to.be.eq(3);
 
-          // let docs = (await db.allDocs({
-          //   include_docs: true,
-          //   attachments: true
-          // }));
+          if (!debugOn) {
+            return;
+          }
 
-          // docs.rows.forEach(element => {
-          //   console.log(element['doc']);
-          // });
-         
+          let docs = (await db.allDocs({
+            include_docs: true,
+            attachments: true
+          }));
+
+          docs.rows.forEach(element => {
+            console.log(element['doc']);
+          });
         });
 
         afterEach(`destroy pouchdb [${dbName}]`, function() {
           return db.destroy(() => {
-            // console.log('db destroyed');
+            if (debugOn) {
+              console.log('db destroyed');
+            }
+            
           });
         });
 
         // https://pouchdb.com/api.html#query_index
-        it('query against db should return expected results given parameters', async function() {
+        it('query against db should return expected results given parameters and created index', async function() {
+          let debugOn = false;
+
           // Arrange
-          // sp.selectFields.set(new FieldElement('address'));
-          sp.filters.set(new SimpleFilter('address', 'eq', '3731 Village Main Street'));
-          // sp.orderBy.set(new OrderElement('_id', 'asc'));
+          sp.selectFields.set([new FieldElement('address'), new FieldElement('_id')]);
+          sp.filters.set(new CompositeFilter([new SimpleFilter('address', 'eq', '3731 Village Main Street'), new SimpleFilter('address', 'eq', '3116 Main Street')], 'or'));
+          // sp.orderBy.set(new OrderElement('address', 'asc'));
           
           const query = sp.toJson(dialect);
-          query['use_index'] = 'property';
-          console.log(query);
-
+          
+          if (debugOn) {
+            console.log(query);
+          }
+          
+          // NOTE: This index will not be used because using and OR (https://github.com/pouchdb/pouchdb/issues/6371)
           let idx = await db.createIndex({
             index: {
               fields: ['address', '_id'],
@@ -710,29 +725,30 @@ describe('SearchQueryParameters', () => {
             }
           });
 
-          console.log(idx);
+          if (debugOn) {
+            console.log(idx);
+          }
 
           // Act
-          let docs = (await db.find({
-            selector: {address: '3731 Village Main Street'},
-            fields: ['_id', 'address'],
-            sort: ['address']
-          }));
-          console.log(docs);
+          let docs = (await db.find(query));
 
-          // let docs = (await db.find({
-          //   selector: { address: { $eq: '3731 Village Main Street' } },
-          //   // fields: ['_id', 'address'],
-          //   // sort: ['address']
-          // }));
-
-          console.log(docs);
+          if (debugOn) {
+            console.log(docs);
+          }
 
           // Assert
-          // expect(docs).to.be.eql({
-          //   docs: [ { address: '3731 Village Main Street' } ],
-          //   //warning: 'No matching index found, create an index to optimize query time.'
-          // })
+          expect(docs).to.be.eql({
+            docs: [ 
+              { 
+                _id: "83e43a8f-6a8d-9daa-c0d5-592276d65bb6",
+                address: '3116 Main Street' },
+              { 
+                _id: "892daff0-307b-cce7-58ca-3dc3dbec12b7",
+                address: '3731 Village Main Street' 
+              } 
+            ],
+            warning: 'No matching index found, create an index to optimize query time.'
+          });
         });
       });
     });

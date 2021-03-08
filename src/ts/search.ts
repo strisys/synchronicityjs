@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AndOr, AscDesc, AscDescCode, Enum, EntityQueryPage, EntityQueryParameters, Identifiable, IdentifiableMap, DataTable } from '.';
+import { AndOr, AndOrCode, AscDesc, AscDescCode, Enum, EntityQueryPage, EntityQueryParameters, Identifiable, IdentifiableMap, DataTable } from '.';
 
 const delimiterReducer = (delimiter: string) => {
   return (accumulator, currentValue) => `${accumulator}${delimiter}${currentValue}`;
@@ -171,10 +171,10 @@ export class CompositeFilter extends Filter {
   private readonly _filters: Filter[];
   private readonly _operator: AndOr = AndOr.And;
 
-  constructor(filters: Filter[], operator: AndOr = AndOr.And) {
+  constructor(filters: Filter[], operator: (AndOr | AndOrCode) = AndOr.And) {
     super(`cf-${Filter._instanceCounter++}`);
     this._filters = (filters || []);
-    this._operator = operator;
+    this._operator =  (((typeof operator === 'string') ? AndOr.tryParse(operator) : operator) || AndOr.And);
   }
 
   public get filters(): Filter[] {
@@ -623,12 +623,19 @@ export class SearchQueryParameters extends SearchQueryParametersBase {
     const dialect = DialectType.Mango;
 
     const json = {
+      use_index: this.indexName,
       selector: this.filters.toJson(dialect),
       fields: this.selectFields.toJson(dialect),
       sort: this.orderBy.toJson(dialect),
     };
 
-    if ((!json.sort) || (Array.isArray(json.sort) && (json.sort.length === 0))) {
+    delete json['use_index'];
+
+    if (this.selectFields.isEmpty) {
+      delete json['fields'];
+    }
+
+    if (this.orderBy.isEmpty) {
       delete json['sort'];
     }
 
