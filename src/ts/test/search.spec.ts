@@ -729,7 +729,7 @@ describe('SearchQueryParameters', () => {
             console.log(idx);
           }
 
-          // Act
+          // Act (https://github.com/pouchdb/pouchdb/tree/7532eb30f514d37b94f829ed22e70da7f3c1ed3a/tests/find/test-suite-1)
           let docs = (await db.find(query));
 
           if (debugOn) {
@@ -754,9 +754,6 @@ describe('SearchQueryParameters', () => {
     });
   });
 });
-
-
-
 
 describe('SearchService', () => {
   it('search results should match expectations', async function() {
