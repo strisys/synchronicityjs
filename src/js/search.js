@@ -174,7 +174,7 @@ class SimpleFilter extends Filter {
         super(`sf-${Filter._instanceCounter++}`);
         this._fieldName = fieldName;
         this._displayName = displayName;
-        this._operator = operator;
+        this._operator = (((typeof operator === 'string') ? FilterOperator.tryParse(operator) : operator) || FilterOperator.Equal);
         this._value = value;
     }
     get fieldName() {

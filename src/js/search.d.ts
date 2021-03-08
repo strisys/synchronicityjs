@@ -73,7 +73,7 @@ export declare class SimpleFilter extends Filter {
     private readonly _operator;
     private readonly _displayName;
     private readonly _value;
-    constructor(fieldName: string, operator: FilterOperator, value: any, displayName?: string);
+    constructor(fieldName: string, operator: (FilterOperator | FilterOperatorCode), value: any, displayName?: string);
     get fieldName(): string;
     get operator(): FilterOperator;
     get value(): any;

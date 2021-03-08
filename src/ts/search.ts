@@ -628,6 +628,10 @@ export class SearchQueryParameters extends SearchQueryParametersBase {
       sort: this.orderBy.toJson(dialect),
     };
 
+    if ((!json.sort) || (Array.isArray(json.sort) && (json.sort.length === 0))) {
+      delete json['sort'];
+    }
+
     return json;
   }
 }

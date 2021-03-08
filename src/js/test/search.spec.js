@@ -5,6 +5,8 @@ const chai_1 = require("chai");
 const __1 = require("..");
 const search_1 = require("../search");
 const PouchDB = require("pouchdb");
+// Load plug-in
+PouchDB.plugin(require('pouchdb-find'));
 const searchResultJson = require("./search-result.json");
 const suggestionResultJson = require("./suggestion-result.json");
 const apiVersion = '2019-05-06';
@@ -519,10 +521,13 @@ describe('SearchQueryParameters', () => {
                 });
             });
             describe('pouchdb', () => {
+                let sp;
+                const dbName = 'test-db';
                 let db;
                 beforeEach('create and hydrate pouchdb', function () {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        db = new PouchDB('test-db');
+                        sp = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
+                        db = new PouchDB(dbName);
                         // Hydrate db
                         let result = (yield db.bulkDocs(searchResultJson['value']));
                         // Validate result
@@ -533,8 +538,7 @@ describe('SearchQueryParameters', () => {
                             return null;
                         };
                         let oks = result.reduce(reducer, 0);
-                        console.log(oks);
-                        console.log(oks);
+                        chai_1.expect(oks).to.be.eq(3);
                         // let docs = (await db.allDocs({
                         //   include_docs: true,
                         //   attachments: true
@@ -544,14 +548,36 @@ describe('SearchQueryParameters', () => {
                         // });
                     });
                 });
-                afterEach('destroy pouchdb', function () {
+                afterEach(`destroy pouchdb [${dbName}]`, function () {
                     return db.destroy(() => {
-                        console.log('db destroyed');
+                        // console.log('db destroyed');
                     });
                 });
+                // https://pouchdb.com/api.html#query_index
                 it('query against db should return expected results given parameters', function () {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-                        chai_1.expect(db).is.not.null;
+                        // Arrange
+                        // sp.selectFields.set(new FieldElement('address'));
+                        sp.filters.set(new __1.SimpleFilter('address', 'eq', '3731 Village Main Street'));
+                        // sp.orderBy.set(new OrderElement('_id', 'asc'));
+                        const query = sp.toJson(dialect);
+                        query['use_index'] = 'property';
+                        console.log(query);
+                        let idxResult = yield db.createIndex({
+                            index: {
+                                fields: ['address', '_id'],
+                                name: 'property',
+                                type: 'json',
+                            }
+                        });
+                        console.log(idxResult);
+                        // Act
+                        let docs = (yield db.find(query));
+                        // console.log(docs);
+                        // Assert
+                        chai_1.expect(docs).to.be.eql({
+                            docs: [{ address: '3731 Village Main Street' }],
+                        });
                     });
                 });
             });
