@@ -446,7 +446,7 @@ describe('SearchQueryParameters', () => {
     
         it(`selector shape should match expected shape given the simple filters (0), composite filters (0), simple filter operators (-), composite filter operators (-)`, function() {  
           // Act
-          const actual = sp.toJson(dialect);
+          const actual = sp.toJson(dialect).query;
     
           // Assert
           assert.deepEqual(actual, {
@@ -461,7 +461,7 @@ describe('SearchQueryParameters', () => {
           sp.filters.set(filters);
     
           // Act
-          const actual = sp.toJson(dialect);
+          const actual = sp.toJson(dialect).query;
     
           // Assert
           assert.deepEqual(actual, {
@@ -476,7 +476,7 @@ describe('SearchQueryParameters', () => {
           sp.filters.set(filters);
     
           // Act
-          const actual = sp.toJson(dialect);
+          const actual = sp.toJson(dialect).query;
     
           // Assert
           assert.deepEqual(actual, {
@@ -491,7 +491,7 @@ describe('SearchQueryParameters', () => {
           sp.filters.set(filters);
     
           // Act
-          const actual = sp.toJson(dialect);
+          const actual = sp.toJson(dialect).query;
     
           // Assert
           assert.deepEqual(actual, {
@@ -506,7 +506,7 @@ describe('SearchQueryParameters', () => {
           sp.filters.set(filters);
     
           // Act
-          const actual = sp.toJson(dialect);
+          const actual = sp.toJson(dialect).query;
     
           // Assert
           assert.deepEqual(actual, {
@@ -520,7 +520,7 @@ describe('SearchQueryParameters', () => {
           sp.filters.set(filter);
     
           // Act
-          const actual = sp.toJson(dialect);
+          const actual = sp.toJson(dialect).query;
     
           // Assert
           assert.deepEqual(actual, {
@@ -535,7 +535,7 @@ describe('SearchQueryParameters', () => {
           sp.filters.set(filter);
     
           // Act
-          const actual = sp.toJson(dialect);
+          const actual = sp.toJson(dialect).query;
     
           // Assert
           assert.deepEqual(actual, {
@@ -553,7 +553,7 @@ describe('SearchQueryParameters', () => {
           sp.filters.set(compositeFilter);
     
           // Act
-          const actual = sp.toJson(dialect);
+          const actual = sp.toJson(dialect).query;
           const expectedSelectorShape = { 
             $and: [{company:{$eq: 'goog'}},{company:{$ne:'fb'}}, { $and:[{company:{$gt: 'msft'}}, {company:{$gt: 'nvda'}}]}]
           };
@@ -577,7 +577,7 @@ describe('SearchQueryParameters', () => {
           // Arrange
         
           // Act
-          const actual = sp.toJson(dialect);
+          const actual = sp.toJson(dialect).query;
     
           // Assert
           assert.deepEqual(actual, {
@@ -591,7 +591,7 @@ describe('SearchQueryParameters', () => {
           sp.selectFields.set(new FieldElement('company'));
 
           // Act
-          const actual = sp.toJson(dialect);
+          const actual = sp.toJson(dialect).query;
     
           // Assert
           assert.deepEqual(actual, {
@@ -613,7 +613,7 @@ describe('SearchQueryParameters', () => {
           // Arrange
 
           // Act
-          const actual = sp.toJson(dialect);
+          const actual = sp.toJson(dialect).query;
     
           // Assert
           assert.deepEqual(actual, {
@@ -627,7 +627,7 @@ describe('SearchQueryParameters', () => {
           sp.orderBy.set(new OrderElement('company', 'asc'));
 
           // Act
-          const actual = sp.toJson(dialect);
+          const actual = sp.toJson(dialect).query;
     
           // Assert
           assert.deepEqual(actual, {
@@ -642,7 +642,7 @@ describe('SearchQueryParameters', () => {
           sp.orderBy.set([new OrderElement('company', 'asc'), new OrderElement('address', 'desc')]);
 
           // Act
-          const actual = sp.toJson(dialect);
+          const actual = sp.toJson(dialect).query;
     
           // Assert
           assert.deepEqual(actual, {
@@ -701,32 +701,18 @@ describe('SearchQueryParameters', () => {
           });
         });
 
-        // https://pouchdb.com/api.html#query_index
-        it('query against db should return expected results given parameters and created index', async function() {
+        it('query against db should return expected results given parameters and use default index', async function() {
           let debugOn = false;
 
           // Arrange
           sp.selectFields.set([new FieldElement('address'), new FieldElement('_id')]);
           sp.filters.set(new CompositeFilter([new SimpleFilter('address', 'eq', '3731 Village Main Street'), new SimpleFilter('address', 'eq', '3116 Main Street')], 'or'));
-          // sp.orderBy.set(new OrderElement('address', 'asc'));
+          sp.orderBy.set(new OrderElement('_id', 'asc'));
           
-          const query = sp.toJson(dialect);
+          const query = sp.toJson(dialect).query;
           
           if (debugOn) {
             console.log(query);
-          }
-          
-          // NOTE: This index will not be used because using and OR (https://github.com/pouchdb/pouchdb/issues/6371)
-          let idx = await db.createIndex({
-            index: {
-              fields: ['address', '_id'],
-              name: 'property',
-              type: 'json',
-            }
-          });
-
-          if (debugOn) {
-            console.log(idx);
           }
 
           // Act (https://github.com/pouchdb/pouchdb/tree/7532eb30f514d37b94f829ed22e70da7f3c1ed3a/tests/find/test-suite-1)
@@ -748,6 +734,48 @@ describe('SearchQueryParameters', () => {
               } 
             ],
             warning: 'No matching index found, create an index to optimize query time.'
+          });
+        });
+
+        // https://pouchdb.com/api.html#query_index
+        it('query against db should return expected results given parameters and created index', async function() {
+          let debugOn = false;
+
+          // Arrange
+          sp.selectFields.set([new FieldElement('address'), new FieldElement('city'), new FieldElement('_id')]);
+          sp.filters.set(new CompositeFilter([new SimpleFilter('address', 'eq', '3731 Village Main Street'), new SimpleFilter('city', 'eq', 'Loganville')], 'and'));
+          // sp.filters.set(new CompositeFilter([new SimpleFilter('city', 'eq', 'Savanah'), new SimpleFilter('city', 'eq', 'Loganville')], 'and'));
+          sp.orderBy.set(new OrderElement('address', 'asc'));
+          
+          const json = sp.toJson(dialect);
+                    
+          if (debugOn) {
+            console.log(JSON.stringify(json));
+          }
+          
+          // NOTE: This index will not be used because using and OR (https://github.com/pouchdb/pouchdb/issues/6371)
+          let idx = await db.createIndex(json.index);
+
+          if (debugOn) {
+            console.log(idx);
+          }
+          
+          // Act (https://github.com/pouchdb/pouchdb/tree/7532eb30f514d37b94f829ed22e70da7f3c1ed3a/tests/find/test-suite-1)
+          let docs = (await db.find(json.query));
+
+          if (debugOn) {
+            console.log(docs);
+          }
+
+          // Assert
+          expect(docs).to.be.eql({
+            docs: [{ 
+                _id: "892daff0-307b-cce7-58ca-3dc3dbec12b7",
+                address: '3731 Village Main Street',
+                city: 'Loganville'
+              } 
+            ],
+            // warning: "No matching index found, create an index to optimize query time."
           });
         });
       });
