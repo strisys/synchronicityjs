@@ -738,7 +738,7 @@ describe('SearchQueryParameters', () => {
         });
 
         // https://pouchdb.com/api.html#query_index
-        it('query against db should return expected results given parameters and created index', async function() {
+        it('query against db should return expected results given parameters and created index when using AND composite filter', async function() {
           let debugOn = false;
 
           // Arrange
@@ -754,7 +754,7 @@ describe('SearchQueryParameters', () => {
           }
           
           // NOTE: This index will not be used because using and OR (https://github.com/pouchdb/pouchdb/issues/6371)
-          let idx = await db.createIndex(json.index);
+          let idx = (await db.createIndex(json.index));
 
           if (debugOn) {
             console.log(idx);
