@@ -134,7 +134,7 @@ class CompositeFilter extends Filter {
         super(`cf-${Filter._instanceCounter++}`);
         this._operator = _1.AndOr.And;
         this._filters = (filters || []);
-        this._operator = operator;
+        this._operator = (((typeof operator === 'string') ? _1.AndOr.tryParse(operator) : operator) || _1.AndOr.And);
     }
     get filters() {
         return (this._filters || []);
@@ -477,10 +477,26 @@ class SearchQueryParameters extends SearchQueryParametersBase {
     toMangoJson() {
         const dialect = DialectType.Mango;
         const json = {
-            selector: this.filters.toJson(dialect),
-            fields: this.selectFields.toJson(dialect),
-            sort: this.orderBy.toJson(dialect),
+            query: {
+                use_index: this.indexName,
+                selector: this.filters.toJson(dialect),
+                fields: this.selectFields.toJson(dialect),
+                sort: this.orderBy.toJson(dialect),
+            },
+            index: null
         };
+        delete json.query['use_index'];
+        if (this.selectFields.isEmpty) {
+            delete json.query['fields'];
+        }
+        if (this.selectFields.size > 1) {
+            let index = json['index'] = {};
+            index['fields'] = this.selectFields.map((s) => s.physicalName);
+            index['type'] = 'json';
+        }
+        if (this.orderBy.isEmpty) {
+            delete json.query['sort'];
+        }
         return json;
     }
 }

@@ -1,7 +1,7 @@
 import { assert, expect } from 'chai';
 import { AndOr, AscDesc, DataTable, DialectType, FacetResult, FacetResultMap, FacetResultValue, OrderElement, SearchQueryParameters, SearchResult, SearchResultPage, SearchSuggestionResultPage, SearchSuggestionQueryParameters, SearchSuggestionResult, SimpleFilter, CompositeFilter, Filter, FilterOperator } from '..';
 import { FieldElement } from '../search';
-import * as PouchDB from 'pouchdb';
+import PouchDB from 'pouchdb';
 
 // Load plug-in
 PouchDB.plugin(require('pouchdb-find'));
@@ -657,7 +657,7 @@ describe('SearchQueryParameters', () => {
         let debugOn = false;
         let sp: SearchQueryParameters;
         const dbName = 'test-db';
-        let db;
+        let db: PouchDB.Database<{}>;
 
         beforeEach('create and hydrate pouchdb', async function() {
           sp = new SearchQueryParameters('property', 'main*', 0, 0, 100);
@@ -693,7 +693,7 @@ describe('SearchQueryParameters', () => {
         });
 
         afterEach(`destroy pouchdb [${dbName}]`, function() {
-          return db.destroy(() => {
+          return db.destroy(null, () => {
             if (debugOn) {
               console.log('db destroyed');
             }
@@ -724,10 +724,11 @@ describe('SearchQueryParameters', () => {
 
           // Assert
           expect(docs).to.be.eql({
-            docs: [ 
+            docs: [
               { 
                 _id: "83e43a8f-6a8d-9daa-c0d5-592276d65bb6",
-                address: '3116 Main Street' },
+                address: '3116 Main Street'
+              },
               { 
                 _id: "892daff0-307b-cce7-58ca-3dc3dbec12b7",
                 address: '3731 Village Main Street' 

@@ -4,9 +4,9 @@ const tslib_1 = require("tslib");
 const chai_1 = require("chai");
 const __1 = require("..");
 const search_1 = require("../search");
-const PouchDB = require("pouchdb");
+const pouchdb_1 = tslib_1.__importDefault(require("pouchdb"));
 // Load plug-in
-PouchDB.plugin(require('pouchdb-find'));
+pouchdb_1.default.plugin(require('pouchdb-find'));
 const searchResultJson = require("./search-result.json");
 const suggestionResultJson = require("./suggestion-result.json");
 const apiVersion = '2019-05-06';
@@ -348,12 +348,11 @@ describe('SearchQueryParameters', () => {
                 });
                 it(`selector shape should match expected shape given the simple filters (0), composite filters (0), simple filter operators (-), composite filter operators (-)`, function () {
                     // Act
-                    const actual = sp.toJson(dialect);
+                    const actual = sp.toJson(dialect).query;
                     // Assert
                     chai_1.assert.deepEqual(actual, {
-                        selector: {},
-                        fields: [],
-                        sort: []
+                        // use_index: 'property',
+                        selector: {}
                     });
                 });
                 it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (eq), composite filter operators (-)`, function () {
@@ -361,12 +360,11 @@ describe('SearchQueryParameters', () => {
                     const filters = createSimpleFilters(companies, __1.FilterOperator.Equal);
                     sp.filters.set(filters);
                     // Act
-                    const actual = sp.toJson(dialect);
+                    const actual = sp.toJson(dialect).query;
                     // Assert
                     chai_1.assert.deepEqual(actual, {
-                        selector: { $and: [{ company: { $eq: 'microsoft' } }, { company: { $eq: 'google' } }, { company: { $eq: 'nvidia' } }] },
-                        fields: [],
-                        sort: []
+                        // use_index: 'property',
+                        selector: { $and: [{ company: { $eq: 'microsoft' } }, { company: { $eq: 'google' } }, { company: { $eq: 'nvidia' } }] }
                     });
                 });
                 it(`selector shape should match expected shape given the simple filters (1), composite filters (0), simple filter operators (eq), composite filter operators (-)`, function () {
@@ -374,12 +372,11 @@ describe('SearchQueryParameters', () => {
                     const filters = createSimpleFilters([companies[0]], __1.FilterOperator.Equal);
                     sp.filters.set(filters);
                     // Act
-                    const actual = sp.toJson(dialect);
+                    const actual = sp.toJson(dialect).query;
                     // Assert
                     chai_1.assert.deepEqual(actual, {
-                        selector: { company: { $eq: 'microsoft' } },
-                        fields: [],
-                        sort: []
+                        // use_index: 'property',
+                        selector: { company: { $eq: 'microsoft' } }
                     });
                 });
                 it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (gt), composite filter operators (-)`, function () {
@@ -387,12 +384,11 @@ describe('SearchQueryParameters', () => {
                     const filters = createSimpleFilters(companies, __1.FilterOperator.GreaterThan);
                     sp.filters.set(filters);
                     // Act
-                    const actual = sp.toJson(dialect);
+                    const actual = sp.toJson(dialect).query;
                     // Assert
                     chai_1.assert.deepEqual(actual, {
-                        selector: { $and: [{ company: { $gt: 'microsoft' } }, { company: { $gt: 'google' } }, { company: { $gt: 'nvidia' } }] },
-                        fields: [],
-                        sort: []
+                        // use_index: 'property',
+                        selector: { $and: [{ company: { $gt: 'microsoft' } }, { company: { $gt: 'google' } }, { company: { $gt: 'nvidia' } }] }
                     });
                 });
                 it(`selector shape should match expected shape given the simple filters (3), composite filters (0), simple filter operators (lt), composite filter operators (-)`, function () {
@@ -400,24 +396,22 @@ describe('SearchQueryParameters', () => {
                     const filters = createSimpleFilters(companies, __1.FilterOperator.LessThan);
                     sp.filters.set(filters);
                     // Act
-                    const actual = sp.toJson(dialect);
+                    const actual = sp.toJson(dialect).query;
                     // Assert
                     chai_1.assert.deepEqual(actual, {
-                        selector: { $and: [{ company: { $lt: 'microsoft' } }, { company: { $lt: 'google' } }, { company: { $lt: 'nvidia' } }] },
-                        fields: [],
-                        sort: []
+                        // use_index: 'property',
+                        selector: { $and: [{ company: { $lt: 'microsoft' } }, { company: { $lt: 'google' } }, { company: { $lt: 'nvidia' } }] }
                     });
                 });
                 it(`selector shape should match expected shape given the simple filters (0), composite filters (1), simple filter operators (eq), composite filter operators (or)`, function () {
                     const filter = new __1.CompositeFilter(createSimpleFilters(companies, __1.FilterOperator.Equal), __1.AndOr.Or);
                     sp.filters.set(filter);
                     // Act
-                    const actual = sp.toJson(dialect);
+                    const actual = sp.toJson(dialect).query;
                     // Assert
                     chai_1.assert.deepEqual(actual, {
-                        selector: { $or: [{ company: { $eq: 'microsoft' } }, { company: { $eq: 'google' } }, { 'company': { $eq: 'nvidia' } }] },
-                        fields: [],
-                        sort: []
+                        // use_index: 'property',
+                        selector: { $or: [{ company: { $eq: 'microsoft' } }, { company: { $eq: 'google' } }, { 'company': { $eq: 'nvidia' } }] }
                     });
                 });
                 it(`selector shape should match expected shape given the simple filters (0), composite filters (1), simple filter operators (gt), composite filter operators (and)`, function () {
@@ -425,12 +419,11 @@ describe('SearchQueryParameters', () => {
                     const filter = new __1.CompositeFilter(createSimpleFilters(companies, __1.FilterOperator.GreaterThan), __1.AndOr.And);
                     sp.filters.set(filter);
                     // Act
-                    const actual = sp.toJson(dialect);
+                    const actual = sp.toJson(dialect).query;
                     // Assert
                     chai_1.assert.deepEqual(actual, {
-                        selector: { $and: [{ company: { $gt: 'microsoft' } }, { company: { $gt: 'google' } }, { 'company': { $gt: 'nvidia' } }] },
-                        fields: [],
-                        sort: []
+                        // use_index: 'property',
+                        selector: { $and: [{ company: { $gt: 'microsoft' } }, { company: { $gt: 'google' } }, { 'company': { $gt: 'nvidia' } }] }
                     });
                 });
                 it(`selector shape should match expected shape given the simple filters (2), composite filters (1), simple filter operators (eq), composite filter operators (and)`, function () {
@@ -440,13 +433,14 @@ describe('SearchQueryParameters', () => {
                     sp.filters.set(simpleFilters);
                     sp.filters.set(compositeFilter);
                     // Act
-                    const actual = sp.toJson(dialect);
-                    const expectedShape = { $and: [{ company: { $eq: 'goog' } }, { company: { $ne: 'fb' } }, { $and: [{ company: { $gt: 'msft' } }, { company: { $gt: 'nvda' } }] }] };
+                    const actual = sp.toJson(dialect).query;
+                    const expectedSelectorShape = {
+                        $and: [{ company: { $eq: 'goog' } }, { company: { $ne: 'fb' } }, { $and: [{ company: { $gt: 'msft' } }, { company: { $gt: 'nvda' } }] }]
+                    };
                     // Assert
                     chai_1.assert.deepEqual(actual, {
-                        selector: expectedShape,
-                        fields: [],
-                        sort: []
+                        // use_index: 'property',
+                        selector: expectedSelectorShape
                     });
                 });
             });
@@ -458,24 +452,23 @@ describe('SearchQueryParameters', () => {
                 it(`fields shape should match expected shape given 'selectFields' (0)`, function () {
                     // Arrange
                     // Act
-                    const actual = sp.toJson(dialect);
+                    const actual = sp.toJson(dialect).query;
                     // Assert
                     chai_1.assert.deepEqual(actual, {
-                        selector: {},
-                        fields: [],
-                        sort: []
+                        // use_index: 'property',
+                        selector: {}
                     });
                 });
                 it(`fields shape should match expected shape given 'selectFields' (1)`, function () {
                     // Arrange
                     sp.selectFields.set(new search_1.FieldElement('company'));
                     // Act
-                    const actual = sp.toJson(dialect);
+                    const actual = sp.toJson(dialect).query;
                     // Assert
                     chai_1.assert.deepEqual(actual, {
+                        // use_index: 'property',
                         selector: {},
-                        fields: ['company'],
-                        sort: []
+                        fields: ['company']
                     });
                 });
             });
@@ -487,23 +480,22 @@ describe('SearchQueryParameters', () => {
                 it(`sort shape should match expected shape given 'orderBy' fields (0)`, function () {
                     // Arrange
                     // Act
-                    const actual = sp.toJson(dialect);
+                    const actual = sp.toJson(dialect).query;
                     // Assert
                     chai_1.assert.deepEqual(actual, {
-                        selector: {},
-                        fields: [],
-                        sort: []
+                        // use_index: 'property',
+                        selector: {}
                     });
                 });
                 it(`sort shape should match expected shape given 'orderBy' of fields (1)`, function () {
                     // Arrange
                     sp.orderBy.set(new __1.OrderElement('company', 'asc'));
                     // Act
-                    const actual = sp.toJson(dialect);
+                    const actual = sp.toJson(dialect).query;
                     // Assert
                     chai_1.assert.deepEqual(actual, {
+                        // use_index: 'property',
                         selector: {},
-                        fields: [],
                         sort: [{ company: 'asc' }]
                     });
                 });
@@ -511,23 +503,24 @@ describe('SearchQueryParameters', () => {
                     // Arrange
                     sp.orderBy.set([new __1.OrderElement('company', 'asc'), new __1.OrderElement('address', 'desc')]);
                     // Act
-                    const actual = sp.toJson(dialect);
+                    const actual = sp.toJson(dialect).query;
                     // Assert
                     chai_1.assert.deepEqual(actual, {
+                        // use_index: 'property',
                         selector: {},
-                        fields: [],
                         sort: [{ company: 'asc' }, { address: 'desc' }]
                     });
                 });
             });
             describe('pouchdb', () => {
+                let debugOn = false;
                 let sp;
                 const dbName = 'test-db';
                 let db;
                 beforeEach('create and hydrate pouchdb', function () {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         sp = new __1.SearchQueryParameters('property', 'main*', 0, 0, 100);
-                        db = new PouchDB(dbName);
+                        db = new pouchdb_1.default(dbName);
                         // Hydrate db
                         let result = (yield db.bulkDocs(searchResultJson['value']));
                         // Validate result
@@ -539,44 +532,88 @@ describe('SearchQueryParameters', () => {
                         };
                         let oks = result.reduce(reducer, 0);
                         chai_1.expect(oks).to.be.eq(3);
-                        // let docs = (await db.allDocs({
-                        //   include_docs: true,
-                        //   attachments: true
-                        // }));
-                        // docs.rows.forEach(element => {
-                        //   console.log(element['doc']);
-                        // });
+                        if (!debugOn) {
+                            return;
+                        }
+                        let docs = (yield db.allDocs({
+                            include_docs: true,
+                            attachments: true
+                        }));
+                        docs.rows.forEach(element => {
+                            console.log(element['doc']);
+                        });
                     });
                 });
                 afterEach(`destroy pouchdb [${dbName}]`, function () {
-                    return db.destroy(() => {
-                        // console.log('db destroyed');
+                    return db.destroy(null, () => {
+                        if (debugOn) {
+                            console.log('db destroyed');
+                        }
+                    });
+                });
+                it('query against db should return expected results given parameters and use default index', function () {
+                    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        let debugOn = false;
+                        // Arrange
+                        sp.selectFields.set([new search_1.FieldElement('address'), new search_1.FieldElement('_id')]);
+                        sp.filters.set(new __1.CompositeFilter([new __1.SimpleFilter('address', 'eq', '3731 Village Main Street'), new __1.SimpleFilter('address', 'eq', '3116 Main Street')], 'or'));
+                        sp.orderBy.set(new __1.OrderElement('_id', 'asc'));
+                        const query = sp.toJson(dialect).query;
+                        if (debugOn) {
+                            console.log(query);
+                        }
+                        // Act (https://github.com/pouchdb/pouchdb/tree/7532eb30f514d37b94f829ed22e70da7f3c1ed3a/tests/find/test-suite-1)
+                        let docs = (yield db.find(query));
+                        if (debugOn) {
+                            console.log(docs);
+                        }
+                        // Assert
+                        chai_1.expect(docs).to.be.eql({
+                            docs: [
+                                {
+                                    _id: "83e43a8f-6a8d-9daa-c0d5-592276d65bb6",
+                                    address: '3116 Main Street'
+                                },
+                                {
+                                    _id: "892daff0-307b-cce7-58ca-3dc3dbec12b7",
+                                    address: '3731 Village Main Street'
+                                }
+                            ],
+                            warning: 'No matching index found, create an index to optimize query time.'
+                        });
                     });
                 });
                 // https://pouchdb.com/api.html#query_index
-                it('query against db should return expected results given parameters', function () {
+                it('query against db should return expected results given parameters and created index when using AND composite filter', function () {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
+                        let debugOn = false;
                         // Arrange
-                        // sp.selectFields.set(new FieldElement('address'));
-                        sp.filters.set(new __1.SimpleFilter('address', 'eq', '3731 Village Main Street'));
-                        // sp.orderBy.set(new OrderElement('_id', 'asc'));
-                        const query = sp.toJson(dialect);
-                        query['use_index'] = 'property';
-                        console.log(query);
-                        let idxResult = yield db.createIndex({
-                            index: {
-                                fields: ['address', '_id'],
-                                name: 'property',
-                                type: 'json',
-                            }
-                        });
-                        console.log(idxResult);
-                        // Act
-                        let docs = (yield db.find(query));
-                        // console.log(docs);
+                        sp.selectFields.set([new search_1.FieldElement('address'), new search_1.FieldElement('city'), new search_1.FieldElement('_id')]);
+                        sp.filters.set(new __1.CompositeFilter([new __1.SimpleFilter('address', 'eq', '3731 Village Main Street'), new __1.SimpleFilter('city', 'eq', 'Loganville')], 'and'));
+                        // sp.filters.set(new CompositeFilter([new SimpleFilter('city', 'eq', 'Savanah'), new SimpleFilter('city', 'eq', 'Loganville')], 'and'));
+                        sp.orderBy.set(new __1.OrderElement('address', 'asc'));
+                        const json = sp.toJson(dialect);
+                        if (debugOn) {
+                            console.log(JSON.stringify(json));
+                        }
+                        // NOTE: This index will not be used because using and OR (https://github.com/pouchdb/pouchdb/issues/6371)
+                        let idx = (yield db.createIndex(json.index));
+                        if (debugOn) {
+                            console.log(idx);
+                        }
+                        // Act (https://github.com/pouchdb/pouchdb/tree/7532eb30f514d37b94f829ed22e70da7f3c1ed3a/tests/find/test-suite-1)
+                        let docs = (yield db.find(json.query));
+                        if (debugOn) {
+                            console.log(docs);
+                        }
                         // Assert
                         chai_1.expect(docs).to.be.eql({
-                            docs: [{ address: '3731 Village Main Street' }],
+                            docs: [{
+                                    _id: "892daff0-307b-cce7-58ca-3dc3dbec12b7",
+                                    address: '3731 Village Main Street',
+                                    city: 'Loganville'
+                                }
+                            ],
                         });
                     });
                 });

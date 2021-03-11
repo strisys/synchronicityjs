@@ -1,4 +1,4 @@
-import { AndOr, AscDesc, AscDescCode, Enum, EntityQueryPage, EntityQueryParameters, Identifiable, IdentifiableMap, DataTable } from '.';
+import { AndOr, AndOrCode, AscDesc, AscDescCode, Enum, EntityQueryPage, EntityQueryParameters, Identifiable, IdentifiableMap, DataTable } from '.';
 export declare type DialectTypeCode = ('null' | 'lucene-azure' | 'mango');
 export declare class DialectType extends Enum<DialectType> {
     private static readonly TypeName;
@@ -60,7 +60,7 @@ export declare abstract class Filter extends Identifiable {
 export declare class CompositeFilter extends Filter {
     private readonly _filters;
     private readonly _operator;
-    constructor(filters: Filter[], operator?: AndOr);
+    constructor(filters: Filter[], operator?: (AndOr | AndOrCode));
     get filters(): Filter[];
     get operator(): AndOr;
     toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
