@@ -164,6 +164,8 @@ export declare class SearchQueryParameters extends SearchQueryParametersBase {
     get skip(): number;
     set skip(value: number);
     get page(): number;
+    copy(): SearchQueryParameters;
+    static copyOther(source: SearchQueryParameters): SearchQueryParameters;
     toJson(dialect?: (DialectType | DialectTypeCode | string)): any;
     protected onToJson(dialect: (DialectType | DialectTypeCode | string)): any;
     protected toLuceneAzureJson(): any;

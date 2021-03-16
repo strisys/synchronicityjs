@@ -437,6 +437,18 @@ class SearchQueryParameters extends SearchQueryParametersBase {
         }
         return ((this.skip / this.pageSize) + 1);
     }
+    copy() {
+        return SearchQueryParameters.copyOther(this);
+    }
+    static copyOther(source) {
+        const copy = new SearchQueryParameters(source.indexName, source.searchString, source.skip, source.pageNumber, source.pageSize);
+        copy.searchFields.set(source.searchFields.values);
+        copy.filters.set(source.filters.values);
+        copy.facets.set(source.facets.values);
+        copy.orderBy.set(source.orderBy.values);
+        copy.queryType = source.queryType;
+        return copy;
+    }
     toJson(dialect = DialectType.LuceneAzure) {
         return this.onToJson(dialect);
     }
