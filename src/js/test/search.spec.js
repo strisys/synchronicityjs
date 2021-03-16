@@ -588,10 +588,9 @@ describe('SearchQueryParameters', () => {
                     return tslib_1.__awaiter(this, void 0, void 0, function* () {
                         let debugOn = false;
                         // Arrange
-                        sp.selectFields.set([new search_1.FieldElement('address'), new search_1.FieldElement('city'), new search_1.FieldElement('_id')]);
-                        sp.filters.set(__1.CompositeFilter.toAnd(__1.SimpleFilter.map({ 'address': '3731 Village Main Street', 'city': 'Loganville' })));
-                        // sp.filters.set(new CompositeFilter([new SimpleFilter('city', 'eq', 'Savanah'), new SimpleFilter('city', 'eq', 'Loganville')], 'and'));
-                        sp.orderBy.set(new __1.OrderElement('address', 'asc'));
+                        sp.selectFields.mapAndSet(['address', 'city', '_id']);
+                        sp.filters.set(__1.CompositeFilter.mapAnd({ 'address': '3731 Village Main Street', 'city': 'Loganville' }));
+                        sp.orderBy.mapAndSet({ 'address': 'asc' });
                         const json = sp.toJson(dialect);
                         if (debugOn) {
                             console.log(JSON.stringify(json));

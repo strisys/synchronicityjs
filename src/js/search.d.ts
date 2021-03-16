@@ -64,8 +64,17 @@ export declare class CompositeFilter extends Filter {
     get filters(): Filter[];
     get operator(): AndOr;
     static to(filters: Filter[], operator?: (AndOr | AndOrCode)): CompositeFilter;
+    static map(nameValuePairs: {
+        [key: string]: unknown;
+    }, operator: (AndOr | AndOrCode)): CompositeFilter;
     static toAnd(filters: Filter[]): CompositeFilter;
+    static mapAnd(nameValuePairs?: {
+        [key: string]: unknown;
+    }): CompositeFilter;
     static toOr(filters: Filter[]): CompositeFilter;
+    static mapOr(nameValuePairs?: {
+        [key: string]: unknown;
+    }): CompositeFilter;
     toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
     protected onToQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
     protected toQueryExpressionLuceneAzure(): string;
@@ -99,12 +108,16 @@ export declare class FilterMap extends IdentifiableMap<Filter> {
     protected toJsonLuceneAzure(): string;
     protected toJsonMango(): any;
 }
+export interface OrderElementsExpression {
+    [field: string]: (AscDesc | AscDescCode);
+}
 export declare class OrderElement extends Identifiable {
     private readonly _fieldName;
     private readonly _direction;
     constructor(fieldName: string, direction?: (AscDesc | AscDescCode));
     get fieldName(): string;
     get direction(): AscDesc;
+    static map(elements: OrderElementsExpression): OrderElement[];
     toString(): string;
     toExpression(dialect: (DialectType | DialectTypeCode | string)): any;
     protected onToExpression(dialect: (DialectType | DialectTypeCode | string)): any;
@@ -123,6 +136,7 @@ export declare class OrderElementMap extends IdentifiableMap<OrderElement> {
     private static readonly reducer;
     constructor(entities?: (OrderElement | OrderElement[]));
     setSearchScore(): OrderElementMap;
+    mapAndSet(elements: OrderElementsExpression): OrderElementMap;
     toJson(dialect: (DialectType | DialectTypeCode | string)): any;
     protected onToJson(dialect: (DialectType | DialectTypeCode | string)): any;
     protected toJsonLuceneAzure(): string;
@@ -182,13 +196,14 @@ export declare class FieldElement extends Identifiable {
     constructor(physicalName: string, displayName?: string);
     get physicalName(): string;
     get displayName(): string;
-    static map(physicalNames: string[]): FieldElement[];
+    static map(physicalNames: (string | string[])): FieldElement[];
 }
 export declare class FieldMap extends IdentifiableMap<FieldElement> {
     private static readonly reducer;
     constructor(entities?: (string | string[]));
     private static tryConvertOne;
     private static tryConvert;
+    mapAndSet(fields: (string | string[])): FieldMap;
     toJson(dialect: (DialectType | DialectTypeCode | string)): any;
     protected onToJson(dialect: (DialectType | DialectTypeCode | string)): any;
     protected toLuceneAzureJson(): any;

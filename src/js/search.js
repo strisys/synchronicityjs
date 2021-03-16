@@ -145,11 +145,20 @@ class CompositeFilter extends Filter {
     static to(filters, operator = _1.AndOr.And) {
         return (new CompositeFilter((filters || []), operator));
     }
+    static map(nameValuePairs = {}, operator) {
+        return CompositeFilter.to(SimpleFilter.map(nameValuePairs), operator);
+    }
     static toAnd(filters) {
         return CompositeFilter.to(filters, 'and');
     }
+    static mapAnd(nameValuePairs = {}) {
+        return CompositeFilter.map(nameValuePairs, 'and');
+    }
     static toOr(filters) {
         return CompositeFilter.to(filters, 'or');
+    }
+    static mapOr(nameValuePairs = {}) {
+        return CompositeFilter.map(nameValuePairs, 'or');
     }
     toQueryExpression(dialect) {
         return this.onToQueryExpression(dialect);
@@ -281,6 +290,9 @@ class OrderElement extends _1.Identifiable {
     get direction() {
         return this._direction;
     }
+    static map(elements) {
+        return Object.keys(elements || []).map((k) => new OrderElement(k, elements[k]));
+    }
     toString() {
         return this.toExpression(DialectType.LuceneAzure);
     }
@@ -327,6 +339,9 @@ class OrderElementMap extends _1.IdentifiableMap {
     setSearchScore() {
         this.set(OrderElementDesc.searchScore);
         return this;
+    }
+    mapAndSet(elements) {
+        return this.set(OrderElement.map(elements));
     }
     toJson(dialect) {
         return this.onToJson(dialect);
@@ -540,7 +555,14 @@ class FieldElement extends _1.Identifiable {
         return this._displayName;
     }
     static map(physicalNames) {
-        return (physicalNames || []).map((s) => new FieldElement(s));
+        let names = [];
+        if (typeof physicalNames === 'string') {
+            names.push(physicalNames);
+        }
+        if (Array.isArray(physicalNames)) {
+            names = [...physicalNames];
+        }
+        return (names || []).map((s) => new FieldElement(s));
     }
 }
 exports.FieldElement = FieldElement;
@@ -556,6 +578,9 @@ class FieldMap extends _1.IdentifiableMap {
             return [FieldMap.tryConvertOne(elements)];
         }
         return elements.map(FieldMap.tryConvertOne);
+    }
+    mapAndSet(fields) {
+        return this.set(FieldElement.map(fields));
     }
     toJson(dialect) {
         return this.onToJson(dialect);

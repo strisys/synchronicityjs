@@ -391,22 +391,7 @@ export class OrderElement extends Identifiable {
   }
 
   public static map(elements: OrderElementsExpression): OrderElement[] {
-    if (!elements) {
-      return [];
-    }
-
-    // const isArray = Array.isArray(elements);
-    // let array: OrderElementExpression[] = [];
-
-    // if (!isArray) {
-    //   array.push(elements as OrderElementExpression);
-    // }
-    
-    // if (isArray) {
-    //   array = (elements as OrderElementExpression[]);
-    // }
-    
-    return Object.keys(elements).map((k) => new OrderElement(k, elements[k]))
+    return Object.keys(elements || []).map((k) => new OrderElement(k, elements[k]))
   }
 
   public toString(): string {
@@ -467,6 +452,10 @@ export class OrderElementMap extends IdentifiableMap<OrderElement> {
   public setSearchScore(): OrderElementMap {
     this.set(OrderElementDesc.searchScore);
     return this;
+  }
+
+  public mapAndSet(elements: OrderElementsExpression): OrderElementMap {
+    return (this.set(OrderElement.map(elements)) as OrderElementMap);
   }
 
   public toJson(dialect: (DialectType | DialectTypeCode | string)): any {

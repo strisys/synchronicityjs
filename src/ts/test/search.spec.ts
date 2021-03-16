@@ -745,8 +745,7 @@ describe('SearchQueryParameters', () => {
           // Arrange
           sp.selectFields.mapAndSet(['address', 'city', '_id']);
           sp.filters.set(CompositeFilter.mapAnd({'address': '3731 Village Main Street', 'city': 'Loganville'}));
-          // sp.filters.set(new CompositeFilter([new SimpleFilter('city', 'eq', 'Savanah'), new SimpleFilter('city', 'eq', 'Loganville')], 'and'));
-          sp.orderBy.set(OrderElement.map({field: 'address', direction: 'asc'}));
+          sp.orderBy.mapAndSet({'address': 'asc'});
           
           const json = sp.toJson(dialect);
                     
