@@ -142,6 +142,15 @@ class CompositeFilter extends Filter {
     get operator() {
         return this._operator;
     }
+    static to(filters, operator = _1.AndOr.And) {
+        return (new CompositeFilter((filters || []), operator));
+    }
+    static toAnd(filters) {
+        return CompositeFilter.to(filters, 'and');
+    }
+    static toOr(filters) {
+        return CompositeFilter.to(filters, 'or');
+    }
     toQueryExpression(dialect) {
         return this.onToQueryExpression(dialect);
     }

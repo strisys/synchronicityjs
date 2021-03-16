@@ -63,6 +63,9 @@ export declare class CompositeFilter extends Filter {
     constructor(filters: Filter[], operator?: (AndOr | AndOrCode));
     get filters(): Filter[];
     get operator(): AndOr;
+    static to(filters: Filter[], operator?: (AndOr | AndOrCode)): CompositeFilter;
+    static toAnd(filters: Filter[]): CompositeFilter;
+    static toOr(filters: Filter[]): CompositeFilter;
     toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
     protected onToQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
     protected toQueryExpressionLuceneAzure(): string;

@@ -166,7 +166,6 @@ export abstract class Filter extends Identifiable {
   protected static _instanceCounter: number = 0;
   public abstract toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
 }
-
 export class CompositeFilter extends Filter {
   private readonly _filters: Filter[];
   private readonly _operator: AndOr = AndOr.And;
@@ -183,6 +182,18 @@ export class CompositeFilter extends Filter {
 
   public get operator(): AndOr {
     return this._operator;
+  }
+
+  public static to(filters: Filter[], operator: (AndOr | AndOrCode) = AndOr.And): CompositeFilter {
+    return (new CompositeFilter((filters || []), operator))
+  }
+
+  public static toAnd(filters: Filter[]): CompositeFilter {
+    return CompositeFilter.to(filters, 'and');
+  }
+
+  public static toOr(filters: Filter[]): CompositeFilter {
+    return CompositeFilter.to(filters, 'or');
   }
 
   public toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any {

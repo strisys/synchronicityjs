@@ -744,7 +744,7 @@ describe('SearchQueryParameters', () => {
 
           // Arrange
           sp.selectFields.set([new FieldElement('address'), new FieldElement('city'), new FieldElement('_id')]);
-          sp.filters.set(new CompositeFilter([new SimpleFilter('address', 'eq', '3731 Village Main Street'), new SimpleFilter('city', 'eq', 'Loganville')], 'and'));
+          sp.filters.set(CompositeFilter.toAnd(SimpleFilter.toArray({'address': '3731 Village Main Street', 'city': 'Loganville'})));
           // sp.filters.set(new CompositeFilter([new SimpleFilter('city', 'eq', 'Savanah'), new SimpleFilter('city', 'eq', 'Loganville')], 'and'));
           sp.orderBy.set(new OrderElement('address', 'asc'));
           
