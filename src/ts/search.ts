@@ -188,12 +188,24 @@ export class CompositeFilter extends Filter {
     return (new CompositeFilter((filters || []), operator))
   }
 
+  public static map(nameValuePairs: { [key: string]: unknown } = {}, operator: (AndOr | AndOrCode)): CompositeFilter {
+    return CompositeFilter.to(SimpleFilter.map(nameValuePairs), operator);
+  }
+
   public static toAnd(filters: Filter[]): CompositeFilter {
     return CompositeFilter.to(filters, 'and');
   }
 
+  public static mapAnd(nameValuePairs: { [key: string]: unknown } = {}): CompositeFilter {
+    return CompositeFilter.map(nameValuePairs, 'and');
+  }
+
   public static toOr(filters: Filter[]): CompositeFilter {
     return CompositeFilter.to(filters, 'or');
+  }
+
+  public static mapOr(nameValuePairs: { [key: string]: unknown } = {}): CompositeFilter {
+    return CompositeFilter.map(nameValuePairs, 'or');
   }
 
   public toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any {
@@ -260,7 +272,7 @@ export class SimpleFilter extends Filter {
     return (this._displayName || this._fieldName);
   }
 
-  public static toArray(nameValuePairs: { [key: string]: unknown } = {}, operator: (FilterOperator | FilterOperatorCode) = FilterOperator.Equal): Filter[] {
+  public static map(nameValuePairs: { [key: string]: unknown } = {}, operator: (FilterOperator | FilterOperatorCode) = FilterOperator.Equal): Filter[] {
     const pairs = (nameValuePairs || {});
 
     return Object.keys(pairs).map((k) => {
@@ -351,6 +363,15 @@ export class FilterMap extends IdentifiableMap<Filter> {
   }
 }
 
+// export interface OrderElementExpression {
+//   field: string,
+//   direction?: (AscDesc | AscDescCode)
+// }
+
+export interface OrderElementsExpression {
+  [field: string]: (AscDesc | AscDescCode)
+}
+
 export class OrderElement extends Identifiable {
   private readonly _fieldName: string;
   private readonly _direction: AscDesc;
@@ -367,6 +388,25 @@ export class OrderElement extends Identifiable {
 
   public get direction(): AscDesc {
     return this._direction;
+  }
+
+  public static map(elements: OrderElementsExpression): OrderElement[] {
+    if (!elements) {
+      return [];
+    }
+
+    // const isArray = Array.isArray(elements);
+    // let array: OrderElementExpression[] = [];
+
+    // if (!isArray) {
+    //   array.push(elements as OrderElementExpression);
+    // }
+    
+    // if (isArray) {
+    //   array = (elements as OrderElementExpression[]);
+    // }
+    
+    return Object.keys(elements).map((k) => new OrderElement(k, elements[k]))
   }
 
   public toString(): string {
@@ -702,8 +742,18 @@ export class FieldElement extends Identifiable {
     return this._displayName;
   }
 
-  public static from(physicalNames: string[]): FieldElement[] {
-    return (physicalNames || []).map((s) => new FieldElement(s));
+  public static map(physicalNames: (string | string[])): FieldElement[] {
+    let names = [];
+
+    if (typeof physicalNames === 'string') {
+      names.push(physicalNames);
+    }
+
+    if (Array.isArray(physicalNames)) {
+      names = [...physicalNames];
+    }
+
+    return (names || []).map((s) => new FieldElement(s));
   }
 }
 
@@ -725,6 +775,10 @@ export class FieldMap extends IdentifiableMap<FieldElement> {
 
     return (elements as []).map(FieldMap.tryConvertOne);
   }
+
+  public mapAndSet(fields: (string | string[])): FieldMap {
+    return (this.set(FieldElement.map(fields)) as FieldMap);
+  } 
 
   public toJson(dialect: (DialectType | DialectTypeCode | string)): any {
     return this.onToJson(dialect);
@@ -771,8 +825,8 @@ export class SearchSuggestionQueryParameters extends SearchQueryParametersBase {
     super(searchString, 0, pageSize);
     this._indexName = indexName;
     this._suggesterName = suggesterName;
-    this.searchFields.set(FieldElement.from(searchFields));
-    this.selectFields.set(FieldElement.from(selectFields));
+    this.searchFields.set(FieldElement.map(searchFields));
+    this.selectFields.set(FieldElement.map(selectFields));
   }
 
   public get indexName(): string {

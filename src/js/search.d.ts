@@ -81,7 +81,7 @@ export declare class SimpleFilter extends Filter {
     get operator(): FilterOperator;
     get value(): any;
     get displayName(): string;
-    static toArray(nameValuePairs?: {
+    static map(nameValuePairs?: {
         [key: string]: unknown;
     }, operator?: (FilterOperator | FilterOperatorCode)): Filter[];
     toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
@@ -182,7 +182,7 @@ export declare class FieldElement extends Identifiable {
     constructor(physicalName: string, displayName?: string);
     get physicalName(): string;
     get displayName(): string;
-    static from(physicalNames: string[]): FieldElement[];
+    static map(physicalNames: string[]): FieldElement[];
 }
 export declare class FieldMap extends IdentifiableMap<FieldElement> {
     private static readonly reducer;

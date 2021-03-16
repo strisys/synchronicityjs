@@ -589,7 +589,7 @@ describe('SearchQueryParameters', () => {
                         let debugOn = false;
                         // Arrange
                         sp.selectFields.set([new search_1.FieldElement('address'), new search_1.FieldElement('city'), new search_1.FieldElement('_id')]);
-                        sp.filters.set(__1.CompositeFilter.toAnd(__1.SimpleFilter.toArray({ 'address': '3731 Village Main Street', 'city': 'Loganville' })));
+                        sp.filters.set(__1.CompositeFilter.toAnd(__1.SimpleFilter.map({ 'address': '3731 Village Main Street', 'city': 'Loganville' })));
                         // sp.filters.set(new CompositeFilter([new SimpleFilter('city', 'eq', 'Savanah'), new SimpleFilter('city', 'eq', 'Loganville')], 'and'));
                         sp.orderBy.set(new __1.OrderElement('address', 'asc'));
                         const json = sp.toJson(dialect);

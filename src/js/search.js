@@ -198,7 +198,7 @@ class SimpleFilter extends Filter {
     get displayName() {
         return (this._displayName || this._fieldName);
     }
-    static toArray(nameValuePairs = {}, operator = FilterOperator.Equal) {
+    static map(nameValuePairs = {}, operator = FilterOperator.Equal) {
         const pairs = (nameValuePairs || {});
         return Object.keys(pairs).map((k) => {
             return (new SimpleFilter(k, operator, pairs[k]));
@@ -539,7 +539,7 @@ class FieldElement extends _1.Identifiable {
     get displayName() {
         return this._displayName;
     }
-    static from(physicalNames) {
+    static map(physicalNames) {
         return (physicalNames || []).map((s) => new FieldElement(s));
     }
 }
@@ -593,8 +593,8 @@ class SearchSuggestionQueryParameters extends SearchQueryParametersBase {
         this._useFuzzySearch = true;
         this._indexName = indexName;
         this._suggesterName = suggesterName;
-        this.searchFields.set(FieldElement.from(searchFields));
-        this.selectFields.set(FieldElement.from(selectFields));
+        this.searchFields.set(FieldElement.map(searchFields));
+        this.selectFields.set(FieldElement.map(selectFields));
     }
     get indexName() {
         return this._indexName;
