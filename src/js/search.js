@@ -726,6 +726,19 @@ class SearchResult {
     get facetData() {
         return this._facetData;
     }
+    static toDataTable(results) {
+        console.log(`merging data tables ... [count:=${results.length}]`);
+        let expectedSize = 0;
+        // extract tables from results
+        const tables = results.map((r) => {
+            expectedSize += r.data.rows.size;
+            return r.data;
+        });
+        // merge datatables
+        const merged = _1.DataTable.merge(tables);
+        console.log(`data tables merged! [expected:=${expectedSize}, actual:=${merged.rows.size}]`);
+        return merged;
+    }
 }
 exports.SearchResult = SearchResult;
 class SearchResultPage extends _1.EntityQueryPage {
@@ -738,6 +751,9 @@ class SearchResultPage extends _1.EntityQueryPage {
     }
     get queryParameters() {
         return super.queryParameters;
+    }
+    static toDataTable(results) {
+        return SearchResult.toDataTable(results.map((r) => r.value));
     }
 }
 exports.SearchResultPage = SearchResultPage;

@@ -948,6 +948,23 @@ export class SearchResult {
   public get facetData(): FacetResultMap {
     return this._facetData;
   }
+
+  public static toDataTable(results: SearchResult[]): DataTable {
+    console.log(`merging data tables ... [count:=${results.length}]`);
+    let expectedSize = 0;
+
+    // extract tables from results
+    const tables = results.map((r) => {
+      expectedSize += r.data.rows.size;
+      return r.data;
+    });
+
+    // merge datatables
+    const merged = DataTable.merge(tables);
+    console.log(`data tables merged! [expected:=${expectedSize}, actual:=${merged.rows.size}]`);
+
+    return merged;
+  }
 }
 
 export class SearchResultPage extends EntityQueryPage<SearchResult> {
@@ -962,6 +979,10 @@ export class SearchResultPage extends EntityQueryPage<SearchResult> {
 
   public get queryParameters(): SearchQueryParameters {
     return (super.queryParameters as SearchQueryParameters);
+  }
+
+  public static toDataTable(results: SearchResultPage[]): DataTable {
+    return SearchResult.toDataTable(results.map((r) => r.value));
   }
 }
 

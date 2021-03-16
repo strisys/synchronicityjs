@@ -242,11 +242,13 @@ export declare class SearchResult {
     constructor(data: DataTable, facetData?: FacetResultMap);
     get data(): DataTable;
     get facetData(): FacetResultMap;
+    static toDataTable(results: SearchResult[]): DataTable;
 }
 export declare class SearchResultPage extends EntityQueryPage<SearchResult> {
     constructor(searchParameters: SearchQueryParameters, value: SearchResult, totalRows?: number, executionDuration?: any);
     get totalPages(): number;
     get queryParameters(): SearchQueryParameters;
+    static toDataTable(results: SearchResultPage[]): DataTable;
 }
 export declare class SearchSuggestionResult {
     private readonly _data;
