@@ -189,6 +189,12 @@ class SimpleFilter extends Filter {
     get displayName() {
         return (this._displayName || this._fieldName);
     }
+    static toArray(nameValuePairs = {}, operator = FilterOperator.Equal) {
+        const pairs = (nameValuePairs || {});
+        return Object.keys(pairs).map((k) => {
+            return (new SimpleFilter(k, operator, pairs[k]));
+        });
+    }
     toQueryExpression(dialect) {
         return this.onToQueryExpression(dialect);
     }

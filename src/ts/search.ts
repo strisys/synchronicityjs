@@ -249,6 +249,14 @@ export class SimpleFilter extends Filter {
     return (this._displayName || this._fieldName);
   }
 
+  public static toArray(nameValuePairs: { [key:string]: unknown } = {}, operator: (FilterOperator | FilterOperatorCode) = FilterOperator.Equal): Filter[] {
+    const pairs = (nameValuePairs || {});
+
+    return Object.keys(pairs).map((k) => {
+      return (new SimpleFilter(k, operator, pairs[k]));
+    });
+  }
+
   public toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any {
     return this.onToQueryExpression(dialect);
   }

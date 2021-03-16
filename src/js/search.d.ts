@@ -78,6 +78,9 @@ export declare class SimpleFilter extends Filter {
     get operator(): FilterOperator;
     get value(): any;
     get displayName(): string;
+    static toArray(nameValuePairs?: {
+        [key: string]: unknown;
+    }, operator?: (FilterOperator | FilterOperatorCode)): Filter[];
     toQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
     protected onToQueryExpression(dialect: (DialectType | DialectTypeCode | string)): any;
     protected toQueryExpressionLuceneAzure(): string;
