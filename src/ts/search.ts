@@ -363,11 +363,6 @@ export class FilterMap extends IdentifiableMap<Filter> {
   }
 }
 
-// export interface OrderElementExpression {
-//   field: string,
-//   direction?: (AscDesc | AscDescCode)
-// }
-
 export interface OrderElementsExpression {
   [field: string]: (AscDesc | AscDescCode)
 }
