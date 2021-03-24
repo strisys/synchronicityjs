@@ -21,7 +21,7 @@ export { AndOrCode,
          RowData,
          Row,
          RowMap,
-         DataTable } from './query';
+         DataTable } from './data';
 export { QueryTypeCode,
          QueryType,
          DialectType,

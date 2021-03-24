@@ -494,4 +494,4 @@ class DataTable extends entity_1.Identifiable {
 }
 exports.DataTable = DataTable;
 DataTable.Empty = new DataTable(new DataTableColumnMap());
-//# sourceMappingURL=query.js.map
+//# sourceMappingURL=data.js.map
