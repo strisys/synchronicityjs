@@ -717,16 +717,18 @@ export class PivotArea extends Enum<PivotArea> {
 }
 
 export abstract class PivotAreaFieldSpecBase {
-  private _fieldName: string;
-  private _area: PivotArea;
+  private readonly _specification: PivotDataSpecification;
+  private readonly _fieldName: string;
+  private readonly _area: PivotArea;
 
-  constructor(fieldName: string, area: (PivotArea | PivotAreaCode)) {
+  constructor(fieldName: string, area: (PivotArea | PivotAreaCode), specification: PivotDataSpecification) {
     if (!(fieldName || '').trim()) {
       throw new Error(`Invalid argument.  No field name specified.`);
     }
 
+    this._specification = specification;
     this._fieldName = fieldName.trim();
-    this._area = (((typeof area === 'string') ? PivotArea.tryParse(area) : area) || PivotArea.Null);
+    this._area = (((typeof(area) === 'string') ? PivotArea.tryParse(area) : area) || PivotArea.Null);
   }
 
   public get fieldName(): string {
@@ -737,14 +739,18 @@ export abstract class PivotAreaFieldSpecBase {
     return this._area;
   }
 
+  public get specification(): PivotDataSpecification {
+    return this._specification;
+  }
+
   public toString(): string {
     return `field:=${this.fieldName},area:=${this.area}`;
   }
 }
 
 export class PivotAreaFieldSpec extends PivotAreaFieldSpecBase {
-  constructor(fieldName: string, area: (PivotArea | PivotAreaCode)) {
-    super(fieldName, area);
+  constructor(fieldName: string, area: (PivotArea | PivotAreaCode), specification: PivotDataSpecification) {
+    super(fieldName, area, specification);
 
     if (!this.area.isRowOrColumn) {
       throw new Error(`Invalid argument.  The specified area [${area}] for the field, ${fieldName} can only be row or column.`);
@@ -781,27 +787,156 @@ export type PivotDataCellCalcFn = (context: PivotDataCellCalcContext) => number;
 export class PivotDataAreaFieldSpec extends PivotAreaFieldSpecBase {
   private readonly _fn: PivotDataCellCalcFn;
 
-  constructor(fieldName: string, fn: PivotDataCellCalcFn) {
-    super(fieldName, 'data');
+  constructor(fieldName: string, fn: PivotDataCellCalcFn, specification: PivotDataSpecification) {
+    super(fieldName, PivotArea.Data, specification);
     this._fn = fn;
   }
+
+  public get CellFunction(): PivotDataCellCalcFn {
+    return this._fn;
+  } 
 }
 
-export class PivotAreaFieldSpecMap extends IdentifiableMap<PivotAreaFieldSpec> {
-  constructor(areas: (PivotAreaFieldSpec | PivotAreaFieldSpec[])) {
-    super(areas);
+export abstract class PivotAreaFieldSpecBaseMap<T> {
+  private readonly _specification: PivotDataSpecification;
+  
+  constructor(specification: PivotDataSpecification) {
+    this._specification = specification;
+  }
+
+  public get specification(): PivotDataSpecification {
+    return this._specification;
+  }
+
+  protected abstract get inner(): IdentifiableMap<T>;
+
+  public get size(): number {
+    return this.inner.size;
+  }
+
+  public get isEmpty(): boolean {
+    return this.inner.isEmpty;
+  }
+
+  public get values(): T[] {
+    return this.inner.values;
+  }
+
+  public get keys(): string[] {
+    return this.inner.keys;
+  }
+
+  public get(value: (string | number)): T {
+    return this.inner.get(value);
+  }
+
+  public has(value: (T | string | number)): boolean {
+    return this.inner.has(value);
+  }
+
+  public forEach(fn: (item: T, index: number) => void): void {
+    this.inner.forEach(fn);
+  }
+
+  public filter(fn: (item: T) => boolean): T[] {
+    return this.inner.filter(fn);
+  }
+
+  public map(fn: (item: T, index: number) => any): any {
+    return this.inner.map(fn);
+  }
+
+  public any(keys: (string[] | number[])): boolean {
+    return this.inner.any(keys);
+  }
+
+  public indexOf(value: (T | string)): number {
+    return this.inner.indexOf(value);
+  }
+
+  public equals(other: IdentifiableMap<T>): boolean {
+    return this.inner.equals(other);
+  }
+
+  public toString(): string {
+    return this.inner.toString();
   }
 }
 
-export class PivotDataAreaFieldSpecMap extends IdentifiableMap<PivotDataAreaFieldSpec> {
-  constructor(areas: (PivotDataAreaFieldSpec | PivotDataAreaFieldSpec[])) {
-    super(areas);
+export class PivotAreaFieldSpecMap extends PivotAreaFieldSpecBaseMap<PivotAreaFieldSpec> {
+  private readonly _inner = new IdentifiableMap<PivotAreaFieldSpec>();
+
+  constructor(specification: PivotDataSpecification) {
+    super(specification);
+  }
+
+  protected get inner(): IdentifiableMap<PivotAreaFieldSpec> {
+    return this._inner;
+  }
+
+  public set(fieldName: string, area: (PivotArea | PivotAreaCode)): PivotAreaFieldSpecMap {
+    this._inner.set(new PivotAreaFieldSpec(fieldName, area, this.specification));
+    return this;
   }
 }
 
+export class PivotDataAreaFieldSpecMap extends PivotAreaFieldSpecBaseMap<PivotDataAreaFieldSpec> {
+  private readonly _inner = new IdentifiableMap<PivotDataAreaFieldSpec>();
+  
+  constructor(specification: PivotDataSpecification) {
+    super(specification);
+  }
 
+  protected get inner(): IdentifiableMap<PivotDataAreaFieldSpec> {
+    return this._inner;
+  }
 
+  public set(fieldName: string, fn: PivotDataCellCalcFn): PivotDataAreaFieldSpecMap {
+    this._inner.set(new PivotDataAreaFieldSpec(fieldName, fn, this.specification));
+    return this;
+  }
+}
 export class PivotDataSpecification {
+  private readonly _fields: PivotAreaFieldSpecMap;
+  private readonly _dataFields: PivotDataAreaFieldSpecMap;
 
+  constructor() {
+    this._fields = new PivotAreaFieldSpecMap(this);
+    this._dataFields = new PivotDataAreaFieldSpecMap(this);
+  }
+
+  public get fields(): PivotAreaFieldSpecMap {
+    return this._fields;
+  }
+
+  public get dataFields(): PivotDataAreaFieldSpecMap {
+    return this._dataFields;
+  }
 }
+export class PivotDataService {
+  private readonly _specification: PivotDataSpecification;
+  private readonly _sourceData: DataTable;
 
+  constructor(specification: PivotDataSpecification, sourceData: DataTable) {
+    this._specification = specification;
+    this._sourceData = sourceData;
+
+    specification.fields.forEach((f) => {
+      if (!sourceData.columns.has(f.fieldName)) {
+        throw new Error(`Argument exception.  The specified data source does not have a field to pivot on named '${f.fieldName}'`);
+      }
+    });
+  }
+
+  public get specification(): PivotDataSpecification {
+    return this._specification;
+  }
+
+  public get sourceData(): DataTable {
+    return this._sourceData;
+  }
+
+  public execute(): object {
+    return this;
+  }
+}

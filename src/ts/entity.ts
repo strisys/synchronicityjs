@@ -200,7 +200,7 @@ export abstract class Identifiable implements IIdentifiable {
   }
 }
 
-export abstract class IdentifiableMap<T> {
+export class IdentifiableMap<T> {
   protected readonly _inner = new Map<string, T>();
 
   constructor(elements?: (T | T[])) {
