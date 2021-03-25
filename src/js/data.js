@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DataTable = exports.RowMap = exports.Row = exports.CellMap = exports.Cell = exports.DataTableColumnMap = exports.ColumnMap = exports.Column = exports.ColumnType = exports.PageDirection = exports.EntityQueryPage = exports.EntityQueryParameters = exports.AscDesc = exports.AndOr = void 0;
+exports.PivotDataSpecification = exports.PivotDataAreaFieldSpecMap = exports.PivotAreaFieldSpecMap = exports.PivotDataAreaFieldSpec = exports.PivotDataCellCalcContext = exports.PivotAreaFieldSpec = exports.PivotAreaFieldSpecBase = exports.PivotArea = exports.DataTable = exports.RowMap = exports.Row = exports.CellMap = exports.Cell = exports.DataTableColumnMap = exports.ColumnMap = exports.Column = exports.ColumnType = exports.PageDirection = exports.EntityQueryPage = exports.EntityQueryParameters = exports.AscDesc = exports.AndOr = void 0;
 const entity_1 = require("./entity");
 class AndOr extends entity_1.Enum {
     constructor(id, value) {
@@ -494,4 +494,115 @@ class DataTable extends entity_1.Identifiable {
 }
 exports.DataTable = DataTable;
 DataTable.Empty = new DataTable(new DataTableColumnMap());
+class PivotArea extends entity_1.Enum {
+    constructor(id, value) {
+        super(PivotArea.TypeName, id, value);
+    }
+    get isRow() {
+        return this.is(PivotArea.Row);
+    }
+    get isColumn() {
+        return this.is(PivotArea.Column);
+    }
+    get isRowOrColumn() {
+        return (this.isRow || this.isColumn);
+    }
+    get isData() {
+        return this.is(PivotArea.Data);
+    }
+    static tryParse(keyOrValue) {
+        return PivotArea.attemptParse(PivotArea.TypeName, keyOrValue);
+    }
+    static get size() {
+        return PivotArea.getSize(PivotArea.TypeName);
+    }
+    static get random() {
+        return PivotArea.getRandom(PivotArea.TypeName);
+    }
+    static get entries() {
+        return PivotArea.getEntries(PivotArea.TypeName);
+    }
+    static get keys() {
+        return PivotArea.getKeys(PivotArea.TypeName);
+    }
+    static get values() {
+        return PivotArea.getValues(PivotArea.TypeName);
+    }
+    static forEach(fn) {
+        PivotArea.forEachOne(PivotArea.TypeName, fn);
+    }
+}
+exports.PivotArea = PivotArea;
+PivotArea.TypeName = 'pivot-area-or';
+PivotArea.Null = new PivotArea('0', 'null');
+PivotArea.Row = new PivotArea('r', 'row');
+PivotArea.Column = new PivotArea('c', 'column');
+PivotArea.Data = new PivotArea('d', 'data');
+class PivotAreaFieldSpecBase {
+    constructor(fieldName, area) {
+        if (!(fieldName || '').trim()) {
+            throw new Error(`Invalid argument.  No field name specified.`);
+        }
+        this._fieldName = fieldName.trim();
+        this._area = (((typeof area === 'string') ? PivotArea.tryParse(area) : area) || PivotArea.Null);
+    }
+    get fieldName() {
+        return this._fieldName;
+    }
+    get area() {
+        return this._area;
+    }
+    toString() {
+        return `field:=${this.fieldName},area:=${this.area}`;
+    }
+}
+exports.PivotAreaFieldSpecBase = PivotAreaFieldSpecBase;
+class PivotAreaFieldSpec extends PivotAreaFieldSpecBase {
+    constructor(fieldName, area) {
+        super(fieldName, area);
+        if (!this.area.isRowOrColumn) {
+            throw new Error(`Invalid argument.  The specified area [${area}] for the field, ${fieldName} can only be row or column.`);
+        }
+    }
+}
+exports.PivotAreaFieldSpec = PivotAreaFieldSpec;
+class PivotDataCellCalcContext {
+    constructor(specification, sourceData, current) {
+        this._specification = specification;
+        this._sourceData = sourceData;
+        this._current = current;
+    }
+    get specification() {
+        return this._specification;
+    }
+    get sourceData() {
+        return this._sourceData;
+    }
+    get current() {
+        return this._current;
+    }
+}
+exports.PivotDataCellCalcContext = PivotDataCellCalcContext;
+class PivotDataAreaFieldSpec extends PivotAreaFieldSpecBase {
+    constructor(fieldName, fn) {
+        super(fieldName, 'data');
+        this._fn = fn;
+    }
+}
+exports.PivotDataAreaFieldSpec = PivotDataAreaFieldSpec;
+class PivotAreaFieldSpecMap extends entity_1.IdentifiableMap {
+    constructor(areas) {
+        super(areas);
+    }
+}
+exports.PivotAreaFieldSpecMap = PivotAreaFieldSpecMap;
+class PivotDataAreaFieldSpecMap extends entity_1.IdentifiableMap {
+    constructor(areas) {
+        super(areas);
+    }
+}
+exports.PivotDataAreaFieldSpecMap = PivotDataAreaFieldSpecMap;
+class PivotDataSpecification {
+}
+exports.PivotDataSpecification = PivotDataSpecification;
 //# sourceMappingURL=data.js.map

@@ -657,3 +657,151 @@ export class DataTable extends Identifiable {
     return (new DataTable(tables[0].columns, mergedRows));
   }
 }
+
+export type PivotAreaCode = ('null' | 'row' | 'column' | 'data');
+
+export class PivotArea extends Enum<PivotArea> {
+  private static readonly TypeName = 'pivot-area-or';
+  public static readonly Null = new PivotArea('0', 'null');
+  public static readonly Row = new PivotArea('r', 'row');
+  public static readonly Column = new PivotArea('c', 'column');
+  public static readonly Data = new PivotArea('d', 'data');
+
+  private constructor(id: string, value: PivotAreaCode) {
+    super(PivotArea.TypeName, id, value);
+  }
+
+  public get isRow(): boolean {
+    return this.is(PivotArea.Row);
+  }
+
+  public get isColumn(): boolean {
+    return this.is(PivotArea.Column);
+  }
+
+  public get isRowOrColumn(): boolean {
+    return (this.isRow || this.isColumn);
+  }
+
+  public get isData(): boolean {
+    return this.is(PivotArea.Data);
+  }
+
+  public static tryParse(keyOrValue: (string | PivotAreaCode)): PivotArea {
+    return (<PivotArea>PivotArea.attemptParse(PivotArea.TypeName, keyOrValue));
+  }
+
+  public static get size(): number {
+    return PivotArea.getSize(PivotArea.TypeName);
+  }
+
+  public static get random(): PivotArea {
+    return (PivotArea.getRandom(PivotArea.TypeName) as PivotArea);
+  }
+
+  public static get entries(): PivotArea[] {
+    return (PivotArea.getEntries(PivotArea.TypeName) as PivotArea[]);
+  }
+
+  public static get keys(): string[] {
+    return PivotArea.getKeys(PivotArea.TypeName);
+  }
+
+  public static get values(): PivotAreaCode[] {
+    return (PivotArea.getValues(PivotArea.TypeName) as PivotAreaCode[]);
+  }
+
+  public static forEach(fn: (value: PivotArea, index: number) => void): void {
+    PivotArea.forEachOne(PivotArea.TypeName, fn);
+  }
+}
+
+export abstract class PivotAreaFieldSpecBase {
+  private _fieldName: string;
+  private _area: PivotArea;
+
+  constructor(fieldName: string, area: (PivotArea | PivotAreaCode)) {
+    if (!(fieldName || '').trim()) {
+      throw new Error(`Invalid argument.  No field name specified.`);
+    }
+
+    this._fieldName = fieldName.trim();
+    this._area = (((typeof area === 'string') ? PivotArea.tryParse(area) : area) || PivotArea.Null);
+  }
+
+  public get fieldName(): string {
+    return this._fieldName;
+  }
+
+  public get area(): PivotArea {
+    return this._area;
+  }
+
+  public toString(): string {
+    return `field:=${this.fieldName},area:=${this.area}`;
+  }
+}
+
+export class PivotAreaFieldSpec extends PivotAreaFieldSpecBase {
+  constructor(fieldName: string, area: (PivotArea | PivotAreaCode)) {
+    super(fieldName, area);
+
+    if (!this.area.isRowOrColumn) {
+      throw new Error(`Invalid argument.  The specified area [${area}] for the field, ${fieldName} can only be row or column.`);
+    }
+  }
+}
+
+export class PivotDataCellCalcContext {
+  private readonly _specification: PivotDataSpecification;
+  private readonly _sourceData: DataTable;
+  private readonly _current: DataTable;
+
+  constructor(specification: PivotDataSpecification, sourceData: DataTable, current: DataTable) {
+    this._specification = specification;
+    this._sourceData = sourceData;
+    this._current = current;
+  }
+
+  public get specification():  PivotDataSpecification {
+    return this._specification;
+  }
+
+  public get sourceData():  DataTable {
+    return this._sourceData;
+  }
+
+  public get current():  DataTable {
+    return this._current;
+  }
+}
+
+export type PivotDataCellCalcFn = (context: PivotDataCellCalcContext) => number;
+
+export class PivotDataAreaFieldSpec extends PivotAreaFieldSpecBase {
+  private readonly _fn: PivotDataCellCalcFn;
+
+  constructor(fieldName: string, fn: PivotDataCellCalcFn) {
+    super(fieldName, 'data');
+    this._fn = fn;
+  }
+}
+
+export class PivotAreaFieldSpecMap extends IdentifiableMap<PivotAreaFieldSpec> {
+  constructor(areas: (PivotAreaFieldSpec | PivotAreaFieldSpec[])) {
+    super(areas);
+  }
+}
+
+export class PivotDataAreaFieldSpecMap extends IdentifiableMap<PivotDataAreaFieldSpec> {
+  constructor(areas: (PivotDataAreaFieldSpec | PivotDataAreaFieldSpec[])) {
+    super(areas);
+  }
+}
+
+
+
+export class PivotDataSpecification {
+
+}
+
