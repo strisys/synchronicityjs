@@ -200,83 +200,6 @@ export abstract class Identifiable implements IIdentifiable {
     return (this.id || 'null');
   }
 }
-
-// export abstract class Composite<T extends Composite<T, M>, M extends CompositeMap<T, M>> extends Identifiable {
-//   private _parent: T = null;
-//   private _components: M = null;
-
-//   protected constructor(id: string = null, parent: T = null) {
-//     super(id);
-//     this._parent = parent;
-//   }
-
-//   public get url(): string {
-//     return '';
-//   }
-
-//   public get root(): T {
-//     let node: T = this.parent;
-
-//     while (node) {
-//       node = node.parent;
-//     }
-
-//     return node;
-//   }
-
-//   public get isRoot(): boolean {
-//     return (Boolean(this._parent) === false);
-//   }
-
-//   public get level(): number {
-//     if (this.isRoot) {
-//       return 0;
-//     }
-
-//     let node: T = this.parent;
-//     let level = 0;
-
-//     while (node) {
-//       node = node.parent;
-//       level++;
-//     }
-
-//     return level;
-//   }
-
-//   public get parent(): T {
-//     return this._parent;
-//   }
-
-//   public set parent(value: T) {
-//     if (this._parent) {
-//       throw new Error(`Invalid operation.  The parent has already been set on the composite [${this.id}].`)
-//     }
-
-//     this._parent = value;
-//   }
-
-//   protected onSetItemPost(element: T): void {
-//     element.parent = (<T>(this as unknown));
-//   }
-
-//   private createMapAndObserve() {
-//     const map: M = this.createMap();
-//     map.observeSetPost(this.onSetItemPost);
-//     return map;
-//   }
-
-//   protected abstract createMap(): M;
-
-//   public components(): M {
-//     return (this._components ? this._components : (this._components = this.createMapAndObserve()));
-//   }
-
-//   public toString(): string {
-//     return (this.id || this.url || 'id: null');
-//   }
-// }
-
 export abstract class Composite<T extends Composite<T>> extends Identifiable {
   private _parent: T = null;
   private _components: CompositeMap<T> = null;
@@ -565,17 +488,6 @@ export class IdentifiableMap<T> {
     return `size:=${this.size}`;
   }
 }
-
-// export class CompositeMap<T extends Composite<T, M>, M extends CompositeMap<T, M>> extends IdentifiableMap<T> {
-//   constructor(elements?: (T | T[])) {
-//     super(elements);
-//   }
-
-//   public forEach(fn: (item: T, index: number) => void): void {
-//     this.values.forEach(fn);
-//   }
-// }
-
 export class CompositeMap<T extends Composite<T>> extends IdentifiableMap<T> {
   constructor(elements?: (T | T[])) {
     super(elements);
