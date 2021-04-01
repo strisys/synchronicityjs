@@ -10,7 +10,7 @@ const generateData = (searchExpression = '') => {
         data.push({ PropertyID: (++id), PropertyCode: '98189801', PropertyAddress1: '9818 NW 87th Ter Kansas City, MO 64153', ZipCode: '64153', UnitStatus: 'Vacant Unrented Ready', ReadyDate: '2018-11-26', ReadyDays: 100, SubMarketName: 'Kansas City', SalesForceID: 'a0A4400000NSWlrEAH', SalesForceCode: 4053361, GeoZoneColorValue: 'Red', IsFreeRent: true, IsComingSoon: false, IsNewConstruction: false });
         data.push({ PropertyID: (++id), PropertyCode: '18379801', PropertyAddress1: '1837 E 152nd Cir Olathe, KS 66062', ZipCode: '66062', UnitStatus: 'Vacant Unrented Ready', ReadyDate: '2018-11-26', ReadyDays: 100, SubMarketName: 'Kansas City', SalesForceID: 'a0A4400000OKZj7EAH', SalesForceCode: 4053649, GeoZoneColorValue: 'Green', IsFreeRent: true, IsComingSoon: false, IsNewConstruction: false });
     }
-    if (searchExpression.indexOf('finance') > -1) {
+    if (searchExpression.indexOf('risk') > -1) {
         let reportDate = new Date('2021-02-24');
         data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'c', strategy3: 'c', strategy4: 'c', asset: 'c', mv: 69190, repo: 0.0, dv01: 0.0 });
         data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 218206, repo: 0.0, dv01: 0.0 });
@@ -68,6 +68,14 @@ describe('DataTable', function () {
         // assert
         chai_1.assert.isTrue(com.columns.equals((dtA.columns)));
         chai_1.assert.equal(com.rows.size, (dtA.rows.size + dtB.rows.size + dtC.rows.size));
+    });
+});
+describe('PivotDataService', function () {
+    it('should do basic summation based on specified criteria', function () {
+        const rowdata = generateData('risk');
+        const datatable = __1.DataTable.from(rowdata, 'id');
+        chai_1.expect(datatable).to.not.be.null;
+        // const pds = new PivotDataService();
     });
 });
 //# sourceMappingURL=data.spec.js.map

@@ -87,7 +87,7 @@ export declare class PageDirection extends Enum<PageDirection> {
     static get values(): PageDirectionCode[];
     static forEach(fn: (value: PageDirection, index: number) => void): void;
 }
-export declare type ColumnTypeName = ('null' | 'any' | 'string' | 'number' | 'date' | 'boolean');
+export declare type ColumnTypeName = ('null' | 'any' | 'string' | 'number' | 'date' | 'boolean' | 'object');
 export declare class ColumnType extends Enum<ColumnType> {
     private static readonly TypeName;
     static readonly Null: ColumnType;
@@ -96,6 +96,7 @@ export declare class ColumnType extends Enum<ColumnType> {
     static readonly Number: ColumnType;
     static readonly Date: ColumnType;
     static readonly Boolean: ColumnType;
+    static readonly Object: ColumnType;
     private constructor();
     static tryParse(keyOrValue: (string | PageDirectionCode)): PageDirection;
     static get size(): number;
@@ -200,15 +201,17 @@ export declare class PivotArea extends Enum<PivotArea> {
     static forEach(fn: (value: PivotArea, index: number) => void): void;
 }
 export declare abstract class PivotAreaFieldSpecBase {
-    private _fieldName;
-    private _area;
-    constructor(fieldName: string, area: (PivotArea | PivotAreaCode));
+    private readonly _specification;
+    private readonly _fieldName;
+    private readonly _area;
+    constructor(fieldName: string, area: (PivotArea | PivotAreaCode), specification: PivotDataSpecification);
     get fieldName(): string;
     get area(): PivotArea;
+    get specification(): PivotDataSpecification;
     toString(): string;
 }
 export declare class PivotAreaFieldSpec extends PivotAreaFieldSpecBase {
-    constructor(fieldName: string, area: (PivotArea | PivotAreaCode));
+    constructor(fieldName: string, area: (PivotArea | PivotAreaCode), specification: PivotDataSpecification);
 }
 export declare class PivotDataCellCalcContext {
     private readonly _specification;
@@ -219,16 +222,65 @@ export declare class PivotDataCellCalcContext {
     get sourceData(): DataTable;
     get current(): DataTable;
 }
-export declare type PivotDataCellCalcFn = (context: PivotDataCellCalcContext) => number;
+export declare type PivotDataCellCalcFn = ((context: PivotDataCellCalcContext) => number);
 export declare class PivotDataAreaFieldSpec extends PivotAreaFieldSpecBase {
     private readonly _fn;
-    constructor(fieldName: string, fn: PivotDataCellCalcFn);
+    constructor(fieldName: string, fn: PivotDataCellCalcFn, specification: PivotDataSpecification);
+    get fn(): PivotDataCellCalcFn;
 }
-export declare class PivotAreaFieldSpecMap extends IdentifiableMap<PivotAreaFieldSpec> {
-    constructor(areas: (PivotAreaFieldSpec | PivotAreaFieldSpec[]));
+export declare abstract class PivotAreaFieldSpecBaseMap<T> {
+    private readonly _specification;
+    constructor(specification: PivotDataSpecification);
+    get specification(): PivotDataSpecification;
+    protected abstract get inner(): IdentifiableMap<T>;
+    get size(): number;
+    get isEmpty(): boolean;
+    get values(): T[];
+    get keys(): string[];
+    get(value: (string | number)): T;
+    has(value: (T | string | number)): boolean;
+    forEach(fn: (item: T, index: number) => void): void;
+    filter(fn: (item: T) => boolean): T[];
+    map(fn: (item: T, index: number) => any): any;
+    any(keys: (string[] | number[])): boolean;
+    indexOf(value: (T | string)): number;
+    equals(other: IdentifiableMap<T>): boolean;
+    toString(): string;
 }
-export declare class PivotDataAreaFieldSpecMap extends IdentifiableMap<PivotDataAreaFieldSpec> {
-    constructor(areas: (PivotDataAreaFieldSpec | PivotDataAreaFieldSpec[]));
+export declare class PivotAreaFieldSpecMap extends PivotAreaFieldSpecBaseMap<PivotAreaFieldSpec> {
+    private readonly _inner;
+    constructor(specification: PivotDataSpecification);
+    protected get inner(): IdentifiableMap<PivotAreaFieldSpec>;
+    set(fieldName: string, area: (PivotArea | PivotAreaCode)): PivotAreaFieldSpecMap;
+}
+export declare class PivotDataAreaFieldSpecMap extends PivotAreaFieldSpecBaseMap<PivotDataAreaFieldSpec> {
+    private readonly _inner;
+    constructor(specification: PivotDataSpecification);
+    protected get inner(): IdentifiableMap<PivotDataAreaFieldSpec>;
+    set(fieldName: string, fn: PivotDataCellCalcFn): PivotDataAreaFieldSpecMap;
 }
 export declare class PivotDataSpecification {
+    private readonly _fields;
+    private readonly _dataFields;
+    constructor();
+    get fields(): PivotAreaFieldSpecMap;
+    get dataFields(): PivotDataAreaFieldSpecMap;
+    clone(): PivotDataSpecification;
+}
+export declare class PivotResult {
+    private readonly _specification;
+    private readonly _sourceData;
+    private readonly _pivotData;
+    constructor(specification: PivotDataSpecification, sourceData: DataTable, pivotData: DataTable);
+    get specification(): PivotDataSpecification;
+    get sourceData(): DataTable;
+    get pivotData(): DataTable;
+}
+export declare class PivotDataService {
+    private readonly _specification;
+    private readonly _sourceData;
+    constructor(sourceData: DataTable);
+    get specification(): PivotDataSpecification;
+    get sourceData(): DataTable;
+    execute(sourceData: DataTable): PivotResult;
 }

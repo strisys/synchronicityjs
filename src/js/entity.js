@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IdentifiableMap = exports.Identifiable = exports.Enum = exports.isNullOrUndefined = void 0;
+exports.CompositeMap = exports.IdentifiableMap = exports.Composite = exports.Identifiable = exports.Enum = exports.isNullOrUndefined = void 0;
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const uuid_1 = require("uuid");
@@ -147,10 +148,139 @@ class Identifiable {
     }
 }
 exports.Identifiable = Identifiable;
+// export abstract class Composite<T extends Composite<T, M>, M extends CompositeMap<T, M>> extends Identifiable {
+//   private _parent: T = null;
+//   private _components: M = null;
+//   protected constructor(id: string = null, parent: T = null) {
+//     super(id);
+//     this._parent = parent;
+//   }
+//   public get url(): string {
+//     return '';
+//   }
+//   public get root(): T {
+//     let node: T = this.parent;
+//     while (node) {
+//       node = node.parent;
+//     }
+//     return node;
+//   }
+//   public get isRoot(): boolean {
+//     return (Boolean(this._parent) === false);
+//   }
+//   public get level(): number {
+//     if (this.isRoot) {
+//       return 0;
+//     }
+//     let node: T = this.parent;
+//     let level = 0;
+//     while (node) {
+//       node = node.parent;
+//       level++;
+//     }
+//     return level;
+//   }
+//   public get parent(): T {
+//     return this._parent;
+//   }
+//   public set parent(value: T) {
+//     if (this._parent) {
+//       throw new Error(`Invalid operation.  The parent has already been set on the composite [${this.id}].`)
+//     }
+//     this._parent = value;
+//   }
+//   protected onSetItemPost(element: T): void {
+//     element.parent = (<T>(this as unknown));
+//   }
+//   private createMapAndObserve() {
+//     const map: M = this.createMap();
+//     map.observeSetPost(this.onSetItemPost);
+//     return map;
+//   }
+//   protected abstract createMap(): M;
+//   public components(): M {
+//     return (this._components ? this._components : (this._components = this.createMapAndObserve()));
+//   }
+//   public toString(): string {
+//     return (this.id || this.url || 'id: null');
+//   }
+// }
+class Composite extends Identifiable {
+    constructor(id = null, parent = null) {
+        super(id);
+        this._parent = null;
+        this._components = null;
+        this.onSetItemPost = (element) => {
+            element.parent = this;
+        };
+        this._parent = parent;
+    }
+    get url() {
+        return '';
+    }
+    get root() {
+        if (this.isRoot) {
+            return this;
+        }
+        let next = this.parent;
+        while (next) {
+            if (next.isRoot) {
+                return next;
+            }
+            next = this.parent;
+        }
+        return next;
+    }
+    get isRoot() {
+        return (Boolean(this._parent) === false);
+    }
+    get isLeaf() {
+        if (!this._components) {
+            return true;
+        }
+        return (this.components.size === 0);
+    }
+    get level() {
+        if (this.isRoot) {
+            return 0;
+        }
+        let node = this.parent;
+        let level = 0;
+        while (node) {
+            node = node.parent;
+            level++;
+        }
+        return level;
+    }
+    get parent() {
+        return this._parent;
+    }
+    set parent(value) {
+        if (this._parent) {
+            throw new Error(`Invalid operation.  The parent has already been set on the composite [${this.id}].`);
+        }
+        this._parent = value;
+    }
+    createMapAndObserve() {
+        const map = this.createMap();
+        map.observeSetPost(this.onSetItemPost);
+        return map;
+    }
+    createMap() {
+        return (new CompositeMap());
+    }
+    get components() {
+        return (this._components ? this._components : (this._components = this.createMapAndObserve()));
+    }
+    toString() {
+        return (this.id || this.url || 'id: null');
+    }
+}
+exports.Composite = Composite;
 class IdentifiableMap {
     constructor(elements) {
         this._inner = new Map();
-        this.set(this.onSetItems(elements));
+        this.set(elements);
     }
     get itemKey() {
         return 'id';
@@ -167,8 +297,17 @@ class IdentifiableMap {
     get keys() {
         return Array.from(this._inner.keys());
     }
-    onSetItems(elements) {
-        return elements;
+    observeSetPost(fnPost) {
+        this._fnPost = fnPost;
+    }
+    onSetItemPre(element) {
+        // do nothing
+    }
+    onSetItemPost(element) {
+        if (this._fnPost) {
+            this._fnPost(element);
+        }
+        // do nothing
     }
     set(elements) {
         if (exports.isNullOrUndefined(elements)) {
@@ -183,7 +322,9 @@ class IdentifiableMap {
             if (exports.isNullOrUndefined(key)) {
                 throw new Error(`Failed to set map item. The key value from the property of '${this.itemKey}' is null or undefined.  Override the 'itemKey' member to specify a the key property to use for the items added to the map.`);
             }
+            this.onSetItemPre(e);
             this._inner.set(key, e);
+            this.onSetItemPost(e);
         });
         return this;
     }
@@ -280,4 +421,21 @@ class IdentifiableMap {
     }
 }
 exports.IdentifiableMap = IdentifiableMap;
+// export class CompositeMap<T extends Composite<T, M>, M extends CompositeMap<T, M>> extends IdentifiableMap<T> {
+//   constructor(elements?: (T | T[])) {
+//     super(elements);
+//   }
+//   public forEach(fn: (item: T, index: number) => void): void {
+//     this.values.forEach(fn);
+//   }
+// }
+class CompositeMap extends IdentifiableMap {
+    constructor(elements) {
+        super(elements);
+    }
+    forEach(fn) {
+        this.values.forEach(fn);
+    }
+}
+exports.CompositeMap = CompositeMap;
 //# sourceMappingURL=entity.js.map

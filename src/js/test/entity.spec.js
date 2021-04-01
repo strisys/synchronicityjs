@@ -8,6 +8,11 @@ class Customer extends __1.Identifiable {
     }
 }
 Customer.Null = new Customer('0');
+class TreeStructure extends __1.Composite {
+    constructor(id = null) {
+        super(id);
+    }
+}
 describe('Identifiable', () => {
     it('new entity with no id assigned', () => {
         const entity = new Customer();
@@ -31,6 +36,42 @@ describe('Identifiable', () => {
         chai_1.assert.isTrue(Customer.Null.isNull);
         chai_1.assert.isTrue(Customer.Null === Customer.Null);
         chai_1.assert.isTrue(Customer.Null.equals(Customer.Null));
+    });
+});
+describe('Composite', () => {
+    const level0 = ['a', 'b', 'c'];
+    const level1 = ['x', 'y', 'z'];
+    let root = new TreeStructure('root');
+    beforeEach(function () {
+        // Arrange
+        root = new TreeStructure('root');
+        level0.forEach((e) => {
+            root.components.set(new TreeStructure(e));
+            level1.forEach((n) => {
+                root.components.get(e).components.set(new TreeStructure(`${e}/${n}`));
+            });
+        });
+    });
+    it('can be created with the expected side-effects', () => {
+        // Assert
+        chai_1.assert.isNotNull(root);
+        chai_1.assert.isTrue(root.isRoot);
+        chai_1.assert.isFalse(root.isLeaf);
+        level0.forEach((a) => {
+            const node = root.components.get(a);
+            chai_1.assert.equal(node.root, root);
+            chai_1.assert.isFalse(node.isRoot);
+            chai_1.assert.isFalse(node.isLeaf);
+            // level1.forEach((b) => {
+            //   node = node.components.get(b);
+            //   assert.isFalse(node.isRoot);
+            //   assert.isTrue(node.isLeaf);
+            // });
+        });
+        // level1.forEach((e) => {
+        //   assert.isFalse(root.components.get(e).isRoot);
+        //   assert.isTrue(root.components.get(e).isLeaf);
+        // });
     });
 });
 class Fruit extends __1.Enum {

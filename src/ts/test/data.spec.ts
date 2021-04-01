@@ -1,5 +1,5 @@
-import { assert } from 'chai';
-import { DataTable, RowData, Cell } from '../';
+import { assert, expect } from 'chai';
+import { DataTable, RowData, Cell, PivotDataService } from '../';
 
 let id = 0;
 
@@ -12,11 +12,11 @@ const generateData = (searchExpression = ''): RowData[] => {
     data.push({ PropertyID: (++id), PropertyCode: '18379801', PropertyAddress1: '1837 E 152nd Cir Olathe, KS 66062', ZipCode: '66062', UnitStatus: 'Vacant Unrented Ready', ReadyDate: '2018-11-26', ReadyDays: 100, SubMarketName: 'Kansas City', SalesForceID: 'a0A4400000OKZj7EAH', SalesForceCode: 4053649, GeoZoneColorValue: 'Green', IsFreeRent: true, IsComingSoon: false, IsNewConstruction: false  });
   }
 
-  if (searchExpression.indexOf('finance') > -1) {
+  if (searchExpression.indexOf('risk') > -1) {
     let reportDate = new Date('2021-02-24');
     data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'c', strategy3: 'c', strategy4: 'c', asset: 'c', mv: 69190, repo: 0.0, dv01: 0.0 });
-    data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 218206, repo: 0.0, dv01: 0.0  });
-    data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 840833411, repo: 543146579, dv01: 0.0  });
+    data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 218206, repo: 0.0, dv01: 0.0 });
+    data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 840833411, repo: 543146579, dv01: 0.0 });
     data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 12124105, repo: 0.0, dv01: 0.0 });
   
     reportDate = new Date('2021-03-01');
@@ -83,5 +83,17 @@ describe('DataTable', function() {
     // assert
     assert.isTrue(com.columns.equals((dtA.columns)));
     assert.equal(com.rows.size, (dtA.rows.size + dtB.rows.size + dtC.rows.size));
+  });
+});
+
+describe('PivotDataService', function() {
+  it('should do basic summation based on specified criteria', function() {
+    const rowdata = generateData('risk');
+    const datatable = DataTable.from(rowdata, 'id');
+
+    expect(datatable).to.not.be.null;
+
+    // const pds = new PivotDataService();
+    
   });
 });

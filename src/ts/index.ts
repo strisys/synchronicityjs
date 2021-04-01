@@ -2,7 +2,9 @@ export { IIdentifiable,
          IEnum,
          Enum,
          Identifiable,
-         IdentifiableMap } from './entity';
+         IdentifiableMap,
+         Composite,
+         CompositeMap } from './entity';
 export { AndOrCode,
          AndOr,
          AscDescCode,
@@ -21,7 +23,8 @@ export { AndOrCode,
          RowData,
          Row,
          RowMap,
-         DataTable } from './data';
+         DataTable, 
+         PivotDataService } from './data';
 export { QueryTypeCode,
          QueryType,
          DialectType,

@@ -1,9 +1,15 @@
 import { assert } from 'chai';
-import { Enum, Identifiable, IdentifiableMap } from '../';
+import { Enum, Identifiable, IdentifiableMap, Composite, CompositeMap } from '../';
 
 class Customer extends Identifiable {
   public static readonly Null = new Customer('0');
 
+  constructor(id: string = null) {
+    super(id);
+  }
+}
+
+class TreeStructure extends Composite<TreeStructure> {
   constructor(id: string = null) {
     super(id);
   }
@@ -36,6 +42,52 @@ describe('Identifiable', () => {
     assert.isTrue(Customer.Null === Customer.Null);
     assert.isTrue(Customer.Null.equals(Customer.Null));
   });
+});
+
+describe('Composite', () => {
+  const level0 = ['a', 'b', 'c'];
+  const level1 = ['x', 'y', 'z'];
+  let root = new TreeStructure('root');
+
+
+  beforeEach(function() {
+    // Arrange
+    root = new TreeStructure('root');
+
+    level0.forEach((e) => {
+      root.components.set(new TreeStructure(e));
+
+      level1.forEach((n) => {
+        root.components.get(e).components.set(new TreeStructure(`${e}/${n}`));
+      })
+    });
+  });
+
+  it('can be created with the expected side-effects', () => {
+    // Assert
+    assert.isNotNull(root);
+    assert.isTrue(root.isRoot);
+    assert.isFalse(root.isLeaf);
+
+    level0.forEach((a) => {
+      const node = root.components.get(a);
+      assert.equal(node.root, root);
+      assert.isFalse(node.isRoot);
+      assert.isFalse(node.isLeaf);
+
+      // level1.forEach((b) => {
+      //   node = node.components.get(b);
+      //   assert.isFalse(node.isRoot);
+      //   assert.isTrue(node.isLeaf);
+      // });
+    });
+
+    // level1.forEach((e) => {
+    //   assert.isFalse(root.components.get(e).isRoot);
+    //   assert.isTrue(root.components.get(e).isLeaf);
+    // });
+  });
+
 });
 
 export type FruitCode = ('null' | 'apple' | 'pear');

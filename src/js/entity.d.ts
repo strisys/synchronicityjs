@@ -42,15 +42,35 @@ export declare abstract class Identifiable implements IIdentifiable {
     equals(other: Identifiable): boolean;
     toString(): string;
 }
-export declare abstract class IdentifiableMap<T> {
+export declare abstract class Composite<T extends Composite<T>> extends Identifiable {
+    private _parent;
+    private _components;
+    protected constructor(id?: string, parent?: T);
+    get url(): string;
+    get root(): T;
+    get isRoot(): boolean;
+    get isLeaf(): boolean;
+    get level(): number;
+    get parent(): T;
+    set parent(value: T);
+    protected onSetItemPost: (element: T) => void;
+    private createMapAndObserve;
+    protected createMap(): CompositeMap<T>;
+    get components(): CompositeMap<T>;
+    toString(): string;
+}
+export declare class IdentifiableMap<T> {
     protected readonly _inner: Map<string, T>;
+    private _fnPost;
     constructor(elements?: (T | T[]));
     protected get itemKey(): string;
     get size(): number;
     get isEmpty(): boolean;
     get values(): T[];
     get keys(): string[];
-    protected onSetItems(elements: (T | T[])): (T | T[]);
+    observeSetPost(fnPost: (element: T) => void): void;
+    protected onSetItemPre(element: T): void;
+    protected onSetItemPost(element: T): void;
     set(elements: (T | T[])): IdentifiableMap<T>;
     clear(): IdentifiableMap<T>;
     protected tryGetKeyBy(value: (T | string | number)): string;
@@ -64,5 +84,9 @@ export declare abstract class IdentifiableMap<T> {
     indexOf(value: (T | string)): number;
     equals(other: IdentifiableMap<T>): boolean;
     toString(): string;
+}
+export declare class CompositeMap<T extends Composite<T>> extends IdentifiableMap<T> {
+    constructor(elements?: (T | T[]));
+    forEach(fn: (item: T, index: number) => void): void;
 }
 export {};

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PivotDataSpecification = exports.PivotDataAreaFieldSpecMap = exports.PivotAreaFieldSpecMap = exports.PivotDataAreaFieldSpec = exports.PivotDataCellCalcContext = exports.PivotAreaFieldSpec = exports.PivotAreaFieldSpecBase = exports.PivotArea = exports.DataTable = exports.RowMap = exports.Row = exports.CellMap = exports.Cell = exports.DataTableColumnMap = exports.ColumnMap = exports.Column = exports.ColumnType = exports.PageDirection = exports.EntityQueryPage = exports.EntityQueryParameters = exports.AscDesc = exports.AndOr = void 0;
+exports.PivotDataService = exports.PivotResult = exports.PivotDataSpecification = exports.PivotDataAreaFieldSpecMap = exports.PivotAreaFieldSpecMap = exports.PivotAreaFieldSpecBaseMap = exports.PivotDataAreaFieldSpec = exports.PivotDataCellCalcContext = exports.PivotAreaFieldSpec = exports.PivotAreaFieldSpecBase = exports.PivotArea = exports.DataTable = exports.RowMap = exports.Row = exports.CellMap = exports.Cell = exports.DataTableColumnMap = exports.ColumnMap = exports.Column = exports.ColumnType = exports.PageDirection = exports.EntityQueryPage = exports.EntityQueryParameters = exports.AscDesc = exports.AndOr = void 0;
 const entity_1 = require("./entity");
 class AndOr extends entity_1.Enum {
     constructor(id, value) {
@@ -223,6 +223,7 @@ ColumnType.String = new ColumnType('2', 'string');
 ColumnType.Number = new ColumnType('3', 'number');
 ColumnType.Date = new ColumnType('4', 'date');
 ColumnType.Boolean = new ColumnType('5', 'boolean');
+ColumnType.Object = new ColumnType('6', 'object');
 class Column extends entity_1.Identifiable {
     constructor(name, title = null, type = ColumnType.Any) {
         super(name);
@@ -539,12 +540,13 @@ PivotArea.Row = new PivotArea('r', 'row');
 PivotArea.Column = new PivotArea('c', 'column');
 PivotArea.Data = new PivotArea('d', 'data');
 class PivotAreaFieldSpecBase {
-    constructor(fieldName, area) {
+    constructor(fieldName, area, specification) {
         if (!(fieldName || '').trim()) {
             throw new Error(`Invalid argument.  No field name specified.`);
         }
+        this._specification = specification;
         this._fieldName = fieldName.trim();
-        this._area = (((typeof area === 'string') ? PivotArea.tryParse(area) : area) || PivotArea.Null);
+        this._area = (((typeof (area) === 'string') ? PivotArea.tryParse(area) : area) || PivotArea.Null);
     }
     get fieldName() {
         return this._fieldName;
@@ -552,14 +554,17 @@ class PivotAreaFieldSpecBase {
     get area() {
         return this._area;
     }
+    get specification() {
+        return this._specification;
+    }
     toString() {
         return `field:=${this.fieldName},area:=${this.area}`;
     }
 }
 exports.PivotAreaFieldSpecBase = PivotAreaFieldSpecBase;
 class PivotAreaFieldSpec extends PivotAreaFieldSpecBase {
-    constructor(fieldName, area) {
-        super(fieldName, area);
+    constructor(fieldName, area, specification) {
+        super(fieldName, area, specification);
         if (!this.area.isRowOrColumn) {
             throw new Error(`Invalid argument.  The specified area [${area}] for the field, ${fieldName} can only be row or column.`);
         }
@@ -584,25 +589,160 @@ class PivotDataCellCalcContext {
 }
 exports.PivotDataCellCalcContext = PivotDataCellCalcContext;
 class PivotDataAreaFieldSpec extends PivotAreaFieldSpecBase {
-    constructor(fieldName, fn) {
-        super(fieldName, 'data');
+    constructor(fieldName, fn, specification) {
+        super(fieldName, PivotArea.Data, specification);
         this._fn = fn;
+    }
+    get fn() {
+        return this._fn;
     }
 }
 exports.PivotDataAreaFieldSpec = PivotDataAreaFieldSpec;
-class PivotAreaFieldSpecMap extends entity_1.IdentifiableMap {
-    constructor(areas) {
-        super(areas);
+class PivotAreaFieldSpecBaseMap {
+    constructor(specification) {
+        this._specification = specification;
+    }
+    get specification() {
+        return this._specification;
+    }
+    get size() {
+        return this.inner.size;
+    }
+    get isEmpty() {
+        return this.inner.isEmpty;
+    }
+    get values() {
+        return this.inner.values;
+    }
+    get keys() {
+        return this.inner.keys;
+    }
+    get(value) {
+        return this.inner.get(value);
+    }
+    has(value) {
+        return this.inner.has(value);
+    }
+    forEach(fn) {
+        this.inner.forEach(fn);
+    }
+    filter(fn) {
+        return this.inner.filter(fn);
+    }
+    map(fn) {
+        return this.inner.map(fn);
+    }
+    any(keys) {
+        return this.inner.any(keys);
+    }
+    indexOf(value) {
+        return this.inner.indexOf(value);
+    }
+    equals(other) {
+        return this.inner.equals(other);
+    }
+    toString() {
+        return this.inner.toString();
+    }
+}
+exports.PivotAreaFieldSpecBaseMap = PivotAreaFieldSpecBaseMap;
+class PivotAreaFieldSpecMap extends PivotAreaFieldSpecBaseMap {
+    constructor(specification) {
+        super(specification);
+        this._inner = new entity_1.IdentifiableMap();
+    }
+    get inner() {
+        return this._inner;
+    }
+    set(fieldName, area) {
+        this._inner.set(new PivotAreaFieldSpec(fieldName, area, this.specification));
+        return this;
     }
 }
 exports.PivotAreaFieldSpecMap = PivotAreaFieldSpecMap;
-class PivotDataAreaFieldSpecMap extends entity_1.IdentifiableMap {
-    constructor(areas) {
-        super(areas);
+class PivotDataAreaFieldSpecMap extends PivotAreaFieldSpecBaseMap {
+    constructor(specification) {
+        super(specification);
+        this._inner = new entity_1.IdentifiableMap();
+    }
+    get inner() {
+        return this._inner;
+    }
+    set(fieldName, fn) {
+        this._inner.set(new PivotDataAreaFieldSpec(fieldName, fn, this.specification));
+        return this;
     }
 }
 exports.PivotDataAreaFieldSpecMap = PivotDataAreaFieldSpecMap;
 class PivotDataSpecification {
+    constructor() {
+        this._fields = new PivotAreaFieldSpecMap(this);
+        this._dataFields = new PivotDataAreaFieldSpecMap(this);
+    }
+    get fields() {
+        return this._fields;
+    }
+    get dataFields() {
+        return this._dataFields;
+    }
+    clone() {
+        const target = new PivotDataSpecification();
+        target.fields.forEach((spec) => {
+            target.fields.set(spec.fieldName, spec.area);
+        });
+        target.dataFields.forEach((spec) => {
+            target.dataFields.set(spec.fieldName, spec.fn);
+        });
+        return target;
+    }
 }
 exports.PivotDataSpecification = PivotDataSpecification;
+class PivotResult {
+    constructor(specification, sourceData, pivotData) {
+        this._specification = specification.clone();
+        this._sourceData = sourceData;
+        this._pivotData = pivotData;
+    }
+    get specification() {
+        return this._specification;
+    }
+    get sourceData() {
+        return this._sourceData;
+    }
+    get pivotData() {
+        return this._pivotData;
+    }
+}
+exports.PivotResult = PivotResult;
+class PivotDataService {
+    constructor(sourceData) {
+        this._specification = new PivotDataSpecification();
+        this._sourceData = sourceData;
+    }
+    get specification() {
+        return this._specification;
+    }
+    get sourceData() {
+        return this._sourceData;
+    }
+    execute(sourceData) {
+        if (this.specification.fields.isEmpty) {
+            throw new Error(`Invalid operation.  Pivot data operation failed.  No 'fields' set on the specification.`);
+        }
+        if (this.specification.dataFields.isEmpty) {
+            throw new Error(`Invalid operation.  Pivot data operation failed.  No 'data fields' set on the specification.`);
+        }
+        // Validate the source data has all of the fields (not necessarily data fields)
+        this.specification.fields.forEach((f) => {
+            if (!sourceData.columns.has(f.fieldName)) {
+                throw new Error(`Argument exception.  The specified data source does not have a field to pivot on named '${f.fieldName}'`);
+            }
+        });
+        this.specification.fields.forEach((f) => {
+            f.fieldName;
+        });
+        return (new PivotResult(this.specification, sourceData, null));
+    }
+}
+exports.PivotDataService = PivotDataService;
 //# sourceMappingURL=data.js.map

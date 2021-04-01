@@ -257,7 +257,7 @@ export class PageDirection extends Enum<PageDirection> {
 }
 
 
-export type ColumnTypeName = ('null' | 'any' | 'string' | 'number' | 'date' | 'boolean');
+export type ColumnTypeName = ('null' | 'any' | 'string' | 'number' | 'date' | 'boolean' | 'object');
 
 export class ColumnType extends Enum<ColumnType> {
   private static readonly TypeName: string = 'ColumnType';
@@ -268,6 +268,7 @@ export class ColumnType extends Enum<ColumnType> {
   public static readonly Number: ColumnType = new ColumnType('3', 'number');
   public static readonly Date: ColumnType = new ColumnType('4', 'date');
   public static readonly Boolean: ColumnType = new ColumnType('5', 'boolean');
+  public static readonly Object: ColumnType = new ColumnType('6', 'object');
 
   private constructor(id: string, value: ColumnTypeName) {
     super(ColumnType.TypeName, id, value);
@@ -417,7 +418,7 @@ export class Cell extends Identifiable {
   }
 
   public static coerce(value: unknown): unknown {
-    return ((typeof(value) === 'boolean') ? value : (value || null))
+    return ((typeof(value) === 'boolean') ? value : (value || null));
   }
 
   public get value(): unknown {
@@ -782,7 +783,7 @@ export class PivotDataCellCalcContext {
   }
 }
 
-export type PivotDataCellCalcFn = (context: PivotDataCellCalcContext) => number;
+export type PivotDataCellCalcFn = ((context: PivotDataCellCalcContext) => number);
 
 export class PivotDataAreaFieldSpec extends PivotAreaFieldSpecBase {
   private readonly _fn: PivotDataCellCalcFn;
@@ -792,7 +793,7 @@ export class PivotDataAreaFieldSpec extends PivotAreaFieldSpecBase {
     this._fn = fn;
   }
 
-  public get CellFunction(): PivotDataCellCalcFn {
+  public get fn(): PivotDataCellCalcFn {
     return this._fn;
   } 
 }
@@ -896,6 +897,7 @@ export class PivotDataAreaFieldSpecMap extends PivotAreaFieldSpecBaseMap<PivotDa
     return this;
   }
 }
+
 export class PivotDataSpecification {
   private readonly _fields: PivotAreaFieldSpecMap;
   private readonly _dataFields: PivotDataAreaFieldSpecMap;
@@ -912,20 +914,31 @@ export class PivotDataSpecification {
   public get dataFields(): PivotDataAreaFieldSpecMap {
     return this._dataFields;
   }
+
+  public clone(): PivotDataSpecification {
+    const target = new PivotDataSpecification();
+
+    target.fields.forEach((spec) => {
+      target.fields.set(spec.fieldName, spec.area);
+    });
+
+    target.dataFields.forEach((spec) => {
+      target.dataFields.set(spec.fieldName, spec.fn);
+    });
+
+    return target;
+  }
 }
-export class PivotDataService {
+
+export class PivotResult {
   private readonly _specification: PivotDataSpecification;
   private readonly _sourceData: DataTable;
+  private readonly _pivotData: DataTable;
 
-  constructor(specification: PivotDataSpecification, sourceData: DataTable) {
-    this._specification = specification;
+  constructor(specification: PivotDataSpecification, sourceData: DataTable, pivotData: DataTable) {
+    this._specification = specification.clone();
     this._sourceData = sourceData;
-
-    specification.fields.forEach((f) => {
-      if (!sourceData.columns.has(f.fieldName)) {
-        throw new Error(`Argument exception.  The specified data source does not have a field to pivot on named '${f.fieldName}'`);
-      }
-    });
+    this._pivotData = pivotData;
   }
 
   public get specification(): PivotDataSpecification {
@@ -936,7 +949,48 @@ export class PivotDataService {
     return this._sourceData;
   }
 
-  public execute(): object {
-    return this;
+  public get pivotData(): DataTable {
+    return this._pivotData;
+  }
+}
+
+export class PivotDataService {
+  private readonly _specification: PivotDataSpecification;
+  private readonly _sourceData: DataTable;
+
+  constructor(sourceData: DataTable) {
+    this._specification = new PivotDataSpecification();
+    this._sourceData = sourceData;
+  }
+
+  public get specification(): PivotDataSpecification {
+    return this._specification;
+  }
+
+  public get sourceData(): DataTable {
+    return this._sourceData;
+  }
+
+  public execute(sourceData: DataTable): PivotResult {
+    if (this.specification.fields.isEmpty) {
+      throw new Error(`Invalid operation.  Pivot data operation failed.  No 'fields' set on the specification.`);
+    }
+
+    if (this.specification.dataFields.isEmpty) {
+      throw new Error(`Invalid operation.  Pivot data operation failed.  No 'data fields' set on the specification.`);
+    }
+
+    // Validate the source data has all of the fields (not necessarily data fields)
+    this.specification.fields.forEach((f) => {
+      if (!sourceData.columns.has(f.fieldName)) {
+        throw new Error(`Argument exception.  The specified data source does not have a field to pivot on named '${f.fieldName}'`);
+      }
+    });
+
+    this.specification.fields.forEach((f) => {
+      f.fieldName
+    });
+
+    return (new PivotResult(this.specification, sourceData, null));
   }
 }
