@@ -227,7 +227,7 @@ class Composite extends Identifiable {
             if (next.isRoot) {
                 return next;
             }
-            next = this.parent;
+            next = next.parent;
         }
         return next;
     }

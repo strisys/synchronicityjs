@@ -54,11 +54,11 @@ describe('Composite', () => {
     // Arrange
     root = new TreeStructure('root');
 
-    level0.forEach((e) => {
-      root.components.set(new TreeStructure(e));
+    level0.forEach((p) => {
+      root.components.set(new TreeStructure(p));
 
-      level1.forEach((n) => {
-        root.components.get(e).components.set(new TreeStructure(`${e}/${n}`));
+      level1.forEach((c) => {
+        root.components.get(p).components.set(new TreeStructure(c));
       })
     });
   });
@@ -70,22 +70,22 @@ describe('Composite', () => {
     assert.isFalse(root.isLeaf);
 
     level0.forEach((a) => {
-      const node = root.components.get(a);
-      assert.equal(node.root, root);
-      assert.isFalse(node.isRoot);
-      assert.isFalse(node.isLeaf);
+      const parent = root.components.get(a);
 
-      // level1.forEach((b) => {
-      //   node = node.components.get(b);
-      //   assert.isFalse(node.isRoot);
-      //   assert.isTrue(node.isLeaf);
-      // });
+      assert.equal(parent.root, root);
+      assert.isFalse(parent.isRoot);
+      assert.isFalse(parent.isLeaf);
+      assert.equal(parent.components.size, level1.length);
+
+      level1.forEach((b) => {
+        const leaf = parent.components.get(b);
+
+        assert.equal(leaf.root, root);
+        assert.isFalse(leaf.isRoot);
+        assert.isTrue(leaf.isLeaf);
+        assert.equal(leaf.components.size, 0);
+      });
     });
-
-    // level1.forEach((e) => {
-    //   assert.isFalse(root.components.get(e).isRoot);
-    //   assert.isTrue(root.components.get(e).isLeaf);
-    // });
   });
 
 });

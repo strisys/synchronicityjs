@@ -302,7 +302,7 @@ export abstract class Composite<T extends Composite<T>> extends Identifiable {
         return next;
       }
 
-      next = this.parent;
+      next = next.parent;
     }
 
     return next;

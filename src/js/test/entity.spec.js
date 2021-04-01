@@ -45,10 +45,10 @@ describe('Composite', () => {
     beforeEach(function () {
         // Arrange
         root = new TreeStructure('root');
-        level0.forEach((e) => {
-            root.components.set(new TreeStructure(e));
-            level1.forEach((n) => {
-                root.components.get(e).components.set(new TreeStructure(`${e}/${n}`));
+        level0.forEach((p) => {
+            root.components.set(new TreeStructure(p));
+            level1.forEach((c) => {
+                root.components.get(p).components.set(new TreeStructure(c));
             });
         });
     });
@@ -58,20 +58,19 @@ describe('Composite', () => {
         chai_1.assert.isTrue(root.isRoot);
         chai_1.assert.isFalse(root.isLeaf);
         level0.forEach((a) => {
-            const node = root.components.get(a);
-            chai_1.assert.equal(node.root, root);
-            chai_1.assert.isFalse(node.isRoot);
-            chai_1.assert.isFalse(node.isLeaf);
-            // level1.forEach((b) => {
-            //   node = node.components.get(b);
-            //   assert.isFalse(node.isRoot);
-            //   assert.isTrue(node.isLeaf);
-            // });
+            const parent = root.components.get(a);
+            chai_1.assert.equal(parent.root, root);
+            chai_1.assert.isFalse(parent.isRoot);
+            chai_1.assert.isFalse(parent.isLeaf);
+            chai_1.assert.equal(parent.components.size, level1.length);
+            level1.forEach((b) => {
+                const leaf = parent.components.get(b);
+                chai_1.assert.equal(leaf.root, root);
+                chai_1.assert.isFalse(leaf.isRoot);
+                chai_1.assert.isTrue(leaf.isLeaf);
+                chai_1.assert.equal(leaf.components.size, 0);
+            });
         });
-        // level1.forEach((e) => {
-        //   assert.isFalse(root.components.get(e).isRoot);
-        //   assert.isTrue(root.components.get(e).isLeaf);
-        // });
     });
 });
 class Fruit extends __1.Enum {
