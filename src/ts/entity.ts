@@ -526,7 +526,8 @@ export class CompositeMap<T extends Composite<T>> extends IdentifiableMap<T> {
       return depthFirstList;
     }
 
-    const map = new Map();
+    // Build map of level/array pairs
+    const levelMap = new Map<number, T[]>();
     let maxLevel = 0;
 
     depthFirstList.forEach((element) => {
@@ -536,25 +537,23 @@ export class CompositeMap<T extends Composite<T>> extends IdentifiableMap<T> {
         maxLevel = level;
       }
 
-      if (!map.has(level)) {
-        map.set(level, new Array<T>());
+      if (!levelMap.has(level)) {
+        levelMap.set(level, new Array<T>());
       }
 
-      map.get(level).push(element);
+      levelMap.get(level).push(element);
     });
 
-    const breadthFirstList: T[] = [];
+    let breadthFirstList: T[] = [];
     
     for(let x = 0; (x <= maxLevel); x++) {
-      ((map.get(x) || [])).forEach((i: T) => {
-        breadthFirstList.push(i);
-      })
+      breadthFirstList = breadthFirstList.concat((levelMap.get(x) || []));
     }
 
     return breadthFirstList;
   }
 
-  public forEachDeep(enumeration: (CompositeEnumeration | CompositeEnumerationCode), fn: (item: T) => void): void {
+  public forEachDeep(enumeration: (CompositeEnumeration | CompositeEnumerationCode), fn: (item: T, index: number) => void): void {
     this.flatten(enumeration).forEach(fn);
   }
 }
