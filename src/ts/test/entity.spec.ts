@@ -47,12 +47,12 @@ describe('Identifiable', () => {
 describe('Composite', () => {
   const level0 = ['a', 'b', 'c'];
   const level1 = ['x', 'y', 'z'];
-  let root = new TreeStructure('root');
+  let root = null;
 
 
   beforeEach(function() {
     // Arrange
-    root = new TreeStructure('root');
+    root = new TreeStructure('r');
 
     level0.forEach((p) => {
       root.components.set(new TreeStructure(p));
@@ -68,6 +68,8 @@ describe('Composite', () => {
     assert.isNotNull(root);
     assert.isTrue(root.isRoot);
     assert.isFalse(root.isLeaf);
+    assert.equal(root.level, 0);
+    assert.equal(root.components.size, level0.length);
 
     level0.forEach((a) => {
       const parent = root.components.get(a);
@@ -76,6 +78,7 @@ describe('Composite', () => {
       assert.isFalse(parent.isRoot);
       assert.isFalse(parent.isLeaf);
       assert.equal(parent.components.size, level1.length);
+      assert.equal(parent.level, 1);
 
       level1.forEach((b) => {
         const leaf = parent.components.get(b);
@@ -84,10 +87,36 @@ describe('Composite', () => {
         assert.isFalse(leaf.isRoot);
         assert.isTrue(leaf.isLeaf);
         assert.equal(leaf.components.size, 0);
+        assert.equal(leaf.level, 2);
       });
     });
   });
 
+  it('has expected list when flattened depth-first', () => {
+    // Arrange
+    const expected = ['a', 'x', 'y', 'z', 'b', 'x', 'y', 'z', 'c', 'x', 'y', 'z']
+
+    // Act
+    const flattened: TreeStructure[] = root.components.flatten('depth-first');
+    
+    // Assert
+    expected.forEach((id, index) => {
+      assert.equal(id, flattened[index].id);
+    })
+  });
+
+  it('has expected list when flattened breadth-first', () => {
+    // Arrange
+    const expected = ['a', 'b', 'c', 'x', 'y', 'z', 'x', 'y', 'z', 'x', 'y', 'z']
+
+    // Act
+    const flattened: TreeStructure[] = root.components.flatten('breadth-first');
+    
+    // Assert
+    expected.forEach((id, index) => {
+      assert.equal(id, flattened[index].id);
+    })
+  });
 });
 
 export type FruitCode = ('null' | 'apple' | 'pear');

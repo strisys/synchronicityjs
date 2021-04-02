@@ -87,6 +87,24 @@ export declare class IdentifiableMap<T> {
 }
 export declare class CompositeMap<T extends Composite<T>> extends IdentifiableMap<T> {
     constructor(elements?: (T | T[]));
-    forEach(fn: (item: T, index: number) => void): void;
+    flatten(enumeration: (CompositeEnumeration | CompositeEnumerationCode)): T[];
+    forEachDeep(enumeration: (CompositeEnumeration | CompositeEnumerationCode), fn: (item: T) => void): void;
+}
+export declare type CompositeEnumerationCode = ('null' | 'depth-first' | 'breadth-first');
+declare class CompositeEnumeration extends Enum<CompositeEnumeration> {
+    private static readonly TypeName;
+    static readonly Null: CompositeEnumeration;
+    static readonly DepthFirst: CompositeEnumeration;
+    static readonly BreadthFirst: CompositeEnumeration;
+    private constructor();
+    get isDepthFirst(): boolean;
+    get isBreadthFirst(): boolean;
+    static tryParse(keyOrValue: (string | CompositeEnumerationCode)): CompositeEnumeration;
+    static get size(): number;
+    static get random(): CompositeEnumeration;
+    static get entries(): CompositeEnumeration[];
+    static get keys(): string[];
+    static get values(): CompositeEnumerationCode[];
+    static forEach(fn: (value: CompositeEnumeration, index: number) => void): void;
 }
 export {};

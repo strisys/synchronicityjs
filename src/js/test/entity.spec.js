@@ -41,10 +41,10 @@ describe('Identifiable', () => {
 describe('Composite', () => {
     const level0 = ['a', 'b', 'c'];
     const level1 = ['x', 'y', 'z'];
-    let root = new TreeStructure('root');
+    let root = null;
     beforeEach(function () {
         // Arrange
-        root = new TreeStructure('root');
+        root = new TreeStructure('r');
         level0.forEach((p) => {
             root.components.set(new TreeStructure(p));
             level1.forEach((c) => {
@@ -57,19 +57,43 @@ describe('Composite', () => {
         chai_1.assert.isNotNull(root);
         chai_1.assert.isTrue(root.isRoot);
         chai_1.assert.isFalse(root.isLeaf);
+        chai_1.assert.equal(root.level, 0);
+        chai_1.assert.equal(root.components.size, level0.length);
         level0.forEach((a) => {
             const parent = root.components.get(a);
             chai_1.assert.equal(parent.root, root);
             chai_1.assert.isFalse(parent.isRoot);
             chai_1.assert.isFalse(parent.isLeaf);
             chai_1.assert.equal(parent.components.size, level1.length);
+            chai_1.assert.equal(parent.level, 1);
             level1.forEach((b) => {
                 const leaf = parent.components.get(b);
                 chai_1.assert.equal(leaf.root, root);
                 chai_1.assert.isFalse(leaf.isRoot);
                 chai_1.assert.isTrue(leaf.isLeaf);
                 chai_1.assert.equal(leaf.components.size, 0);
+                chai_1.assert.equal(leaf.level, 2);
             });
+        });
+    });
+    it('has expected list when flattened depth-first', () => {
+        // Arrange
+        const expected = ['a', 'x', 'y', 'z', 'b', 'x', 'y', 'z', 'c', 'x', 'y', 'z'];
+        // Act
+        const flattened = root.components.flatten('depth-first');
+        // Assert
+        expected.forEach((id, index) => {
+            chai_1.assert.equal(id, flattened[index].id);
+        });
+    });
+    it('has expected list when flattened breadth-first', () => {
+        // Arrange
+        const expected = ['a', 'b', 'c', 'x', 'y', 'z', 'x', 'y', 'z', 'x', 'y', 'z'];
+        // Act
+        const flattened = root.components.flatten('breadth-first');
+        // Assert
+        expected.forEach((id, index) => {
+            chai_1.assert.equal(id, flattened[index].id);
         });
     });
 });

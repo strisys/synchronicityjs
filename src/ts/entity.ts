@@ -493,7 +493,117 @@ export class CompositeMap<T extends Composite<T>> extends IdentifiableMap<T> {
     super(elements);
   }
 
-  public forEach(fn: (item: T, index: number) => void): void {
-    this.values.forEach(fn);
+  public flatten(enumeration: (CompositeEnumeration | CompositeEnumerationCode)): T[]  {
+    const e = (((typeof(enumeration) === 'string') ? CompositeEnumeration.tryParse(enumeration) : enumeration) || CompositeEnumeration.Null);
+
+    if (e.isNull) {
+      return [];
+    }
+
+    const depthFirstList: T[] = [];
+
+    const recurseDepthFirst = (item: T) => {
+      if (!item) {
+        return;
+      }
+
+      depthFirstList.push(item);
+
+      if (item.isLeaf) {
+        return;
+      }
+
+      item.components.forEach((c) => {
+        recurseDepthFirst(c);
+      });
+    }
+  
+    super.forEach((element) => {
+      recurseDepthFirst(element);
+    });
+
+    if (e.isDepthFirst) {
+      return depthFirstList;
+    }
+
+    const map = new Map();
+    let maxLevel = 0;
+
+    depthFirstList.forEach((element) => {
+      const level = element.level;
+
+      if (level > maxLevel) {
+        maxLevel = level;
+      }
+
+      if (!map.has(level)) {
+        map.set(level, new Array<T>());
+      }
+
+      map.get(level).push(element);
+    });
+
+    const breadthFirstList: T[] = [];
+    
+    for(let x = 0; (x <= maxLevel); x++) {
+      ((map.get(x) || [])).forEach((i: T) => {
+        breadthFirstList.push(i);
+      })
+    }
+
+    return breadthFirstList;
+  }
+
+  public forEachDeep(enumeration: (CompositeEnumeration | CompositeEnumerationCode), fn: (item: T) => void): void {
+    this.flatten(enumeration).forEach(fn);
+  }
+}
+
+export type CompositeEnumerationCode = ('null' | 'depth-first' | 'breadth-first');
+
+class CompositeEnumeration extends Enum<CompositeEnumeration> {
+  private static readonly TypeName = 'CompositeEnumeration';
+  public static readonly Null = new CompositeEnumeration('0', 'null');
+  public static readonly DepthFirst = new CompositeEnumeration('1', 'depth-first');
+  public static readonly BreadthFirst = new CompositeEnumeration('2', 'breadth-first');
+
+  private constructor(id: string, value: CompositeEnumerationCode) {
+    super(CompositeEnumeration.TypeName, id, value);
+  }
+
+  public get isDepthFirst(): boolean {
+    return this.is(CompositeEnumeration.DepthFirst);
+  }
+
+  public get isBreadthFirst(): boolean {
+    return this.is(CompositeEnumeration.BreadthFirst);
+  }
+
+  public static tryParse(keyOrValue: (string | CompositeEnumerationCode)): CompositeEnumeration {
+    return (<CompositeEnumeration>CompositeEnumeration.attemptParse(CompositeEnumeration.TypeName, keyOrValue));
+  }
+
+  public static get size(): number {
+    return CompositeEnumeration.getSize(CompositeEnumeration.TypeName);
+  }
+
+  public static get random(): CompositeEnumeration {
+    return (CompositeEnumeration.getRandom(CompositeEnumeration.TypeName) as CompositeEnumeration);
+  }
+
+  public static get entries(): CompositeEnumeration[] {
+    return (CompositeEnumeration.getEntries(CompositeEnumeration.TypeName) as CompositeEnumeration[]);
+  }
+
+  public static get keys(): string[] {
+    return CompositeEnumeration.getKeys(CompositeEnumeration.TypeName);
+  }
+
+  public static get values(): CompositeEnumerationCode[] {
+    return (CompositeEnumeration.getValues(CompositeEnumeration.TypeName) as CompositeEnumerationCode[]);
+  }
+
+  public static forEach(fn: (value: CompositeEnumeration, index: number) => void): void {
+    CompositeEnumeration.forEachOne(CompositeEnumeration.TypeName, fn);
   }
 }

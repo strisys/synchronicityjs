@@ -368,9 +368,89 @@ class CompositeMap extends IdentifiableMap {
     constructor(elements) {
         super(elements);
     }
-    forEach(fn) {
-        this.values.forEach(fn);
+    flatten(enumeration) {
+        const e = (((typeof (enumeration) === 'string') ? CompositeEnumeration.tryParse(enumeration) : enumeration) || CompositeEnumeration.Null);
+        if (e.isNull) {
+            return [];
+        }
+        const depthFirstList = [];
+        const recurseDepthFirst = (item) => {
+            if (!item) {
+                return;
+            }
+            depthFirstList.push(item);
+            if (item.isLeaf) {
+                return;
+            }
+            item.components.forEach((c) => {
+                recurseDepthFirst(c);
+            });
+        };
+        super.forEach((element) => {
+            recurseDepthFirst(element);
+        });
+        if (e.isDepthFirst) {
+            return depthFirstList;
+        }
+        const map = new Map();
+        let maxLevel = 0;
+        depthFirstList.forEach((element) => {
+            const level = element.level;
+            if (level > maxLevel) {
+                maxLevel = level;
+            }
+            if (!map.has(level)) {
+                map.set(level, new Array());
+            }
+            map.get(level).push(element);
+        });
+        const breadthFirstList = [];
+        for (let x = 0; (x <= maxLevel); x++) {
+            ((map.get(x) || [])).forEach((i) => {
+                breadthFirstList.push(i);
+            });
+        }
+        return breadthFirstList;
+    }
+    forEachDeep(enumeration, fn) {
+        this.flatten(enumeration).forEach(fn);
     }
 }
 exports.CompositeMap = CompositeMap;
+class CompositeEnumeration extends Enum {
+    constructor(id, value) {
+        super(CompositeEnumeration.TypeName, id, value);
+    }
+    get isDepthFirst() {
+        return this.is(CompositeEnumeration.DepthFirst);
+    }
+    get isBreadthFirst() {
+        return this.is(CompositeEnumeration.BreadthFirst);
+    }
+    static tryParse(keyOrValue) {
+        return CompositeEnumeration.attemptParse(CompositeEnumeration.TypeName, keyOrValue);
+    }
+    static get size() {
+        return CompositeEnumeration.getSize(CompositeEnumeration.TypeName);
+    }
+    static get random() {
+        return CompositeEnumeration.getRandom(CompositeEnumeration.TypeName);
+    }
+    static get entries() {
+        return CompositeEnumeration.getEntries(CompositeEnumeration.TypeName);
+    }
+    static get keys() {
+        return CompositeEnumeration.getKeys(CompositeEnumeration.TypeName);
+    }
+    static get values() {
+        return CompositeEnumeration.getValues(CompositeEnumeration.TypeName);
+    }
+    static forEach(fn) {
+        CompositeEnumeration.forEachOne(CompositeEnumeration.TypeName, fn);
+    }
+}
+CompositeEnumeration.TypeName = 'CompositeEnumeration';
+CompositeEnumeration.Null = new CompositeEnumeration('0', 'null');
+CompositeEnumeration.DepthFirst = new CompositeEnumeration('1', 'depth-first');
+CompositeEnumeration.BreadthFirst = new CompositeEnumeration('2', 'breadth-first');
 //# sourceMappingURL=entity.js.map
