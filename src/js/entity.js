@@ -240,17 +240,17 @@ class IdentifiableMap {
     get keys() {
         return Array.from(this._inner.keys());
     }
+    observeSetPre(fnPre) {
+        this._fnPre = fnPre;
+    }
     observeSetPost(fnPost) {
         this._fnPost = fnPost;
     }
     onSetItemPre(element) {
-        // do nothing
+        // template method.  do nothing
     }
     onSetItemPost(element) {
-        if (this._fnPost) {
-            this._fnPost(element);
-        }
-        // do nothing
+        // template method.  do nothing
     }
     set(elements) {
         if (exports.isNullOrUndefined(elements)) {
@@ -265,8 +265,17 @@ class IdentifiableMap {
             if (exports.isNullOrUndefined(key)) {
                 throw new Error(`Failed to set map item. The key value from the property of '${this.itemKey}' is null or undefined.  Override the 'itemKey' member to specify a the key property to use for the items added to the map.`);
             }
+            // notify pre
+            if (this._fnPre) {
+                this._fnPre(e);
+            }
             this.onSetItemPre(e);
+            // set item
             this._inner.set(key, e);
+            // notify post
+            if (this._fnPost) {
+                this._fnPost(e);
+            }
             this.onSetItemPost(e);
         });
         return this;

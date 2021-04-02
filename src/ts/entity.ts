@@ -296,6 +296,7 @@ export abstract class Composite<T extends Composite<T>> extends Identifiable {
 
 export class IdentifiableMap<T> {
   protected readonly _inner = new Map<string, T>();
+  private _fnPre: (element: T) => void;
   private _fnPost: (element: T) => void;
 
   constructor(elements?: (T | T[])) {
@@ -322,20 +323,20 @@ export class IdentifiableMap<T> {
     return Array.from(this._inner.keys());
   }
 
+  public observeSetPre(fnPre: (element: T) => void) {
+    this._fnPre = fnPre;
+  }
+
   public observeSetPost(fnPost: (element: T) => void) {
     this._fnPost = fnPost;
   }
 
   protected onSetItemPre(element: T): void {
-    // do nothing
+    // template method.  do nothing
   }
 
   protected onSetItemPost(element: T): void {
-    if (this._fnPost) {
-      this._fnPost(element);
-    }
-
-    // do nothing
+    // template method.  do nothing
   }
 
   public set(elements: (T | T[])): IdentifiableMap<T> {
@@ -356,8 +357,21 @@ export class IdentifiableMap<T> {
         throw new Error(`Failed to set map item. The key value from the property of '${this.itemKey}' is null or undefined.  Override the 'itemKey' member to specify a the key property to use for the items added to the map.`);
       }
 
+      // notify pre
+      if (this._fnPre) {
+        this._fnPre(e);
+      }
+
       this.onSetItemPre(e);
+
+      // set item
       this._inner.set(key, e);
+
+       // notify post
+      if (this._fnPost) {
+        this._fnPost(e);
+      }
+
       this.onSetItemPost(e);
     });
 

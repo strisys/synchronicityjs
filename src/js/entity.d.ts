@@ -61,6 +61,7 @@ export declare abstract class Composite<T extends Composite<T>> extends Identifi
 }
 export declare class IdentifiableMap<T> {
     protected readonly _inner: Map<string, T>;
+    private _fnPre;
     private _fnPost;
     constructor(elements?: (T | T[]));
     protected get itemKey(): string;
@@ -68,6 +69,7 @@ export declare class IdentifiableMap<T> {
     get isEmpty(): boolean;
     get values(): T[];
     get keys(): string[];
+    observeSetPre(fnPre: (element: T) => void): void;
     observeSetPost(fnPost: (element: T) => void): void;
     protected onSetItemPre(element: T): void;
     protected onSetItemPost(element: T): void;
