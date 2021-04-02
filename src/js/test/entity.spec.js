@@ -77,22 +77,18 @@ describe('Composite', () => {
         });
     });
     it('has expected list when flattened depth-first', () => {
-        // Arrange
-        const expected = ['a', 'x', 'y', 'z', 'b', 'x', 'y', 'z', 'c', 'x', 'y', 'z'];
         // Act
         const flattened = root.components.flatten('depth-first');
         // Assert
-        expected.forEach((id, index) => {
+        ['a', 'x', 'y', 'z', 'b', 'x', 'y', 'z', 'c', 'x', 'y', 'z'].forEach((id, index) => {
             chai_1.assert.equal(id, flattened[index].id);
         });
     });
     it('has expected list when flattened breadth-first', () => {
-        // Arrange
-        const expected = ['a', 'b', 'c', 'x', 'y', 'z', 'x', 'y', 'z', 'x', 'y', 'z'];
         // Act
         const flattened = root.components.flatten('breadth-first');
         // Assert
-        expected.forEach((id, index) => {
+        ['a', 'b', 'c', 'x', 'y', 'z', 'x', 'y', 'z', 'x', 'y', 'z'].forEach((id, index) => {
             chai_1.assert.equal(id, flattened[index].id);
         });
     });

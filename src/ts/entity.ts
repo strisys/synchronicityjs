@@ -493,7 +493,7 @@ export class CompositeMap<T extends Composite<T>> extends IdentifiableMap<T> {
     super(elements);
   }
 
-  public flatten(enumeration: (CompositeEnumeration | CompositeEnumerationCode)): T[]  {
+  public flatten(enumeration: (CompositeEnumeration | CompositeEnumerationCode)): T[] {
     const e = (((typeof(enumeration) === 'string') ? CompositeEnumeration.tryParse(enumeration) : enumeration) || CompositeEnumeration.Null);
 
     if (e.isNull) {
