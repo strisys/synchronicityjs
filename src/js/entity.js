@@ -392,23 +392,23 @@ class CompositeMap extends IdentifiableMap {
         if (e.isDepthFirst) {
             return depthFirstList;
         }
-        const map = new Map();
+        // Build map of level/array pairs for breadth-first
+        const levelMap = new Map();
         let maxLevel = 0;
         depthFirstList.forEach((element) => {
             const level = element.level;
             if (level > maxLevel) {
                 maxLevel = level;
             }
-            if (!map.has(level)) {
-                map.set(level, new Array());
+            if (!levelMap.has(level)) {
+                levelMap.set(level, new Array());
             }
-            map.get(level).push(element);
+            levelMap.get(level).push(element);
         });
-        const breadthFirstList = [];
+        let breadthFirstList = [];
+        // Add one level at a time
         for (let x = 0; (x <= maxLevel); x++) {
-            ((map.get(x) || [])).forEach((i) => {
-                breadthFirstList.push(i);
-            });
+            breadthFirstList = breadthFirstList.concat((levelMap.get(x) || []));
         }
         return breadthFirstList;
     }

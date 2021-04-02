@@ -88,7 +88,7 @@ export declare class IdentifiableMap<T> {
 export declare class CompositeMap<T extends Composite<T>> extends IdentifiableMap<T> {
     constructor(elements?: (T | T[]));
     flatten(enumeration: (CompositeEnumeration | CompositeEnumerationCode)): T[];
-    forEachDeep(enumeration: (CompositeEnumeration | CompositeEnumerationCode), fn: (item: T) => void): void;
+    forEachDeep(enumeration: (CompositeEnumeration | CompositeEnumerationCode), fn: (item: T, index: number) => void): void;
 }
 export declare type CompositeEnumerationCode = ('null' | 'depth-first' | 'breadth-first');
 declare class CompositeEnumeration extends Enum<CompositeEnumeration> {

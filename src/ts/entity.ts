@@ -526,7 +526,7 @@ export class CompositeMap<T extends Composite<T>> extends IdentifiableMap<T> {
       return depthFirstList;
     }
 
-    // Build map of level/array pairs
+    // Build map of level/array pairs for breadth-first
     const levelMap = new Map<number, T[]>();
     let maxLevel = 0;
 
@@ -546,6 +546,7 @@ export class CompositeMap<T extends Composite<T>> extends IdentifiableMap<T> {
 
     let breadthFirstList: T[] = [];
     
+    // Add one level at a time
     for(let x = 0; (x <= maxLevel); x++) {
       breadthFirstList = breadthFirstList.concat((levelMap.get(x) || []));
     }
