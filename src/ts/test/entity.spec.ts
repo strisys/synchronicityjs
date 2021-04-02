@@ -49,9 +49,8 @@ describe('Composite', () => {
   const level1 = ['x', 'y', 'z'];
   let root = null;
 
-
   beforeEach(function() {
-    // Arrange
+    // Arrange/Act
     root = new TreeStructure('r');
 
     level0.forEach((p) => {
@@ -63,9 +62,8 @@ describe('Composite', () => {
     });
   });
 
-  it('can be created with the expected side-effects', () => {
+  it('can be created with the expected properties based on structure', () => {
     // Assert
-    assert.isNotNull(root);
     assert.isTrue(root.isRoot);
     assert.isFalse(root.isLeaf);
     assert.equal(root.level, 0);
@@ -92,7 +90,7 @@ describe('Composite', () => {
     });
   });
 
-  it('has expected list when flattened depth-first', () => {
+  it('has expected sequence when flattened depth-first', () => {
     // Act
     const flattened = root.components.flatten('depth-first');
     
@@ -102,7 +100,7 @@ describe('Composite', () => {
     })
   });
 
-  it('has expected list when flattened breadth-first', () => {
+  it('has expected sequence when flattened breadth-first', () => {
     // Act
     const flattened = root.components.flatten('breadth-first');
     

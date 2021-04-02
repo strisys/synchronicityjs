@@ -54,8 +54,8 @@ export declare abstract class Composite<T extends Composite<T>> extends Identifi
     get parent(): T;
     set parent(value: T);
     protected onSetItemPost: (element: T) => void;
-    private createMapAndObserve;
-    protected createMap(): CompositeMap<T>;
+    private createComponentsMapAndObserve;
+    protected createComponentsMap(): CompositeMap<T>;
     get components(): CompositeMap<T>;
     toString(): string;
 }

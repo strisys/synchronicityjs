@@ -156,7 +156,7 @@ class Composite extends Identifiable {
         this.onSetItemPost = (element) => {
             element.parent = this;
         };
-        this._parent = parent;
+        this._parent = (parent || null);
     }
     get url() {
         return '';
@@ -196,24 +196,24 @@ class Composite extends Identifiable {
         return level;
     }
     get parent() {
-        return this._parent;
+        return (this._parent || null);
     }
     set parent(value) {
         if (this._parent) {
             throw new Error(`Invalid operation.  The parent has already been set on the composite [${this.id}].`);
         }
-        this._parent = value;
+        this._parent = (value || null);
     }
-    createMapAndObserve() {
-        const map = this.createMap();
+    createComponentsMapAndObserve() {
+        const map = this.createComponentsMap();
         map.observeSetPost(this.onSetItemPost);
         return map;
     }
-    createMap() {
+    createComponentsMap() {
         return (new CompositeMap());
     }
     get components() {
-        return (this._components ? this._components : (this._components = this.createMapAndObserve()));
+        return ((this._components) ? this._components : (this._components = this.createComponentsMapAndObserve()));
     }
     toString() {
         return (this.id || this.url || 'id: null');

@@ -206,7 +206,7 @@ export abstract class Composite<T extends Composite<T>> extends Identifiable {
 
   protected constructor(id: string = null, parent: T = null) {
     super(id);
-    this._parent = parent;
+    this._parent = (parent || null);
   }
 
   public get url(): string {
@@ -260,7 +260,7 @@ export abstract class Composite<T extends Composite<T>> extends Identifiable {
   }
 
   public get parent(): T {
-    return this._parent;
+    return (this._parent || null);
   }
 
   public set parent(value: T) {
@@ -268,25 +268,25 @@ export abstract class Composite<T extends Composite<T>> extends Identifiable {
       throw new Error(`Invalid operation.  The parent has already been set on the composite [${this.id}].`)
     }
 
-    this._parent = value;
+    this._parent = (value || null);
   }
 
   protected onSetItemPost = (element: T): void => {
     element.parent = (<T>(this as unknown));
   }
 
-  private createMapAndObserve() {
-    const map: CompositeMap<T> = this.createMap();
+  private createComponentsMapAndObserve() {
+    const map: CompositeMap<T> = this.createComponentsMap();
     map.observeSetPost(this.onSetItemPost);
     return map;
   }
 
-  protected createMap(): CompositeMap<T> {
+  protected createComponentsMap(): CompositeMap<T> {
     return (new CompositeMap<T>());
   }
 
   public get components(): CompositeMap<T> {
-    return (this._components ? this._components : (this._components = this.createMapAndObserve()));
+    return ((this._components) ? this._components : (this._components = this.createComponentsMapAndObserve()));
   }
 
   public toString(): string {
