@@ -78,6 +78,8 @@ describe('PivotDataService', function () {
         const pds = new __1.PivotDataService(datatable);
         const fieldSpecs = [{ 'date': 'column' }, { 'fund': 'column' }, { 'security': 'column' }];
         pds.specification.fields.set(fieldSpecs);
+        const dfSpecs = [{ 'mv': () => 1 }];
+        pds.specification.dataFields.set(dfSpecs);
         // Act
     });
 });

@@ -1,4 +1,4 @@
-import { Enum, Identifiable, IdentifiableMap } from './entity';
+import { Composite, Enum, Identifiable, IdentifiableMap } from './entity';
 export declare type AndOrCode = ('null' | 'and' | 'or');
 export declare class AndOr extends Enum<AndOr> {
     private static readonly TypeName;
@@ -174,7 +174,10 @@ export declare class DataTable extends Identifiable {
     static readonly Empty: DataTable;
     private readonly _columns;
     private _rows;
+    private _name;
     constructor(columns: DataTableColumnMap, values?: (RowData | RowData[]));
+    set name(value: string);
+    get name(): string;
     get columns(): DataTableColumnMap;
     get rows(): RowMap;
     static from(data: (RowData | RowData[]), primaryKey?: (string | string[])): DataTable;
@@ -282,11 +285,29 @@ export declare class PivotResult {
     get sourceData(): DataTable;
     get pivotData(): DataTable;
 }
+export declare class PivotCellUrl {
+    static readonly Root: PivotCellUrl;
+    private readonly _parts;
+    private _value;
+    constructor(parts: string[]);
+    get parts(): string[];
+    get value(): string;
+    private createValue;
+}
+export declare class PivotCell extends Composite<PivotCell> {
+    private readonly _specification;
+    private readonly _rows;
+    private readonly _url;
+    constructor(url: PivotCellUrl, specification: PivotDataSpecification, rows?: Row[]);
+    get rows(): Row[];
+    get specification(): PivotDataSpecification;
+    addRow(row: Row): PivotCell;
+}
 export declare class PivotDataService {
     private readonly _specification;
     private readonly _sourceData;
     constructor(sourceData: DataTable);
     get specification(): PivotDataSpecification;
     get sourceData(): DataTable;
-    execute(sourceData: DataTable): PivotResult;
+    execute(sourceData: DataTable): PivotCell;
 }

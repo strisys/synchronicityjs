@@ -1086,7 +1086,7 @@ export class PivotDataService {
     const root = new PivotCell(PivotCellUrl.Root, spec, sourceData.rows.values);
     const nodeMap = new Map<number, Map<string, PivotCell>>();
 
-    sourceData.rows.forEach((r) => {
+    sourceData.rows.forEach((row) => {
       const fvalues = [];
       let parent = root;
 
@@ -1097,21 +1097,23 @@ export class PivotDataService {
           nodeMap.set(level, (urlMap = new Map<string, PivotCell>()));
         }
         
-        fvalues.push((r.cells.get(f.fieldName).value || '-').toString());
+        fvalues.push((row.cells.get(f.fieldName).value || '-').toString());
         const url = new PivotCellUrl(fvalues);
 
         // Get or create node and add row
         let node = urlMap.get(url.value);
         
         if (!node) {
-          urlMap.set(url.value, (node = new PivotCell(url, spec).addRow(r)));
+          urlMap.set(url.value, (node = new PivotCell(url, spec)));
           parent.components.set(node);
-          parent = node;
         }
+
+        parent = node.addRow(row);
               
-        spec.dataFields.forEach((d) => {
-          parent.components.set(new PivotCell(new PivotCellUrl([...fvalues, d.fieldName]), spec).addRow(r));
-        });
+        // spec.dataFields.forEach((d) => {
+        //   parent.components.set(new PivotCell(new PivotCellUrl([...fvalues, d.fieldName]), spec).addRow(row));
+        // });
+      });      
     });
 
     return root;

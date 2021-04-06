@@ -96,7 +96,7 @@ describe('PivotDataService', function() {
     const fieldSpecs: FieldSpec[] = [{ 'date': 'column' }, { 'fund': 'column' }, { 'security': 'column' }];
     pds.specification.fields.set(fieldSpecs);
 
-    const dfSpecs: DataFieldSpec[] = [{ 'mv': (cxt: PivotDataCellCalcContext) => 1 }];
+    const dfSpecs: DataFieldSpec[] = [{ 'mv': () => 1 }];
     pds.specification.dataFields.set(dfSpecs);
 
     // Act
