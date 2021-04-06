@@ -600,7 +600,15 @@ exports.PivotDataCellCalcContext = PivotDataCellCalcContext;
 const PivotDataCellCalcSumFn = (ctx) => {
     let sum = 0;
     ctx.rows.forEach((r) => {
-        sum += (r.cells.get(ctx.dataFieldSpecification.fieldName).value || 0);
+        const cell = r.cells.get(ctx.dataFieldSpecification.fieldName);
+        if (!cell) {
+            return null;
+        }
+        const val = cell.value;
+        if (typeof (val) !== 'number') {
+            return;
+        }
+        sum += val;
     });
     return sum;
 };
@@ -753,10 +761,10 @@ class PivotDataResult {
 }
 exports.PivotDataResult = PivotDataResult;
 class PivotDataCellUrl extends entity_1.Identifiable {
-    constructor(parts, delmiter = '/') {
+    constructor(parts, delmiter = PivotDataCellUrl.DefaultDelimiter) {
         super(PivotDataCellUrl.createValue(parts, delmiter));
         this._parts = (parts || []);
-        this._delimiter = delmiter;
+        this._delimiter = (delmiter || PivotDataCellUrl.DefaultDelimiter);
     }
     get parts() {
         return this._parts;
@@ -770,16 +778,20 @@ class PivotDataCellUrl extends entity_1.Identifiable {
     get value() {
         return this.id;
     }
-    static createValue(parts, delimiter = '/') {
+    static create(parts, delimiter = PivotDataCellUrl.DefaultDelimiter) {
+        return (new PivotDataCellUrl(parts, delimiter));
+    }
+    static createValue(parts, delimiter = PivotDataCellUrl.DefaultDelimiter) {
+        const delim = (delimiter || PivotDataCellUrl.DefaultDelimiter);
         if (!parts || !parts.length) {
-            return `${delimiter}root`;
+            return `${delim}root`;
         }
         const maxIndex = (parts.length - 1);
-        let url = `${delimiter}root${delimiter}`;
+        let url = `${delim}root${delim}`;
         parts.forEach((v, index) => {
             url += v;
             if (index < maxIndex) {
-                url += delimiter;
+                url += delim;
             }
         });
         return url;
@@ -790,6 +802,7 @@ class PivotDataCellUrl extends entity_1.Identifiable {
 }
 exports.PivotDataCellUrl = PivotDataCellUrl;
 PivotDataCellUrl.Root = new PivotDataCellUrl([]);
+PivotDataCellUrl.DefaultDelimiter = '/';
 class PivotDataCellValues {
     constructor(node) {
         this._cached = {};

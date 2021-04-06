@@ -288,6 +288,7 @@ export declare class PivotDataResult {
 }
 export declare class PivotDataCellUrl extends Identifiable {
     static readonly Root: PivotDataCellUrl;
+    static readonly DefaultDelimiter = "/";
     private readonly _parts;
     private readonly _delimiter;
     constructor(parts: string[], delmiter?: string);
@@ -295,6 +296,7 @@ export declare class PivotDataCellUrl extends Identifiable {
     get delimiter(): string;
     get isRoot(): boolean;
     get value(): string;
+    static create(parts: string[], delimiter?: string): PivotDataCellUrl;
     static createValue(parts: string[], delimiter?: string): string;
     toString(): string;
 }

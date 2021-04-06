@@ -141,7 +141,7 @@ describe('PivotDataService', function() {
     expect(nodeBB.rows.length).to.be.eq(5);
   });
 
-  it('should calculate the correct value based function and the input values in the specified datatable', function() {
+  it('should calculate the correct value based on the function and the input values in the specified datatable', function() {
     // Arrange
     const pds = new PivotDataService();
     pds.specification.fields.set([{ 'fund': 'column' }, { 'status': 'column' }]);

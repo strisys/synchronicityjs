@@ -112,27 +112,22 @@ describe('PivotDataService', function () {
         chai_1.expect(nodeBB).to.be.not.null;
         chai_1.expect(nodeBB.rows.length).to.be.eq(5);
     });
-    it('should calculate the correct value based function and the input values in the specified datatable ', function () {
+    it('should calculate the correct value based on the function and the input values in the specified datatable', function () {
         // Arrange
-        const sourceData = __1.DataTable.from(generateData('risk'), 'id');
         const pds = new __1.PivotDataService();
         pds.specification.fields.set([{ 'fund': 'column' }, { 'status': 'column' }]);
         pds.specification.dataFields.set([{ 'mv': __1.PivotDataCellCalcSumFn }, { 'repo': __1.PivotDataCellCalcSumFn }]);
         // Act
-        const result = pds.execute(sourceData);
+        const root = pds.execute(__1.DataTable.from(generateData('risk'), 'id')).root;
         // Assert
-        const nodeA = result.root.components.get(__1.PivotDataCellUrl.createValue(['hm']));
-        const valA = nodeA.values.get('mv');
-        chai_1.expect(valA).to.be.eq(45);
-        const nodeAA = nodeA.components.get(__1.PivotDataCellUrl.createValue(['hm', 'i']));
-        const valAA = nodeAA.values.get('repo');
-        chai_1.expect(valAA).to.be.eq(10);
-        const nodeB = result.root.components.get(__1.PivotDataCellUrl.createValue(['xm']));
-        const valB = nodeB.values.get('mv');
-        chai_1.expect(valB).to.be.eq(60);
-        const nodeBB = nodeB.components.get(__1.PivotDataCellUrl.createValue(['xm', 'i']));
-        const valBB = nodeBB.values.get('repo');
-        chai_1.expect(valBB).to.be.eq(60);
+        const nodeA = root.components.get(__1.PivotDataCellUrl.create(['hm']).value);
+        chai_1.expect(nodeA.values.get('mv')).to.be.eq(45);
+        const nodeAA = nodeA.components.get(__1.PivotDataCellUrl.create(['hm', 'i']).value);
+        chai_1.expect(nodeAA.values.get('repo')).to.be.eq(10);
+        const nodeB = root.components.get(__1.PivotDataCellUrl.create(['xm']).value);
+        chai_1.expect(nodeB.values.get('mv')).to.be.eq(60);
+        const nodeBB = nodeB.components.get(__1.PivotDataCellUrl.create(['xm', 'i']).value);
+        chai_1.expect(nodeBB.values.get('repo')).to.be.eq(60);
     });
 });
 //# sourceMappingURL=data.spec.js.map
