@@ -203,11 +203,12 @@ export declare class PivotArea extends Enum<PivotArea> {
     static get values(): PivotAreaCode[];
     static forEach(fn: (value: PivotArea, index: number) => void): void;
 }
-export declare abstract class PivotAreaFieldSpecBase {
+export declare abstract class PivotAreaFieldSpecBase extends Identifiable {
     private readonly _specification;
     private readonly _fieldName;
     private readonly _area;
     constructor(fieldName: string, area: (PivotArea | PivotAreaCode), specification: PivotDataSpecification);
+    get id(): string;
     get fieldName(): string;
     get area(): PivotArea;
     get specification(): PivotDataSpecification;
@@ -285,29 +286,37 @@ export declare class PivotResult {
     get sourceData(): DataTable;
     get pivotData(): DataTable;
 }
-export declare class PivotCellUrl {
-    static readonly Root: PivotCellUrl;
+export declare class PivotDataCellUrl extends Identifiable {
+    static readonly Root: PivotDataCellUrl;
     private readonly _parts;
-    private _value;
-    constructor(parts: string[]);
+    private readonly _delimiter;
+    constructor(parts: string[], delmiter?: string);
     get parts(): string[];
+    get isRoot(): boolean;
     get value(): string;
-    private createValue;
+    private static createValue;
+    toString(): string;
 }
-export declare class PivotCell extends Composite<PivotCell> {
+export declare class PivotDataCell extends Composite<PivotDataCell> {
     private readonly _specification;
-    private readonly _rows;
+    private readonly _sourceDataTable;
     private readonly _url;
-    constructor(url: PivotCellUrl, specification: PivotDataSpecification, rows?: Row[]);
+    private _rows;
+    private _isReadOnly;
+    constructor(url: PivotDataCellUrl, specification: PivotDataSpecification, sourceDataTable: DataTable, rows?: Row[]);
+    get url(): PivotDataCellUrl;
+    get isReadOnly(): boolean;
+    get sourceDataTable(): DataTable;
     get rows(): Row[];
     get specification(): PivotDataSpecification;
-    addRow(row: Row): PivotCell;
+    setAsReadOnly(): PivotDataCell;
+    addRow(row: Row): PivotDataCell;
+    get(dataField: string): number;
 }
 export declare class PivotDataService {
     private readonly _specification;
-    private readonly _sourceData;
-    constructor(sourceData: DataTable);
+    constructor();
     get specification(): PivotDataSpecification;
-    get sourceData(): DataTable;
-    execute(sourceData: DataTable): PivotCell;
+    private buildComposite;
+    execute(sourceData: DataTable): PivotDataCell;
 }

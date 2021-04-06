@@ -158,9 +158,6 @@ class Composite extends Identifiable {
         };
         this._parent = (parent || null);
     }
-    get url() {
-        return '';
-    }
     get root() {
         if (this.isRoot) {
             return this;
@@ -216,7 +213,7 @@ class Composite extends Identifiable {
         return ((this._components) ? this._components : (this._components = this.createComponentsMapAndObserve()));
     }
     toString() {
-        return (this.id || this.url || 'id: null');
+        return (this.id || 'id: null');
     }
 }
 exports.Composite = Composite;

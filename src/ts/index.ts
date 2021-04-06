@@ -26,6 +26,8 @@ export { AndOrCode,
          DataTable, 
          DataFieldSpec,
          FieldSpec,
+         PivotDataCell,
+         PivotDataCellUrl,
          PivotDataCellCalcFn,
          PivotDataCellCalcContext,
          PivotDataService } from './data';

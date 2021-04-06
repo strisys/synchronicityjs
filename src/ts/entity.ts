@@ -209,10 +209,6 @@ export abstract class Composite<T extends Composite<T>> extends Identifiable {
     this._parent = (parent || null);
   }
 
-  public get url(): string {
-    return '';
-  }
-
   public get root(): T {
     if (this.isRoot) {
       return (<T>(this as unknown));
@@ -290,7 +286,7 @@ export abstract class Composite<T extends Composite<T>> extends Identifiable {
   }
 
   public toString(): string {
-    return (this.id || this.url || 'id: null');
+    return (this.id || 'id: null');
   }
 }
 

@@ -1,5 +1,5 @@
 import { assert, expect } from 'chai';
-import { DataTable, RowData, Cell, DataFieldSpec, FieldSpec, PivotDataService } from '../';
+import { DataTable, RowData, Cell, DataFieldSpec, FieldSpec, PivotDataService, PivotDataCell, PivotDataCellUrl } from '../';
 
 let id = 0;
 
@@ -86,13 +86,20 @@ describe('DataTable', function() {
   });
 });
 
+describe('PivotCellUrl', function() {
+  it('should be able to crate a basic url based on the parts', function() {
+    // Arrange/ Act / Assert
+    expect((new PivotDataCellUrl(['a', 'b', 'c'])).value).to.be.eq('/root/a/b/c');
+  });
+});
+
 describe('PivotDataService', function() {
   it('should do basic summation based on specified criteria', function() {
     // Arrange
     const rowdata = generateData('risk');
     const datatable = DataTable.from(rowdata, 'id');
 
-    const pds = new PivotDataService(datatable);
+    const pds = new PivotDataService();
     const fieldSpecs: FieldSpec[] = [{ 'date': 'column' }, { 'fund': 'column' }, { 'security': 'column' }];
     pds.specification.fields.set(fieldSpecs);
 
@@ -100,6 +107,10 @@ describe('PivotDataService', function() {
     pds.specification.dataFields.set(dfSpecs);
 
     // Act
-    
+    const root: PivotDataCell = pds.execute(datatable)
+
+    // Assert
+    expect(root).to.be.not.null;
+
   });
 });

@@ -70,17 +70,26 @@ describe('DataTable', function () {
         chai_1.assert.equal(com.rows.size, (dtA.rows.size + dtB.rows.size + dtC.rows.size));
     });
 });
+describe('PivotCellUrl', function () {
+    it('should be able to crate a basic url based on the parts', function () {
+        // Arrange/ Act / Assert
+        chai_1.expect((new __1.PivotDataCellUrl(['a', 'b', 'c'])).value).to.be.eq('/root/a/b/c');
+    });
+});
 describe('PivotDataService', function () {
     it('should do basic summation based on specified criteria', function () {
         // Arrange
         const rowdata = generateData('risk');
         const datatable = __1.DataTable.from(rowdata, 'id');
-        const pds = new __1.PivotDataService(datatable);
+        const pds = new __1.PivotDataService();
         const fieldSpecs = [{ 'date': 'column' }, { 'fund': 'column' }, { 'security': 'column' }];
         pds.specification.fields.set(fieldSpecs);
         const dfSpecs = [{ 'mv': () => 1 }];
         pds.specification.dataFields.set(dfSpecs);
         // Act
+        const root = pds.execute(datatable);
+        // Assert
+        chai_1.expect(root).to.be.not.null;
     });
 });
 //# sourceMappingURL=data.spec.js.map

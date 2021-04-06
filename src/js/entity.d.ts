@@ -46,7 +46,6 @@ export declare abstract class Composite<T extends Composite<T>> extends Identifi
     private _parent;
     private _components;
     protected constructor(id?: string, parent?: T);
-    get url(): string;
     get root(): T;
     get isRoot(): boolean;
     get isLeaf(): boolean;

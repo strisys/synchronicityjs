@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { expect } from 'chai';
 import { Composite, Enum, Identifiable, IdentifiableMap, isNullOrUndefined } from './entity';
 
 export type AndOrCode = ('null' | 'and' | 'or');
@@ -726,12 +728,14 @@ export class PivotArea extends Enum<PivotArea> {
   }
 }
 
-export abstract class PivotAreaFieldSpecBase {
+export abstract class PivotAreaFieldSpecBase extends Identifiable {
   private readonly _specification: PivotDataSpecification;
   private readonly _fieldName: string;
   private readonly _area: PivotArea;
 
   constructor(fieldName: string, area: (PivotArea | PivotAreaCode), specification: PivotDataSpecification) {
+    super();
+
     if (!(fieldName || '').trim()) {
       throw new Error(`Invalid argument.  No field name specified.`);
     }
@@ -739,6 +743,10 @@ export abstract class PivotAreaFieldSpecBase {
     this._specification = specification;
     this._fieldName = fieldName.trim();
     this._area = (((typeof(area) === 'string') ? PivotArea.tryParse(area) : area) || PivotArea.Null);
+  }
+
+  public get id(): string {
+    return this.fieldName;
   }
 
   public get fieldName(): string {
@@ -900,8 +908,10 @@ export class PivotAreaFieldSpecMap extends PivotAreaFieldSpecBaseMap<PivotAreaFi
       specs = [specs];
     }
 
-    Object.keys(specs).forEach((k) => {
-      this._inner.set(new PivotAreaFieldSpec(k, specs[k], this.specification));
+    specs.forEach((spec) => {
+      Object.keys(spec).forEach((k) => {
+        this._inner.set(new PivotAreaFieldSpec(k, spec[k], this.specification));
+      });
     });
 
     return this;
@@ -928,8 +938,10 @@ export class PivotDataAreaFieldSpecMap extends PivotAreaFieldSpecBaseMap<PivotDa
       specs = [specs];
     }
 
-    Object.keys(specs).forEach((k) => {
-      this._inner.set(new PivotDataAreaFieldSpec(k, specs[k], this.specification));
+    specs.forEach((spec) => {
+      Object.keys(spec).forEach((k) => {
+        this._inner.set(new PivotDataAreaFieldSpec(k, spec[k], this.specification));
+      });
     });
 
     return this;
@@ -992,47 +1004,86 @@ export class PivotResult {
   }
 }
 
-export class PivotCellUrl {
-  public static readonly Root = new PivotCellUrl([]);
+export class PivotDataCellUrl extends Identifiable {
+  public static readonly Root = new PivotDataCellUrl([]);
   private readonly _parts: string[];
-  private _value: string;
+  private readonly _delimiter: string;
 
-  public constructor(parts: string[]) {
+  public constructor(parts: string[], delmiter = '/') {
+    super(PivotDataCellUrl.createValue(parts, delmiter))
     this._parts = (parts || []);
+    this._delimiter = delmiter;
   }
 
   public get parts(): string[] {
     return this._parts;
   }
 
-  public get value(): string {
-    return (this._value || (this._value = this.createValue()));
+  public get isRoot(): boolean {
+    return (this._parts.length === 0);
   }
 
-  private createValue() {
-    let url = '';
+  public get value(): string {
+    return this.id;
+  }
 
-    this._parts.forEach((v) => {
-      url += (v  + '/');
+  private static createValue(parts: string[], delimiter = '/') {
+    if (!parts || !parts.length) {
+      return `${delimiter}root`;
+    }
+
+    const maxIndex = (parts.length - 1);
+    let url = `${delimiter}root${delimiter}`;
+
+    parts.forEach((v, index) => {
+      url += v;
+
+      if (index < maxIndex) {
+        url += delimiter;
+      }
     });
 
     return url.substr(0, (url.length - 1));
   }
+
+  public toString(): string {
+    return this.value;
+  }
 }
 
-export class PivotCell extends Composite<PivotCell> {
+export class PivotDataCell extends Composite<PivotDataCell> {
   private readonly _specification: PivotDataSpecification;
-  private readonly _rows: Row[];
-  private readonly _url: PivotCellUrl;
+  private readonly _sourceDataTable: DataTable;
+  private readonly _url: PivotDataCellUrl;
+  private _rows: Row[];
+  private _isReadOnly: boolean;
 
-  public constructor(url: PivotCellUrl, specification: PivotDataSpecification, rows: Row[] = []) {
+  public constructor(url: PivotDataCellUrl, specification: PivotDataSpecification, sourceDataTable: DataTable, rows: Row[] = []) {
     super(url.value);
     this._url = url;
     this._rows = rows;
     this._specification = specification;
+    this._isReadOnly = false;
+    this._sourceDataTable = sourceDataTable;
+  }
+
+  public get url(): PivotDataCellUrl {
+    return this._url;
+  }
+
+  public get isReadOnly(): boolean {
+    return (this._isReadOnly || this.url.isRoot);
+  }
+
+  public get sourceDataTable(): DataTable {
+    return this._sourceDataTable;
   }
 
   public get rows(): Row[] {
+    if (this._url.isRoot) {
+      this._rows = this.sourceDataTable.rows.values;
+    }
+
     return this._rows;
   }
 
@@ -1040,31 +1091,76 @@ export class PivotCell extends Composite<PivotCell> {
     return this._specification;
   }
 
-  public addRow(row: Row): PivotCell {
+  public setAsReadOnly(): PivotDataCell {
+    this._isReadOnly = true;
+    return this;
+  }
+
+  public addRow(row: Row): PivotDataCell {
+    if (this.isReadOnly) {
+      throw new Error(`Invalid operation expection.  Failed to add row to ${this.url}.`)
+    }
+    
     this._rows.push(row);
     return this;
+  }  
+
+  public get(dataField: string): number {
+    // TOOD: Fill in
+    return 0;
   }
 }
 
 export class PivotDataService {
   private readonly _specification: PivotDataSpecification;
-  private readonly _sourceData: DataTable;
-
-  constructor(sourceData: DataTable) {
+  constructor() {
     this._specification = new PivotDataSpecification();
-    this._sourceData = sourceData;
   }
 
   public get specification(): PivotDataSpecification {
     return this._specification;
   }
 
-  public get sourceData(): DataTable {
-    return this._sourceData;
+  private buildComposite(sourceData: DataTable): PivotDataCell {
+    const spec = this.specification
+    const root = new PivotDataCell(PivotDataCellUrl.Root, spec, sourceData);
+    const nodeMap = new Map<number, Map<string, PivotDataCell>>();
+
+    sourceData.rows.forEach((row) => {
+      const fvalues = [];
+      let parent = root;
+
+      spec.fields.forEach((f, level) => {        
+        let urlMap = (nodeMap.get(level));
+        
+        if (!urlMap) {
+          nodeMap.set(level, (urlMap = new Map<string, PivotDataCell>()));
+        }
+        
+        fvalues.push((row.cells.get(f.fieldName).value || '-').toString());
+        const url = new PivotDataCellUrl(fvalues);
+
+        // Get or create node and add row
+        let node = urlMap.get(url.value);
+        
+        if (!node) {
+          urlMap.set(url.value, (node = new PivotDataCell(url, spec, sourceData)));
+          parent.components.set(node);
+        }
+
+        parent = node.addRow(row);
+              
+        // spec.dataFields.forEach((d) => {
+        //   parent.components.set(new PivotCell(new PivotDataCellUrl([...fvalues, d.fieldName]), spec).addRow(row));
+        // });
+      });      
+    });
+
+    return root;
   }
 
-  public execute(sourceData: DataTable): PivotCell {
-    const spec = this.specification.clone();
+  public execute(sourceData: DataTable): PivotDataCell {
+    const spec = this.specification;
 
     if (spec.fields.isEmpty) {
       throw new Error(`Invalid operation.  Pivot data operation failed.  No 'fields' set on the specification.`);
@@ -1083,39 +1179,6 @@ export class PivotDataService {
 
     console.info(`creating composite structure from ${sourceData.rows.size} rows ...`);
 
-    const root = new PivotCell(PivotCellUrl.Root, spec, sourceData.rows.values);
-    const nodeMap = new Map<number, Map<string, PivotCell>>();
-
-    sourceData.rows.forEach((row) => {
-      const fvalues = [];
-      let parent = root;
-
-      spec.fields.forEach((f, level) => {        
-        let urlMap = (nodeMap.get(level));
-        
-        if (!urlMap) {
-          nodeMap.set(level, (urlMap = new Map<string, PivotCell>()));
-        }
-        
-        fvalues.push((row.cells.get(f.fieldName).value || '-').toString());
-        const url = new PivotCellUrl(fvalues);
-
-        // Get or create node and add row
-        let node = urlMap.get(url.value);
-        
-        if (!node) {
-          urlMap.set(url.value, (node = new PivotCell(url, spec)));
-          parent.components.set(node);
-        }
-
-        parent = node.addRow(row);
-              
-        // spec.dataFields.forEach((d) => {
-        //   parent.components.set(new PivotCell(new PivotCellUrl([...fvalues, d.fieldName]), spec).addRow(row));
-        // });
-      });      
-    });
-
-    return root;
+    return this.buildComposite(sourceData);
   }
 }
