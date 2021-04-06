@@ -124,21 +124,11 @@ describe('PivotDataService', function() {
 
     expect(result.root.rows.length).to.be.eq(sourceData.rows.size);
 
-    const expected = {};
-    expected[PivotDataCellUrl.createValue(['hm'])] = 9;
-    expected[PivotDataCellUrl.createValue(['hm', 'ch'])] = 9;
-    expected[PivotDataCellUrl.createValue(['xm'])] = 5;
-    expected[PivotDataCellUrl.createValue(['xm', 'ch'])] = 5;
+    const nodeA = result.root.components.get(PivotDataCellUrl.createValue(['hm']));
+    expect(nodeA).to.be.not.null;
+    expect(nodeA.rows.length).to.be.eq(9);
 
-    Object.keys(expected).forEach((k) => {
-      const node = result.root.components.get(k);
-      expect(node).to.be.not.null;
-      expect(node.rows.length).to.be.eq(expected[k]);
-    });
-
-    
-
-    const nodeAA = node1.components.get(PivotDataCellUrl.createValue(['hm', 'ch']));
+    const nodeAA = nodeA.components.get(PivotDataCellUrl.createValue(['hm', 'ch']));
     expect(nodeAA).to.be.not.null;
     expect(nodeAA.rows.length).to.be.eq(9);
 
@@ -146,7 +136,7 @@ describe('PivotDataService', function() {
     expect(nodeB).to.be.not.null;
     expect(nodeB.rows.length).to.be.eq(5);
 
-    const nodeBB = result.root.components.get(PivotDataCellUrl.createValue(['xm', 'ch']));
+    const nodeBB = nodeB.components.get(PivotDataCellUrl.createValue(['xm', 'ch']));
     expect(nodeBB).to.be.not.null;
     expect(nodeBB.rows.length).to.be.eq(5);
   });

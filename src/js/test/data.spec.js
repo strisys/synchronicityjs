@@ -22,6 +22,12 @@ const generateData = (searchExpression = '') => {
         data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 835740618, repo: 534255894, dv01: 0.0 });
         data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 11925647, repo: 0.0, dv01: 0.0 });
         data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'n', strategy3: 'n', strategy4: 'o', asset: 'n', mv: -1774228, repo: 0.0, dv01: 0.0 });
+        reportDate = new Date('2021-03-02');
+        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'c', strategy3: 'c', strategy4: 'c', asset: 'c', mv: 69190, repo: 0.0, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 201684, repo: 0.0, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 835740618, repo: 534255894, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 11925647, repo: 0.0, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'n', strategy3: 'n', strategy4: 'o', asset: 'n', mv: -1774228, repo: 0.0, dv01: 0.0 });
     }
     return data;
 };
@@ -80,16 +86,31 @@ describe('PivotDataService', function () {
     it('should do basic summation based on specified criteria', function () {
         // Arrange
         const rowdata = generateData('risk');
-        const datatable = __1.DataTable.from(rowdata, 'id');
+        const sourceData = __1.DataTable.from(rowdata, 'id');
         const pds = new __1.PivotDataService();
-        const fieldSpecs = [{ 'date': 'column' }, { 'fund': 'column' }, { 'security': 'column' }];
+        const fieldSpecs = [{ 'fund': 'column' }, { 'security': 'column' }];
         pds.specification.fields.set(fieldSpecs);
         const dfSpecs = [{ 'mv': () => 1 }];
         pds.specification.dataFields.set(dfSpecs);
         // Act
-        const root = pds.execute(datatable);
+        const result = pds.execute(sourceData);
         // Assert
-        chai_1.expect(root).to.be.not.null;
+        chai_1.expect(result).to.be.not.null;
+        chai_1.expect(result.root).to.be.not.null;
+        chai_1.expect(result.sourceData).to.be.eq(sourceData);
+        chai_1.expect(result.root.rows.length).to.be.eq(sourceData.rows.size);
+        const nodeA = result.root.components.get(__1.PivotDataCellUrl.createValue(['hm']));
+        chai_1.expect(nodeA).to.be.not.null;
+        chai_1.expect(nodeA.rows.length).to.be.eq(9);
+        const nodeAA = nodeA.components.get(__1.PivotDataCellUrl.createValue(['hm', 'ch']));
+        chai_1.expect(nodeAA).to.be.not.null;
+        chai_1.expect(nodeAA.rows.length).to.be.eq(9);
+        const nodeB = result.root.components.get(__1.PivotDataCellUrl.createValue(['xm']));
+        chai_1.expect(nodeB).to.be.not.null;
+        chai_1.expect(nodeB.rows.length).to.be.eq(5);
+        const nodeBB = nodeB.components.get(__1.PivotDataCellUrl.createValue(['xm', 'ch']));
+        chai_1.expect(nodeBB).to.be.not.null;
+        chai_1.expect(nodeBB.rows.length).to.be.eq(5);
     });
 });
 //# sourceMappingURL=data.spec.js.map

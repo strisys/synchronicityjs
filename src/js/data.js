@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PivotDataService = exports.PivotDataCell = exports.PivotDataCellUrl = exports.PivotResult = exports.PivotDataSpecification = exports.PivotDataAreaFieldSpecMap = exports.PivotAreaFieldSpecMap = exports.PivotAreaFieldSpecBaseMap = exports.PivotDataAreaFieldSpec = exports.PivotDataCellCalcContext = exports.PivotAreaFieldSpec = exports.PivotAreaFieldSpecBase = exports.PivotArea = exports.DataTable = exports.RowMap = exports.Row = exports.CellMap = exports.Cell = exports.DataTableColumnMap = exports.ColumnMap = exports.Column = exports.ColumnType = exports.PageDirection = exports.EntityQueryPage = exports.EntityQueryParameters = exports.AscDesc = exports.AndOr = void 0;
+exports.PivotDataService = exports.PivotDataCell = exports.PivotDataCellUrl = exports.PivotDataResult = exports.PivotDataSpecification = exports.PivotDataAreaFieldSpecMap = exports.PivotAreaFieldSpecMap = exports.PivotAreaFieldSpecBaseMap = exports.PivotDataAreaFieldSpec = exports.PivotDataCellCalcContext = exports.PivotAreaFieldSpec = exports.PivotAreaFieldSpecBase = exports.PivotArea = exports.DataTable = exports.RowMap = exports.Row = exports.CellMap = exports.Cell = exports.DataTableColumnMap = exports.ColumnMap = exports.Column = exports.ColumnType = exports.PageDirection = exports.EntityQueryPage = exports.EntityQueryParameters = exports.AscDesc = exports.AndOr = void 0;
 const entity_1 = require("./entity");
 class AndOr extends entity_1.Enum {
     constructor(id, value) {
@@ -727,23 +727,24 @@ class PivotDataSpecification {
     }
 }
 exports.PivotDataSpecification = PivotDataSpecification;
-class PivotResult {
-    constructor(specification, sourceData, pivotData) {
-        this._specification = specification.clone();
-        this._sourceData = sourceData;
-        this._pivotData = pivotData;
+class PivotDataResult {
+    constructor(root) {
+        this._root = root;
     }
     get specification() {
-        return this._specification;
+        return this._root.specification;
+    }
+    get root() {
+        return this._root;
     }
     get sourceData() {
-        return this._sourceData;
+        return this._root.sourceData;
     }
-    get pivotData() {
-        return this._pivotData;
+    get data() {
+        return this._data;
     }
 }
-exports.PivotResult = PivotResult;
+exports.PivotDataResult = PivotDataResult;
 class PivotDataCellUrl extends entity_1.Identifiable {
     constructor(parts, delmiter = '/') {
         super(PivotDataCellUrl.createValue(parts, delmiter));
@@ -752,6 +753,9 @@ class PivotDataCellUrl extends entity_1.Identifiable {
     }
     get parts() {
         return this._parts;
+    }
+    get delimiter() {
+        return this._delimiter;
     }
     get isRoot() {
         return (this._parts.length === 0);
@@ -764,14 +768,14 @@ class PivotDataCellUrl extends entity_1.Identifiable {
             return `${delimiter}root`;
         }
         const maxIndex = (parts.length - 1);
-        let url = '';
+        let url = `${delimiter}root${delimiter}`;
         parts.forEach((v, index) => {
             url += v;
             if (index < maxIndex) {
                 url += delimiter;
             }
         });
-        return url.substr(0, (url.length - 1));
+        return url;
     }
     toString() {
         return this.value;
@@ -780,13 +784,13 @@ class PivotDataCellUrl extends entity_1.Identifiable {
 exports.PivotDataCellUrl = PivotDataCellUrl;
 PivotDataCellUrl.Root = new PivotDataCellUrl([]);
 class PivotDataCell extends entity_1.Composite {
-    constructor(url, specification, sourceDataTable, rows = []) {
+    constructor(url, specification, sourceData, rows = []) {
         super(url.value);
         this._url = url;
         this._rows = rows;
         this._specification = specification;
         this._isReadOnly = false;
-        this._sourceDataTable = sourceDataTable;
+        this._sourceData = sourceData;
     }
     get url() {
         return this._url;
@@ -794,12 +798,12 @@ class PivotDataCell extends entity_1.Composite {
     get isReadOnly() {
         return (this._isReadOnly || this.url.isRoot);
     }
-    get sourceDataTable() {
-        return this._sourceDataTable;
+    get sourceData() {
+        return this._sourceData;
     }
     get rows() {
         if (this._url.isRoot) {
-            this._rows = this.sourceDataTable.rows.values;
+            this._rows = this.sourceData.rows.values;
         }
         return this._rows;
     }
@@ -834,6 +838,8 @@ class PivotDataService {
         const spec = this.specification;
         const root = new PivotDataCell(PivotDataCellUrl.Root, spec, sourceData);
         const nodeMap = new Map();
+        console.log(`creating composite structure from ${sourceData.rows.size} rows ...`);
+        console.time(`composite`);
         sourceData.rows.forEach((row) => {
             const fvalues = [];
             let parent = root;
@@ -856,6 +862,8 @@ class PivotDataService {
                 // });
             });
         });
+        console.log(`composite structure created from ${sourceData.rows.size} rows`);
+        console.timeEnd(`composite`);
         return root;
     }
     execute(sourceData) {
@@ -872,8 +880,7 @@ class PivotDataService {
                 throw new Error(`Argument exception.  The specified data source does not have a field to pivot on named '${f.fieldName}'`);
             }
         });
-        console.info(`creating composite structure from ${sourceData.rows.size} rows ...`);
-        return this.buildComposite(sourceData);
+        return (new PivotDataResult(this.buildComposite(sourceData)));
     }
 }
 exports.PivotDataService = PivotDataService;

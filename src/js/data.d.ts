@@ -277,14 +277,14 @@ export declare class PivotDataSpecification {
     get dataFields(): PivotDataAreaFieldSpecMap;
     clone(): PivotDataSpecification;
 }
-export declare class PivotResult {
-    private readonly _specification;
-    private readonly _sourceData;
-    private readonly _pivotData;
-    constructor(specification: PivotDataSpecification, sourceData: DataTable, pivotData: DataTable);
+export declare class PivotDataResult {
+    private readonly _root;
+    private _data;
+    constructor(root: PivotDataCell);
     get specification(): PivotDataSpecification;
+    get root(): PivotDataCell;
     get sourceData(): DataTable;
-    get pivotData(): DataTable;
+    get data(): DataTable;
 }
 export declare class PivotDataCellUrl extends Identifiable {
     static readonly Root: PivotDataCellUrl;
@@ -292,21 +292,22 @@ export declare class PivotDataCellUrl extends Identifiable {
     private readonly _delimiter;
     constructor(parts: string[], delmiter?: string);
     get parts(): string[];
+    get delimiter(): string;
     get isRoot(): boolean;
     get value(): string;
-    private static createValue;
+    static createValue(parts: string[], delimiter?: string): string;
     toString(): string;
 }
 export declare class PivotDataCell extends Composite<PivotDataCell> {
     private readonly _specification;
-    private readonly _sourceDataTable;
+    private readonly _sourceData;
     private readonly _url;
     private _rows;
     private _isReadOnly;
-    constructor(url: PivotDataCellUrl, specification: PivotDataSpecification, sourceDataTable: DataTable, rows?: Row[]);
+    constructor(url: PivotDataCellUrl, specification: PivotDataSpecification, sourceData: DataTable, rows?: Row[]);
     get url(): PivotDataCellUrl;
     get isReadOnly(): boolean;
-    get sourceDataTable(): DataTable;
+    get sourceData(): DataTable;
     get rows(): Row[];
     get specification(): PivotDataSpecification;
     setAsReadOnly(): PivotDataCell;
@@ -318,5 +319,5 @@ export declare class PivotDataService {
     constructor();
     get specification(): PivotDataSpecification;
     private buildComposite;
-    execute(sourceData: DataTable): PivotDataCell;
+    execute(sourceData: DataTable): PivotDataResult;
 }
