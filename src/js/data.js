@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PivotDataService = exports.PivotDataCell = exports.PivotDataCellUrl = exports.PivotDataResult = exports.PivotDataSpecification = exports.PivotDataAreaFieldSpecMap = exports.PivotAreaFieldSpecMap = exports.PivotAreaFieldSpecBaseMap = exports.PivotDataAreaFieldSpec = exports.PivotDataCellCalcContext = exports.PivotAreaFieldSpec = exports.PivotAreaFieldSpecBase = exports.PivotArea = exports.DataTable = exports.RowMap = exports.Row = exports.CellMap = exports.Cell = exports.DataTableColumnMap = exports.ColumnMap = exports.Column = exports.ColumnType = exports.PageDirection = exports.EntityQueryPage = exports.EntityQueryParameters = exports.AscDesc = exports.AndOr = void 0;
+exports.PivotDataService = exports.PivotDataCell = exports.PivotDataCellValues = exports.PivotDataCellUrl = exports.PivotDataResult = exports.PivotDataSpecification = exports.PivotDataAreaFieldSpecMap = exports.PivotAreaFieldSpecMap = exports.PivotAreaFieldSpecBaseMap = exports.PivotDataAreaFieldSpec = exports.PivotDataCellCalcSumFn = exports.PivotDataCellCalcContext = exports.PivotAreaFieldSpec = exports.PivotAreaFieldSpecBase = exports.PivotArea = exports.DataTable = exports.RowMap = exports.Row = exports.CellMap = exports.Cell = exports.DataTableColumnMap = exports.ColumnMap = exports.Column = exports.ColumnType = exports.PageDirection = exports.EntityQueryPage = exports.EntityQueryParameters = exports.AscDesc = exports.AndOr = void 0;
 const entity_1 = require("./entity");
 class AndOr extends entity_1.Enum {
     constructor(id, value) {
@@ -582,22 +582,29 @@ class PivotAreaFieldSpec extends PivotAreaFieldSpecBase {
 }
 exports.PivotAreaFieldSpec = PivotAreaFieldSpec;
 class PivotDataCellCalcContext {
-    constructor(specification, sourceData, current) {
-        this._specification = specification;
-        this._sourceData = sourceData;
-        this._current = current;
+    constructor(node, dfSpec) {
+        this._node = node;
+        this._dfSpec = dfSpec;
     }
-    get specification() {
-        return this._specification;
+    get node() {
+        return this._node;
     }
-    get sourceData() {
-        return this._sourceData;
+    get rows() {
+        return this.node.rows;
     }
-    get current() {
-        return this._current;
+    get dataFieldSpecification() {
+        return this._dfSpec;
     }
 }
 exports.PivotDataCellCalcContext = PivotDataCellCalcContext;
+const PivotDataCellCalcSumFn = (ctx) => {
+    let sum = 0;
+    ctx.rows.forEach((r) => {
+        sum += (r.cells.get(ctx.dataFieldSpecification.fieldName).value || 0);
+    });
+    return sum;
+};
+exports.PivotDataCellCalcSumFn = PivotDataCellCalcSumFn;
 class PivotDataAreaFieldSpec extends PivotAreaFieldSpecBase {
     constructor(fieldName, fn, specification) {
         super(fieldName, PivotArea.Data, specification);
@@ -783,6 +790,28 @@ class PivotDataCellUrl extends entity_1.Identifiable {
 }
 exports.PivotDataCellUrl = PivotDataCellUrl;
 PivotDataCellUrl.Root = new PivotDataCellUrl([]);
+class PivotDataCellValues {
+    constructor(node) {
+        this._cached = {};
+        this._node = node;
+    }
+    get(dataField) {
+        const df = this._node.specification.dataFields.get(dataField);
+        if (!df) {
+            throw new Error(`Invalid operation expection.  Failed to get data field specification for the specified field name of ${df.fieldName}.`);
+        }
+        const fn = df.fn;
+        if (!fn) {
+            return (this._cached[df.fieldName] = null);
+        }
+        const val = this._cached[df.fieldName];
+        if (val !== undefined) {
+            return val;
+        }
+        return (this._cached[df.fieldName] = fn(new PivotDataCellCalcContext(this._node, df)));
+    }
+}
+exports.PivotDataCellValues = PivotDataCellValues;
 class PivotDataCell extends entity_1.Composite {
     constructor(url, specification, sourceData, rows = []) {
         super(url.value);
@@ -821,9 +850,8 @@ class PivotDataCell extends entity_1.Composite {
         this._rows.push(row);
         return this;
     }
-    get(dataField) {
-        // TOOD: Fill in
-        return 0;
+    get values() {
+        return (this._values || (this._values = new PivotDataCellValues(this)));
     }
 }
 exports.PivotDataCell = PivotDataCell;
@@ -857,9 +885,6 @@ class PivotDataService {
                     parent.components.set(node);
                 }
                 parent = node.addRow(row);
-                // spec.dataFields.forEach((d) => {
-                //   parent.components.set(new PivotCell(new PivotDataCellUrl([...fvalues, d.fieldName]), spec).addRow(row));
-                // });
             });
         });
         console.log(`composite structure created from ${sourceData.rows.size} rows`);

@@ -218,15 +218,15 @@ export declare class PivotAreaFieldSpec extends PivotAreaFieldSpecBase {
     constructor(fieldName: string, area: (PivotArea | PivotAreaCode), specification: PivotDataSpecification);
 }
 export declare class PivotDataCellCalcContext {
-    private readonly _specification;
-    private readonly _sourceData;
-    private readonly _current;
-    constructor(specification: PivotDataSpecification, sourceData: DataTable, current: DataTable);
-    get specification(): PivotDataSpecification;
-    get sourceData(): DataTable;
-    get current(): DataTable;
+    private readonly _node;
+    private readonly _dfSpec;
+    constructor(node: PivotDataCell, dfSpec: PivotDataAreaFieldSpec);
+    get node(): PivotDataCell;
+    get rows(): Row[];
+    get dataFieldSpecification(): PivotDataAreaFieldSpec;
 }
 export declare type PivotDataCellCalcFn = ((context: PivotDataCellCalcContext) => number);
+export declare const PivotDataCellCalcSumFn: (ctx: PivotDataCellCalcContext) => number;
 export declare class PivotDataAreaFieldSpec extends PivotAreaFieldSpecBase {
     private readonly _fn;
     constructor(fieldName: string, fn: PivotDataCellCalcFn, specification: PivotDataSpecification);
@@ -298,12 +298,19 @@ export declare class PivotDataCellUrl extends Identifiable {
     static createValue(parts: string[], delimiter?: string): string;
     toString(): string;
 }
+export declare class PivotDataCellValues {
+    private readonly _node;
+    private readonly _cached;
+    constructor(node: PivotDataCell);
+    get(dataField: string): number;
+}
 export declare class PivotDataCell extends Composite<PivotDataCell> {
     private readonly _specification;
     private readonly _sourceData;
     private readonly _url;
     private _rows;
     private _isReadOnly;
+    private _values;
     constructor(url: PivotDataCellUrl, specification: PivotDataSpecification, sourceData: DataTable, rows?: Row[]);
     get url(): PivotDataCellUrl;
     get isReadOnly(): boolean;
@@ -312,7 +319,7 @@ export declare class PivotDataCell extends Composite<PivotDataCell> {
     get specification(): PivotDataSpecification;
     setAsReadOnly(): PivotDataCell;
     addRow(row: Row): PivotDataCell;
-    get(dataField: string): number;
+    get values(): PivotDataCellValues;
 }
 export declare class PivotDataService {
     private readonly _specification;

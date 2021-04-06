@@ -12,22 +12,22 @@ const generateData = (searchExpression = '') => {
     }
     if (searchExpression.indexOf('risk') > -1) {
         let reportDate = new Date('2021-02-24');
-        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'c', strategy3: 'c', strategy4: 'c', asset: 'c', mv: 69190, repo: 0.0, dv01: 0.0 });
-        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 218206, repo: 0.0, dv01: 0.0 });
-        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 840833411, repo: 543146579, dv01: 0.0 });
-        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 12124105, repo: 0.0, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'c', strategy3: 'c', strategy4: 'c', asset: 'c', mv: 1, repo: 1, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 2, repo: 2, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 3, repo: 3, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 4, repo: 4, dv01: 0.0 });
         reportDate = new Date('2021-03-01');
-        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'c', strategy3: 'c', strategy4: 'c', asset: 'c', mv: 69190, repo: 0.0, dv01: 0.0 });
-        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 201684, repo: 0.0, dv01: 0.0 });
-        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 835740618, repo: 534255894, dv01: 0.0 });
-        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 11925647, repo: 0.0, dv01: 0.0 });
-        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'n', strategy3: 'n', strategy4: 'o', asset: 'n', mv: -1774228, repo: 0.0, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'n', strategy1: 'h', strategy2: 'c', strategy3: 'c', strategy4: 'c', asset: 'c', mv: 5, repo: 5, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'n', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 6, repo: 6, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'n', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 7, repo: 7, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'n', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 8, repo: 8, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'n', strategy1: 'h', strategy2: 'n', strategy3: 'n', strategy4: 'o', asset: 'n', mv: 9, repo: 9, dv01: 0.0 });
         reportDate = new Date('2021-03-02');
-        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'c', strategy3: 'c', strategy4: 'c', asset: 'c', mv: 69190, repo: 0.0, dv01: 0.0 });
-        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 201684, repo: 0.0, dv01: 0.0 });
-        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 835740618, repo: 534255894, dv01: 0.0 });
-        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 11925647, repo: 0.0, dv01: 0.0 });
-        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'n', strategy3: 'n', strategy4: 'o', asset: 'n', mv: -1774228, repo: 0.0, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'c', strategy3: 'c', strategy4: 'c', asset: 'c', mv: 10, repo: 10, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 11, repo: 11, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 12, repo: 12, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 13, repo: 13, dv01: 0.0 });
+        data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'n', strategy3: 'n', strategy4: 'o', asset: 'n', mv: 14, repo: 14, dv01: 0.0 });
     }
     return data;
 };
@@ -83,14 +83,14 @@ describe('PivotCellUrl', function () {
     });
 });
 describe('PivotDataService', function () {
-    it('should do basic summation based on specified criteria', function () {
+    it('should create composite structure based on specified datatable', function () {
         // Arrange
         const rowdata = generateData('risk');
         const sourceData = __1.DataTable.from(rowdata, 'id');
         const pds = new __1.PivotDataService();
         const fieldSpecs = [{ 'fund': 'column' }, { 'security': 'column' }];
         pds.specification.fields.set(fieldSpecs);
-        const dfSpecs = [{ 'mv': () => 1 }];
+        const dfSpecs = [{ 'mv': null }];
         pds.specification.dataFields.set(dfSpecs);
         // Act
         const result = pds.execute(sourceData);
@@ -111,6 +111,28 @@ describe('PivotDataService', function () {
         const nodeBB = nodeB.components.get(__1.PivotDataCellUrl.createValue(['xm', 'ch']));
         chai_1.expect(nodeBB).to.be.not.null;
         chai_1.expect(nodeBB.rows.length).to.be.eq(5);
+    });
+    it('should calculate the correct value based function and the input values in the specified datatable ', function () {
+        // Arrange
+        const sourceData = __1.DataTable.from(generateData('risk'), 'id');
+        const pds = new __1.PivotDataService();
+        pds.specification.fields.set([{ 'fund': 'column' }, { 'status': 'column' }]);
+        pds.specification.dataFields.set([{ 'mv': __1.PivotDataCellCalcSumFn }, { 'repo': __1.PivotDataCellCalcSumFn }]);
+        // Act
+        const result = pds.execute(sourceData);
+        // Assert
+        const nodeA = result.root.components.get(__1.PivotDataCellUrl.createValue(['hm']));
+        const valA = nodeA.values.get('mv');
+        chai_1.expect(valA).to.be.eq(45);
+        const nodeAA = nodeA.components.get(__1.PivotDataCellUrl.createValue(['hm', 'i']));
+        const valAA = nodeAA.values.get('repo');
+        chai_1.expect(valAA).to.be.eq(10);
+        const nodeB = result.root.components.get(__1.PivotDataCellUrl.createValue(['xm']));
+        const valB = nodeB.values.get('mv');
+        chai_1.expect(valB).to.be.eq(60);
+        const nodeBB = nodeB.components.get(__1.PivotDataCellUrl.createValue(['xm', 'i']));
+        const valBB = nodeBB.values.get('repo');
+        chai_1.expect(valBB).to.be.eq(60);
     });
 });
 //# sourceMappingURL=data.spec.js.map

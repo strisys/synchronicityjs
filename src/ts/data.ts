@@ -775,32 +775,51 @@ export class PivotAreaFieldSpec extends PivotAreaFieldSpecBase {
     }
   }
 }
-
 export class PivotDataCellCalcContext {
-  private readonly _specification: PivotDataSpecification;
-  private readonly _sourceData: DataTable;
-  private readonly _current: DataTable;
+  private readonly _node: PivotDataCell;
+  private readonly _dfSpec: PivotDataAreaFieldSpec;
 
-  constructor(specification: PivotDataSpecification, sourceData: DataTable, current: DataTable) {
-    this._specification = specification;
-    this._sourceData = sourceData;
-    this._current = current;
+  constructor(node: PivotDataCell, dfSpec: PivotDataAreaFieldSpec) {
+    this._node = node;
+    this._dfSpec = dfSpec;
   }
 
-  public get specification():  PivotDataSpecification {
-    return this._specification;
+  public get node():  PivotDataCell {
+    return this._node;
   }
 
-  public get sourceData():  DataTable {
-    return this._sourceData;
+  public get rows(): Row[] {
+    return this.node.rows;
   }
 
-  public get current():  DataTable {
-    return this._current;
+  public get dataFieldSpecification():  PivotDataAreaFieldSpec {
+    return this._dfSpec;
   }
 }
 
 export type PivotDataCellCalcFn = ((context: PivotDataCellCalcContext) => number);
+
+export const PivotDataCellCalcSumFn = (ctx: PivotDataCellCalcContext): number => {
+  let sum = 0;
+
+  ctx.rows.forEach((r) => {
+    const cell = r.cells.get(ctx.dataFieldSpecification.fieldName);
+
+    if (!cell) {
+      return null;
+    }
+
+    const val = (cell.value as number);
+
+    if (typeof(val) !== 'number') {
+      return;
+    }
+
+    sum += val;
+  });
+
+  return sum;
+};
 
 export class PivotDataAreaFieldSpec extends PivotAreaFieldSpecBase {
   private readonly _fn: PivotDataCellCalcFn;
@@ -1007,13 +1026,14 @@ export class PivotDataResult {
 
 export class PivotDataCellUrl extends Identifiable {
   public static readonly Root = new PivotDataCellUrl([]);
+  public static readonly DefaultDelimiter = '/';
   private readonly _parts: string[];
   private readonly _delimiter: string;
 
-  public constructor(parts: string[], delmiter = '/') {
+  public constructor(parts: string[], delmiter = PivotDataCellUrl.DefaultDelimiter) {
     super(PivotDataCellUrl.createValue(parts, delmiter))
     this._parts = (parts || []);
-    this._delimiter = delmiter;
+    this._delimiter = (delmiter || PivotDataCellUrl.DefaultDelimiter);
   }
 
   public get parts(): string[] {
@@ -1032,19 +1052,25 @@ export class PivotDataCellUrl extends Identifiable {
     return this.id;
   }
 
-  public static createValue(parts: string[], delimiter = '/'): string {
+  public static create(parts: string[], delimiter = PivotDataCellUrl.DefaultDelimiter): PivotDataCellUrl {
+    return (new PivotDataCellUrl(parts, delimiter));
+  }
+
+  public static createValue(parts: string[], delimiter = PivotDataCellUrl.DefaultDelimiter): string {
+    const delim = (delimiter || PivotDataCellUrl.DefaultDelimiter);
+
     if (!parts || !parts.length) {
-      return `${delimiter}root`;
+      return `${delim}root`;
     }
 
     const maxIndex = (parts.length - 1);
-    let url = `${delimiter}root${delimiter}`;
+    let url = `${delim}root${delim}`;
 
     parts.forEach((v, index) => {
       url += v;
 
       if (index < maxIndex) {
-        url += delimiter;
+        url += delim;
       }
     });
 
@@ -1056,12 +1082,44 @@ export class PivotDataCellUrl extends Identifiable {
   }
 }
 
+export class PivotDataCellValues {
+  private readonly _node: PivotDataCell;
+  private readonly _cached = {};
+
+  constructor(node: PivotDataCell) {
+    this._node = node;
+  }
+
+  public get(dataField: string): number {
+    const df = this._node.specification.dataFields.get(dataField);
+
+    if (!df) {
+      throw new Error(`Invalid operation expection.  Failed to get data field specification for the specified field name of ${df.fieldName}.`);
+    }
+
+    const fn = df.fn;
+    
+    if (!fn) {
+      return (this._cached[df.fieldName] = null);
+    }
+
+    const val = this._cached[df.fieldName];
+
+    if (val !== undefined) {
+      return val;
+    }
+
+    return (this._cached[df.fieldName] = fn(new PivotDataCellCalcContext(this._node, df)));
+  }
+}
+
 export class PivotDataCell extends Composite<PivotDataCell> {
   private readonly _specification: PivotDataSpecification;
   private readonly _sourceData: DataTable;
   private readonly _url: PivotDataCellUrl;
   private _rows: Row[];
   private _isReadOnly: boolean;
+  private _values: PivotDataCellValues;
 
   public constructor(url: PivotDataCellUrl, specification: PivotDataSpecification, sourceData: DataTable, rows: Row[] = []) {
     super(url.value);
@@ -1110,9 +1168,8 @@ export class PivotDataCell extends Composite<PivotDataCell> {
     return this;
   }  
 
-  public get(dataField: string): number {
-    // TOOD: Fill in
-    return 0;
+  public get values(): PivotDataCellValues {
+    return (this._values || (this._values = new PivotDataCellValues(this)));
   }
 }
 
@@ -1157,10 +1214,6 @@ export class PivotDataService {
         }
 
         parent = node.addRow(row);
-              
-        // spec.dataFields.forEach((d) => {
-        //   parent.components.set(new PivotCell(new PivotDataCellUrl([...fvalues, d.fieldName]), spec).addRow(row));
-        // });
       });      
     });
 
