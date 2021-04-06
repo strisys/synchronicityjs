@@ -1,5 +1,5 @@
 import { assert, expect } from 'chai';
-import { DataTable, RowData, Cell, PivotDataService } from '../';
+import { DataTable, RowData, Cell, DataFieldSpec, FieldSpec, PivotDataService } from '../';
 
 let id = 0;
 
@@ -14,17 +14,17 @@ const generateData = (searchExpression = ''): RowData[] => {
 
   if (searchExpression.indexOf('risk') > -1) {
     let reportDate = new Date('2021-02-24');
-    data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'c', strategy3: 'c', strategy4: 'c', asset: 'c', mv: 69190, repo: 0.0, dv01: 0.0 });
-    data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 218206, repo: 0.0, dv01: 0.0 });
-    data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 840833411, repo: 543146579, dv01: 0.0 });
-    data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 12124105, repo: 0.0, dv01: 0.0 });
+    data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'c', strategy3: 'c', strategy4: 'c', asset: 'c', mv: 69190, repo: 0.0, dv01: 0.0 });
+    data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 218206, repo: 0.0, dv01: 0.0 });
+    data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 840833411, repo: 543146579, dv01: 0.0 });
+    data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 12124105, repo: 0.0, dv01: 0.0 });
   
     reportDate = new Date('2021-03-01');
-    data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'c', strategy3: 'c', strategy4: 'c', asset: 'c', mv: 69190, repo: 0.0, dv01: 0.0 });
-    data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 201684, repo: 0.0, dv01: 0.0 });
-    data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 835740618, repo: 534255894, dv01: 0.0 });
-    data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 11925647, repo: 0.0, dv01: 0.0 });
-    data.push({ id: (++id), date: reportDate, security: 'ch', status: 'i', strategy1: 'h', strategy2: 'n', strategy3: 'n', strategy4: 'o', asset: 'n', mv: -1774228, repo: 0.0, dv01: 0.0 });
+    data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'c', strategy3: 'c', strategy4: 'c', asset: 'c', mv: 69190, repo: 0.0, dv01: 0.0 });
+    data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 201684, repo: 0.0, dv01: 0.0 });
+    data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 835740618, repo: 534255894, dv01: 0.0 });
+    data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 11925647, repo: 0.0, dv01: 0.0 });
+    data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'n', strategy3: 'n', strategy4: 'o', asset: 'n', mv: -1774228, repo: 0.0, dv01: 0.0 });
   }
 
   return data;
@@ -88,12 +88,18 @@ describe('DataTable', function() {
 
 describe('PivotDataService', function() {
   it('should do basic summation based on specified criteria', function() {
+    // Arrange
     const rowdata = generateData('risk');
     const datatable = DataTable.from(rowdata, 'id');
 
-    expect(datatable).to.not.be.null;
+    const pds = new PivotDataService(datatable);
+    const fieldSpecs: FieldSpec[] = [{ 'date': 'column' }, { 'fund': 'column' }, { 'security': 'column' }];
+    pds.specification.fields.set(fieldSpecs);
 
-    // const pds = new PivotDataService();
+    const dfSpecs: DataFieldSpec[] = [{ 'mv': (cxt: PivotDataCellCalcContext) => 1 }];
+    pds.specification.dataFields.set(dfSpecs);
+
+    // Act
     
   });
 });

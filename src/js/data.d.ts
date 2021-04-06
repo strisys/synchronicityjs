@@ -247,17 +247,23 @@ export declare abstract class PivotAreaFieldSpecBaseMap<T> {
     equals(other: IdentifiableMap<T>): boolean;
     toString(): string;
 }
+export declare type FieldSpec = {
+    [key: string]: (PivotArea | PivotAreaCode);
+};
+export declare type DataFieldSpec = {
+    [key: string]: PivotDataCellCalcFn;
+};
 export declare class PivotAreaFieldSpecMap extends PivotAreaFieldSpecBaseMap<PivotAreaFieldSpec> {
     private readonly _inner;
     constructor(specification: PivotDataSpecification);
     protected get inner(): IdentifiableMap<PivotAreaFieldSpec>;
-    set(fieldName: string, area: (PivotArea | PivotAreaCode)): PivotAreaFieldSpecMap;
+    set(specs: (FieldSpec | FieldSpec[])): PivotAreaFieldSpecMap;
 }
 export declare class PivotDataAreaFieldSpecMap extends PivotAreaFieldSpecBaseMap<PivotDataAreaFieldSpec> {
     private readonly _inner;
     constructor(specification: PivotDataSpecification);
     protected get inner(): IdentifiableMap<PivotDataAreaFieldSpec>;
-    set(fieldName: string, fn: PivotDataCellCalcFn): PivotDataAreaFieldSpecMap;
+    set(specs: (DataFieldSpec | DataFieldSpec[])): PivotDataAreaFieldSpecMap;
 }
 export declare class PivotDataSpecification {
     private readonly _fields;

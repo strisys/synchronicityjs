@@ -646,6 +646,10 @@ class PivotAreaFieldSpecBaseMap {
     }
 }
 exports.PivotAreaFieldSpecBaseMap = PivotAreaFieldSpecBaseMap;
+// export interface IFieldSpec {
+//   fieldName: string, 
+//   area: (PivotArea | PivotAreaCode)
+// }
 class PivotAreaFieldSpecMap extends PivotAreaFieldSpecBaseMap {
     constructor(specification) {
         super(specification);
@@ -654,8 +658,16 @@ class PivotAreaFieldSpecMap extends PivotAreaFieldSpecBaseMap {
     get inner() {
         return this._inner;
     }
-    set(fieldName, area) {
-        this._inner.set(new PivotAreaFieldSpec(fieldName, area, this.specification));
+    set(specs) {
+        if (!specs) {
+            return this;
+        }
+        if (!Array.isArray(specs)) {
+            specs = [specs];
+        }
+        Object.keys(specs).forEach((k) => {
+            this._inner.set(new PivotAreaFieldSpec(k, specs[k], this.specification));
+        });
         return this;
     }
 }
@@ -668,8 +680,16 @@ class PivotDataAreaFieldSpecMap extends PivotAreaFieldSpecBaseMap {
     get inner() {
         return this._inner;
     }
-    set(fieldName, fn) {
-        this._inner.set(new PivotDataAreaFieldSpec(fieldName, fn, this.specification));
+    set(specs) {
+        if (!specs) {
+            return this;
+        }
+        if (!Array.isArray(specs)) {
+            specs = [specs];
+        }
+        Object.keys(specs).forEach((k) => {
+            this._inner.set(new PivotDataAreaFieldSpec(k, specs[k], this.specification));
+        });
         return this;
     }
 }
@@ -688,10 +708,10 @@ class PivotDataSpecification {
     clone() {
         const target = new PivotDataSpecification();
         target.fields.forEach((spec) => {
-            target.fields.set(spec.fieldName, spec.area);
+            target.fields.set({ [spec.fieldName]: spec.area });
         });
         target.dataFields.forEach((spec) => {
-            target.dataFields.set(spec.fieldName, spec.fn);
+            target.dataFields.set({ [spec.fieldName]: spec.fn });
         });
         return target;
     }
