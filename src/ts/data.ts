@@ -980,27 +980,28 @@ export class PivotDataSpecification {
   }
 }
 
-export class PivotResult {
-  private readonly _specification: PivotDataSpecification;
-  private readonly _sourceData: DataTable;
-  private readonly _pivotData: DataTable;
+export class PivotDataResult {
+  private readonly _root: PivotDataCell;
+  private _data: DataTable;
 
-  constructor(specification: PivotDataSpecification, sourceData: DataTable, pivotData: DataTable) {
-    this._specification = specification.clone();
-    this._sourceData = sourceData;
-    this._pivotData = pivotData;
+  constructor(root: PivotDataCell) {
+    this._root = root;
   }
 
   public get specification(): PivotDataSpecification {
-    return this._specification;
+    return this._root.specification;
+  }
+
+  public get root(): PivotDataCell {
+    return this._root;
   }
 
   public get sourceData(): DataTable {
-    return this._sourceData;
+    return this._root.sourceData;
   }
 
-  public get pivotData(): DataTable {
-    return this._pivotData;
+  public get data(): DataTable {
+    return this._data;
   }
 }
 
@@ -1019,6 +1020,10 @@ export class PivotDataCellUrl extends Identifiable {
     return this._parts;
   }
 
+  public get delimiter(): string {
+    return this._delimiter;
+  }
+
   public get isRoot(): boolean {
     return (this._parts.length === 0);
   }
@@ -1027,7 +1032,7 @@ export class PivotDataCellUrl extends Identifiable {
     return this.id;
   }
 
-  private static createValue(parts: string[], delimiter = '/') {
+  public static createValue(parts: string[], delimiter = '/'): string {
     if (!parts || !parts.length) {
       return `${delimiter}root`;
     }
@@ -1043,7 +1048,7 @@ export class PivotDataCellUrl extends Identifiable {
       }
     });
 
-    return url.substr(0, (url.length - 1));
+    return url;
   }
 
   public toString(): string {
@@ -1053,18 +1058,18 @@ export class PivotDataCellUrl extends Identifiable {
 
 export class PivotDataCell extends Composite<PivotDataCell> {
   private readonly _specification: PivotDataSpecification;
-  private readonly _sourceDataTable: DataTable;
+  private readonly _sourceData: DataTable;
   private readonly _url: PivotDataCellUrl;
   private _rows: Row[];
   private _isReadOnly: boolean;
 
-  public constructor(url: PivotDataCellUrl, specification: PivotDataSpecification, sourceDataTable: DataTable, rows: Row[] = []) {
+  public constructor(url: PivotDataCellUrl, specification: PivotDataSpecification, sourceData: DataTable, rows: Row[] = []) {
     super(url.value);
     this._url = url;
     this._rows = rows;
     this._specification = specification;
     this._isReadOnly = false;
-    this._sourceDataTable = sourceDataTable;
+    this._sourceData = sourceData;
   }
 
   public get url(): PivotDataCellUrl {
@@ -1075,13 +1080,13 @@ export class PivotDataCell extends Composite<PivotDataCell> {
     return (this._isReadOnly || this.url.isRoot);
   }
 
-  public get sourceDataTable(): DataTable {
-    return this._sourceDataTable;
+  public get sourceData(): DataTable {
+    return this._sourceData;
   }
 
   public get rows(): Row[] {
     if (this._url.isRoot) {
-      this._rows = this.sourceDataTable.rows.values;
+      this._rows = this.sourceData.rows.values;
     }
 
     return this._rows;
@@ -1126,6 +1131,9 @@ export class PivotDataService {
     const root = new PivotDataCell(PivotDataCellUrl.Root, spec, sourceData);
     const nodeMap = new Map<number, Map<string, PivotDataCell>>();
 
+    console.log(`creating composite structure from ${sourceData.rows.size} rows ...`);
+    console.time(`composite`);
+
     sourceData.rows.forEach((row) => {
       const fvalues = [];
       let parent = root;
@@ -1156,10 +1164,13 @@ export class PivotDataService {
       });      
     });
 
+    console.log(`composite structure created from ${sourceData.rows.size} rows`);
+    console.timeEnd(`composite`);
+
     return root;
   }
 
-  public execute(sourceData: DataTable): PivotDataCell {
+  public execute(sourceData: DataTable): PivotDataResult {
     const spec = this.specification;
 
     if (spec.fields.isEmpty) {
@@ -1177,8 +1188,6 @@ export class PivotDataService {
       }
     });
 
-    console.info(`creating composite structure from ${sourceData.rows.size} rows ...`);
-
-    return this.buildComposite(sourceData);
+    return (new PivotDataResult(this.buildComposite(sourceData)));
   }
 }

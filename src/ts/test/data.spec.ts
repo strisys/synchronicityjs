@@ -1,5 +1,5 @@
 import { assert, expect } from 'chai';
-import { DataTable, RowData, Cell, DataFieldSpec, FieldSpec, PivotDataService, PivotDataCell, PivotDataCellUrl } from '../';
+import { DataTable, RowData, Cell, DataFieldSpec, FieldSpec, PivotDataService, PivotDataCell, PivotDataCellUrl, PivotDataResult } from '../';
 
 let id = 0;
 
@@ -25,6 +25,14 @@ const generateData = (searchExpression = ''): RowData[] => {
     data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 835740618, repo: 534255894, dv01: 0.0 });
     data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 11925647, repo: 0.0, dv01: 0.0 });
     data.push({ id: (++id), date: reportDate, fund: 'hm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'n', strategy3: 'n', strategy4: 'o', asset: 'n', mv: -1774228, repo: 0.0, dv01: 0.0 });
+  
+    reportDate = new Date('2021-03-02');
+    data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'c', strategy3: 'c', strategy4: 'c', asset: 'c', mv: 69190, repo: 0.0, dv01: 0.0 });
+    data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 201684, repo: 0.0, dv01: 0.0 });
+    data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 835740618, repo: 534255894, dv01: 0.0 });
+    data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 11925647, repo: 0.0, dv01: 0.0 });
+    data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'n', strategy3: 'n', strategy4: 'o', asset: 'n', mv: -1774228, repo: 0.0, dv01: 0.0 });
+  
   }
 
   return data;
@@ -97,20 +105,49 @@ describe('PivotDataService', function() {
   it('should do basic summation based on specified criteria', function() {
     // Arrange
     const rowdata = generateData('risk');
-    const datatable = DataTable.from(rowdata, 'id');
+    const sourceData = DataTable.from(rowdata, 'id');
 
     const pds = new PivotDataService();
-    const fieldSpecs: FieldSpec[] = [{ 'date': 'column' }, { 'fund': 'column' }, { 'security': 'column' }];
+    const fieldSpecs: FieldSpec[] = [{ 'fund': 'column' }, { 'security': 'column' }];
     pds.specification.fields.set(fieldSpecs);
 
     const dfSpecs: DataFieldSpec[] = [{ 'mv': () => 1 }];
     pds.specification.dataFields.set(dfSpecs);
 
     // Act
-    const root: PivotDataCell = pds.execute(datatable)
+    const result: PivotDataResult = pds.execute(sourceData)
 
     // Assert
-    expect(root).to.be.not.null;
+    expect(result).to.be.not.null;
+    expect(result.root).to.be.not.null;
+    expect(result.sourceData).to.be.eq(sourceData);
 
+    expect(result.root.rows.length).to.be.eq(sourceData.rows.size);
+
+    const expected = {};
+    expected[PivotDataCellUrl.createValue(['hm'])] = 9;
+    expected[PivotDataCellUrl.createValue(['hm', 'ch'])] = 9;
+    expected[PivotDataCellUrl.createValue(['xm'])] = 5;
+    expected[PivotDataCellUrl.createValue(['xm', 'ch'])] = 5;
+
+    Object.keys(expected).forEach((k) => {
+      const node = result.root.components.get(k);
+      expect(node).to.be.not.null;
+      expect(node.rows.length).to.be.eq(expected[k]);
+    });
+
+    
+
+    const nodeAA = node1.components.get(PivotDataCellUrl.createValue(['hm', 'ch']));
+    expect(nodeAA).to.be.not.null;
+    expect(nodeAA.rows.length).to.be.eq(9);
+
+    const nodeB = result.root.components.get(PivotDataCellUrl.createValue(['xm']));
+    expect(nodeB).to.be.not.null;
+    expect(nodeB.rows.length).to.be.eq(5);
+
+    const nodeBB = result.root.components.get(PivotDataCellUrl.createValue(['xm', 'ch']));
+    expect(nodeBB).to.be.not.null;
+    expect(nodeBB.rows.length).to.be.eq(5);
   });
 });
