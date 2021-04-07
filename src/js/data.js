@@ -755,8 +755,8 @@ class PivotDataResult {
     get sourceData() {
         return this._root.sourceData;
     }
-    get data() {
-        return this._data;
+    get value() {
+        return (this._value || (this._value = this._root.toTable()));
     }
 }
 exports.PivotDataResult = PivotDataResult;
@@ -865,6 +865,23 @@ class PivotDataCell extends entity_1.Composite {
     }
     get values() {
         return (this._values || (this._values = new PivotDataCellValues(this)));
+    }
+    toTable() {
+        const leafNodes = this.components.flatten('depth-first').filter((n) => n.isLeaf);
+        const spec = this.specification;
+        const rows = [];
+        leafNodes.forEach((n) => {
+            const row = {};
+            spec.fields.forEach((f, index) => {
+                row[f.fieldName] = n.url.parts[index];
+            });
+            spec.dataFields.forEach((f) => {
+                row[f.fieldName] = n.values.get(f.fieldName);
+            });
+            rows.push(row);
+        });
+        const pk = spec.fields.map(f => f.fieldName);
+        return DataTable.from(rows, pk);
     }
 }
 exports.PivotDataCell = PivotDataCell;

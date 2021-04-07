@@ -32,7 +32,6 @@ const generateData = (searchExpression = ''): RowData[] => {
     data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'h', strategy4: 'h', asset: 'n', mv: 12, repo: 12, dv01: 0.0 });
     data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'u', strategy3: 'p', strategy4: 'o', asset: 'n', mv: 13, repo: 13, dv01: 0.0 });
     data.push({ id: (++id), date: reportDate, fund: 'xm', security: 'ch', status: 'i', strategy1: 'h', strategy2: 'n', strategy3: 'n', strategy4: 'o', asset: 'n', mv: 14, repo: 14, dv01: 0.0 });
-  
   }
 
   return data;
@@ -162,5 +161,19 @@ describe('PivotDataService', function() {
 
     const nodeBB = nodeB.components.get(PivotDataCellUrl.create(['xm', 'i']).value);
     expect(nodeBB.values.get('repo')).to.be.eq(60);
+  });
+
+  it('should be able to write composite structure to a datatable', function() {
+    // Arrange
+    const pds = new PivotDataService();
+    pds.specification.fields.set([{ 'fund': 'column' }, { 'status': 'column' }]);
+    pds.specification.dataFields.set([{ 'mv': PivotDataCellCalcSumFn }, { 'repo': PivotDataCellCalcSumFn }]);
+
+    // Act
+    const value: DataTable = pds.execute(DataTable.from(generateData('risk'), 'id')).value;
+
+    // Assert
+    expect(value).to.be.not.null;
+    expect(value.rows.size).to.be.eq(3);
   });
 });

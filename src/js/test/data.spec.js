@@ -129,5 +129,16 @@ describe('PivotDataService', function () {
         const nodeBB = nodeB.components.get(__1.PivotDataCellUrl.create(['xm', 'i']).value);
         chai_1.expect(nodeBB.values.get('repo')).to.be.eq(60);
     });
+    it('should be able to write composite structure to a datatable', function () {
+        // Arrange
+        const pds = new __1.PivotDataService();
+        pds.specification.fields.set([{ 'fund': 'column' }, { 'status': 'column' }]);
+        pds.specification.dataFields.set([{ 'mv': __1.PivotDataCellCalcSumFn }, { 'repo': __1.PivotDataCellCalcSumFn }]);
+        // Act
+        const value = pds.execute(__1.DataTable.from(generateData('risk'), 'id')).value;
+        // Assert
+        chai_1.expect(value).to.be.not.null;
+        chai_1.expect(value.rows.size).to.be.eq(3);
+    });
 });
 //# sourceMappingURL=data.spec.js.map

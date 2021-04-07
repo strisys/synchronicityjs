@@ -279,12 +279,12 @@ export declare class PivotDataSpecification {
 }
 export declare class PivotDataResult {
     private readonly _root;
-    private _data;
+    private _value;
     constructor(root: PivotDataCell);
     get specification(): PivotDataSpecification;
     get root(): PivotDataCell;
     get sourceData(): DataTable;
-    get data(): DataTable;
+    get value(): DataTable;
 }
 export declare class PivotDataCellUrl extends Identifiable {
     static readonly Root: PivotDataCellUrl;
@@ -322,6 +322,7 @@ export declare class PivotDataCell extends Composite<PivotDataCell> {
     setAsReadOnly(): PivotDataCell;
     addRow(row: Row): PivotDataCell;
     get values(): PivotDataCellValues;
+    toTable(): DataTable;
 }
 export declare class PivotDataService {
     private readonly _specification;

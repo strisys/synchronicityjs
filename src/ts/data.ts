@@ -447,7 +447,6 @@ export class CellMap extends IdentifiableMap<Cell> {
 }
 
 export type RowData = { [key: string]: unknown };
-
 export class Row extends Identifiable {
   private readonly _table: DataTable;
   private readonly _cells: CellMap;
@@ -1001,7 +1000,7 @@ export class PivotDataSpecification {
 
 export class PivotDataResult {
   private readonly _root: PivotDataCell;
-  private _data: DataTable;
+  private _value: DataTable;
 
   constructor(root: PivotDataCell) {
     this._root = root;
@@ -1019,8 +1018,8 @@ export class PivotDataResult {
     return this._root.sourceData;
   }
 
-  public get data(): DataTable {
-    return this._data;
+  public get value(): DataTable {
+    return (this._value || (this._value = this._root.toTable()));
   }
 }
 
@@ -1170,6 +1169,29 @@ export class PivotDataCell extends Composite<PivotDataCell> {
 
   public get values(): PivotDataCellValues {
     return (this._values || (this._values = new PivotDataCellValues(this)));
+  }
+
+  public toTable(): DataTable {
+    const leafNodes = this.components.flatten('depth-first').filter((n) => n.isLeaf);
+    const spec = this.specification;
+    const rows: RowData[] = [];
+
+    leafNodes.forEach((n) => {
+      const row = {};
+
+      spec.fields.forEach((f, index) => {
+        row[f.fieldName] = n.url.parts[index];
+      });
+
+      spec.dataFields.forEach((f) => {
+        row[f.fieldName] = n.values.get(f.fieldName);
+      });
+
+      rows.push(row);
+    });
+
+    const pk =  spec.fields.map(f => f.fieldName);
+    return DataTable.from(rows, pk);
   }
 }
 
