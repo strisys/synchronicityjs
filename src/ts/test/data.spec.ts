@@ -173,7 +173,20 @@ describe('PivotDataService', function() {
     const value: DataTable = pds.execute(DataTable.from(generateData('risk'), 'id')).value;
 
     // Assert
-    expect(value).to.be.not.null;
+    expect(value.columns.size).to.be.eq(pds.specification.fields.size + pds.specification.dataFields.size);
     expect(value.rows.size).to.be.eq(3);
+
+    pds.specification.fields.forEach((f) => {
+      expect(value.columns.has(f.fieldName)).to.be.true;
+    });
+
+    pds.specification.dataFields.forEach((f) => {
+      expect(value.columns.has(f.fieldName)).to.be.true;
+    });
+
+    // expected market values
+    [10, 35, 60].forEach((v, index) => {
+      expect(value.rows.get(index).cells.get('mv').value).to.be.eq(v);
+    });
   });
 });

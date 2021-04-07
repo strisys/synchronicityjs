@@ -482,14 +482,29 @@ export class Row extends Identifiable {
       return this._rowid;
     }
 
+    const pks = this.table.columns.primaryKey;
+    let temp = '';
+
+    if (pks.size === 1) {
+      const pkName = pks.get(0).name;
+      temp = `${(this.cells.get(pkName).value || 'null')}`;
+    }
+
     let hash = '';
 
     // Create delimited hash of the primary key values
-    this.table.columns.primaryKey.forEach((pk) => {
+    pks.forEach((pk) => {
       hash += `${(this.cells.get(pk.name).value || 'null')}-`;
     });
 
-    return (this._rowid = hash.substring(0, (hash.length - 1)));
+    // return (this._rowid = hash.substring(0, (hash.length - 1)));
+    this._rowid = hash.substring(0, (hash.length - 1));
+
+    if ((temp != this._rowid) && (pks.size === 1)) {
+      console.log('here');
+    }
+
+    return this._rowid;
   }
 
   public get isNull(): boolean {
