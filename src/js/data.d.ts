@@ -275,6 +275,7 @@ export declare class PivotDataSpecification {
     constructor();
     get fields(): PivotAreaFieldSpecMap;
     get dataFields(): PivotDataAreaFieldSpecMap;
+    get isValid(): boolean;
     clone(): PivotDataSpecification;
     copy(source: PivotDataSpecification): PivotDataSpecification;
     static copyTo(source: PivotDataSpecification, target?: PivotDataSpecification): PivotDataSpecification;

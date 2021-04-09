@@ -1084,7 +1084,8 @@ export class SearchQueryAndPivotResult {
       return this._pdResult;
     }
 
-    if (!this._spec) {
+    if ((!this._spec) || (!this._spec.isValid)) {
+      console.error(`Failed to get pivot data result as there was no valid pivot data specification (PivotDataSpecification) provided.`);
       return null;
     }
 

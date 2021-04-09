@@ -284,11 +284,11 @@ export declare class SearchQueryAndPivotResult {
     private readonly _sqp;
     private readonly _spec;
     private _pdResult;
-    constructor(sqp: SearchResultPage, spec: PivotDataSpecification);
+    constructor(sqp: SearchResultPage, spec?: PivotDataSpecification);
     get searchResult(): SearchResultPage;
     get pivotDataResult(): PivotDataResult;
 }
 export declare abstract class SearchQueryAndPivotService {
-    get(sqp: SearchQueryParameters, spec: PivotDataSpecification): any;
+    get(sqp: SearchQueryParameters, spec?: PivotDataSpecification): any;
     protected abstract onGetSearchResult(sqp: SearchQueryParameters): SearchResultPage;
 }

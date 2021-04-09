@@ -735,6 +735,9 @@ class PivotDataSpecification {
     get dataFields() {
         return this._dataFields;
     }
+    get isValid() {
+        return ((this.fields.size > 0) && (this.dataFields.size > 0));
+    }
     clone() {
         return PivotDataSpecification.copyTo(this);
     }

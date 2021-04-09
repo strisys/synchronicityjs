@@ -816,7 +816,7 @@ class SearchSuggestionResultPage extends _1.EntityQueryPage {
 }
 exports.SearchSuggestionResultPage = SearchSuggestionResultPage;
 class SearchQueryAndPivotResult {
-    constructor(sqp, spec) {
+    constructor(sqp, spec = null) {
         this._sqp = sqp;
         this._spec = spec;
     }
@@ -827,6 +827,10 @@ class SearchQueryAndPivotResult {
         if (this._pdResult) {
             return this._pdResult;
         }
+        if ((!this._spec) || (!this._spec.isValid)) {
+            console.error(`Failed to get pivot data result as there was no valid pivot data specification (PivotDataSpecification) provided.`);
+            return null;
+        }
         const service = new _1.PivotDataService();
         service.specification.copy(this._spec);
         return (this._pdResult = service.execute(this._sqp.value.data));
@@ -834,7 +838,7 @@ class SearchQueryAndPivotResult {
 }
 exports.SearchQueryAndPivotResult = SearchQueryAndPivotResult;
 class SearchQueryAndPivotService {
-    get(sqp, spec) {
+    get(sqp, spec = null) {
         const sr = this.onGetSearchResult(sqp);
         return ((sr) ? (new SearchQueryAndPivotResult(sr, spec)) : null);
     }

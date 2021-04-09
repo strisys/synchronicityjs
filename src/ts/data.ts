@@ -991,6 +991,10 @@ export class PivotDataSpecification {
     return this._dataFields;
   }
 
+  public get isValid(): boolean {
+    return ((this.fields.size > 0) && (this.dataFields.size > 0));
+  }
+
   public clone(): PivotDataSpecification {
     return PivotDataSpecification.copyTo(this);
   }
