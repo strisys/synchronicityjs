@@ -1070,7 +1070,7 @@ export class SearchQueryAndPivotResult {
   private readonly _spec: PivotDataSpecification;
   private _pdResult: PivotDataResult;
   
-  constructor(sqp: SearchResultPage, spec: PivotDataSpecification) {
+  constructor(sqp: SearchResultPage, spec: PivotDataSpecification = null) {
     this._sqp = sqp;
     this._spec = spec;
   }
@@ -1084,6 +1084,10 @@ export class SearchQueryAndPivotResult {
       return this._pdResult;
     }
 
+    if (!this._spec) {
+      return null;
+    }
+
     const service = new PivotDataService();
     service.specification.copy(this._spec);
 
@@ -1092,7 +1096,7 @@ export class SearchQueryAndPivotResult {
 }
 
 export abstract class SearchQueryAndPivotService {
-  public get(sqp: SearchQueryParameters, spec: PivotDataSpecification): any {
+  public get(sqp: SearchQueryParameters, spec: PivotDataSpecification = null): any {
     const sr: SearchResultPage = this.onGetSearchResult(sqp);
     return ((sr) ? (new SearchQueryAndPivotResult(sr, spec)) : null);
   }
