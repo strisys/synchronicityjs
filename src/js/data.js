@@ -736,11 +736,19 @@ class PivotDataSpecification {
         return this._dataFields;
     }
     clone() {
-        const target = new PivotDataSpecification();
-        target.fields.forEach((spec) => {
+        return PivotDataSpecification.copyTo(this);
+    }
+    copy(source) {
+        return PivotDataSpecification.copyTo(source, this);
+    }
+    static copyTo(source, target = new PivotDataSpecification()) {
+        if (!source) {
+            return (target || (new PivotDataSpecification()));
+        }
+        source.fields.forEach((spec) => {
             target.fields.set({ [spec.fieldName]: spec.area });
         });
-        target.dataFields.forEach((spec) => {
+        source.dataFields.forEach((spec) => {
             target.dataFields.set({ [spec.fieldName]: spec.fn });
         });
         return target;

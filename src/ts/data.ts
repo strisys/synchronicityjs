@@ -447,6 +447,7 @@ export class CellMap extends IdentifiableMap<Cell> {
 }
 
 export type RowData = { [key: string]: unknown };
+
 export class Row extends Identifiable {
   private readonly _table: DataTable;
   private readonly _cells: CellMap;
@@ -991,13 +992,23 @@ export class PivotDataSpecification {
   }
 
   public clone(): PivotDataSpecification {
-    const target = new PivotDataSpecification();
+    return PivotDataSpecification.copyTo(this);
+  }
 
-    target.fields.forEach((spec) => {
+  public copy(source: PivotDataSpecification): PivotDataSpecification {
+    return PivotDataSpecification.copyTo(source, this);
+  }
+
+  public static copyTo(source: PivotDataSpecification, target: PivotDataSpecification = new PivotDataSpecification()): PivotDataSpecification {
+    if (!source) {
+      return (target || (new PivotDataSpecification()));
+    }
+
+    source.fields.forEach((spec) => {
       target.fields.set({ [spec.fieldName]: spec.area });
     });
 
-    target.dataFields.forEach((spec) => {
+    source.dataFields.forEach((spec) => {
       target.dataFields.set({ [spec.fieldName]: spec.fn });
     });
 
@@ -1204,6 +1215,7 @@ export class PivotDataCell extends Composite<PivotDataCell> {
 
 export class PivotDataService {
   private readonly _specification: PivotDataSpecification;
+
   constructor() {
     this._specification = new PivotDataSpecification();
   }

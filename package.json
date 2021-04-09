@@ -1,7 +1,7 @@
 {
   "name": "synchronicityjs",
-  "version": "0.0.0-beta.27",
-  "description": "Simple set of types commonly used in Domain-Driven development",
+  "version": "0.0.0-beta.28",
+  "description": "Simple set of types commonly used in Domain-Driven development (DDD)",
   "main": "./src/js/index.js",
   "scripts": {
     "pre-commit": "npm-run-all --sequential lint",

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AndOr, AndOrCode, AscDesc, AscDescCode, Enum, EntityQueryPage, EntityQueryParameters, Identifiable, IdentifiableMap, DataTable } from '.';
+import { AndOr, AndOrCode, AscDesc, AscDescCode, Enum, EntityQueryPage, EntityQueryParameters, Identifiable, IdentifiableMap, DataTable, PivotDataSpecification, PivotDataService, PivotDataResult } from '.';
 
 const delimiterReducer = (delimiter: string) => {
   return (accumulator, currentValue) => `${accumulator}${delimiter}${currentValue}`;
@@ -1063,4 +1063,39 @@ export class SearchSuggestionResultPage extends EntityQueryPage<SearchSuggestion
   public get queryParameters(): SearchSuggestionQueryParameters {
     return (super.queryParameters as SearchSuggestionQueryParameters);
   }
+}
+
+export class SearchQueryAndPivotResult {
+  private readonly _sqp: SearchResultPage;
+  private readonly _spec: PivotDataSpecification;
+  private _pdResult: PivotDataResult;
+  
+  constructor(sqp: SearchResultPage, spec: PivotDataSpecification) {
+    this._sqp = sqp;
+    this._spec = spec;
+  }
+
+  public get searchResult(): SearchResultPage {
+    return this._sqp;
+  }
+
+  public get pivotDataResult(): PivotDataResult {
+    if (this._pdResult) {
+      return this._pdResult;
+    }
+
+    const service = new PivotDataService();
+    service.specification.copy(this._spec);
+
+    return (this._pdResult = service.execute(this._sqp .value.data));
+  }
+}
+
+export abstract class SearchQueryAndPivotService {
+  public get(sqp: SearchQueryParameters, spec: PivotDataSpecification): any {
+    const sr: SearchResultPage = this.onGetSearchResult(sqp);
+    return ((sr) ? (new SearchQueryAndPivotResult(sr, spec)) : null);
+  }
+
+  protected abstract onGetSearchResult(sqp: SearchQueryParameters): SearchResultPage;
 }

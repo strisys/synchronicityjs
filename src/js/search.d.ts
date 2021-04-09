@@ -1,4 +1,4 @@
-import { AndOr, AndOrCode, AscDesc, AscDescCode, Enum, EntityQueryPage, EntityQueryParameters, Identifiable, IdentifiableMap, DataTable } from '.';
+import { AndOr, AndOrCode, AscDesc, AscDescCode, Enum, EntityQueryPage, EntityQueryParameters, Identifiable, IdentifiableMap, DataTable, PivotDataSpecification, PivotDataResult } from '.';
 export declare type DialectTypeCode = ('null' | 'lucene-azure' | 'mango');
 export declare class DialectType extends Enum<DialectType> {
     private static readonly TypeName;
@@ -279,4 +279,16 @@ export declare class SearchSuggestionResult {
 export declare class SearchSuggestionResultPage extends EntityQueryPage<SearchSuggestionResult> {
     constructor(searchParameters: SearchSuggestionQueryParameters, value: SearchSuggestionResult, executionDuration?: any);
     get queryParameters(): SearchSuggestionQueryParameters;
+}
+export declare class SearchQueryAndPivotResult {
+    private readonly _sqp;
+    private readonly _spec;
+    private _pdResult;
+    constructor(sqp: SearchResultPage, spec: PivotDataSpecification);
+    get searchResult(): SearchResultPage;
+    get pivotDataResult(): PivotDataResult;
+}
+export declare abstract class SearchQueryAndPivotService {
+    get(sqp: SearchQueryParameters, spec: PivotDataSpecification): any;
+    protected abstract onGetSearchResult(sqp: SearchQueryParameters): SearchResultPage;
 }

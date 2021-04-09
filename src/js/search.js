@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SearchSuggestionResultPage = exports.SearchSuggestionResult = exports.SearchResultPage = exports.SearchResult = exports.FacetResultMap = exports.FacetResult = exports.FacetResultValueMap = exports.FacetResultValue = exports.SearchSuggestionQueryParameters = exports.FieldMap = exports.FieldElement = exports.SearchQueryParameters = exports.SearchQueryParametersBase = exports.FacetMap = exports.Facet = exports.OrderElementMap = exports.OrderElementDesc = exports.OrderElementAsc = exports.OrderElement = exports.FilterMap = exports.SimpleFilter = exports.CompositeFilter = exports.Filter = exports.FilterOperator = exports.QueryType = exports.DialectType = void 0;
+exports.SearchQueryAndPivotService = exports.SearchQueryAndPivotResult = exports.SearchSuggestionResultPage = exports.SearchSuggestionResult = exports.SearchResultPage = exports.SearchResult = exports.FacetResultMap = exports.FacetResult = exports.FacetResultValueMap = exports.FacetResultValue = exports.SearchSuggestionQueryParameters = exports.FieldMap = exports.FieldElement = exports.SearchQueryParameters = exports.SearchQueryParametersBase = exports.FacetMap = exports.Facet = exports.OrderElementMap = exports.OrderElementDesc = exports.OrderElementAsc = exports.OrderElement = exports.FilterMap = exports.SimpleFilter = exports.CompositeFilter = exports.Filter = exports.FilterOperator = exports.QueryType = exports.DialectType = void 0;
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const _1 = require(".");
@@ -815,4 +815,29 @@ class SearchSuggestionResultPage extends _1.EntityQueryPage {
     }
 }
 exports.SearchSuggestionResultPage = SearchSuggestionResultPage;
+class SearchQueryAndPivotResult {
+    constructor(sqp, spec) {
+        this._sqp = sqp;
+        this._spec = spec;
+    }
+    get searchResult() {
+        return this._sqp;
+    }
+    get pivotDataResult() {
+        if (this._pdResult) {
+            return this._pdResult;
+        }
+        const service = new _1.PivotDataService();
+        service.specification.copy(this._spec);
+        return (this._pdResult = service.execute(this._sqp.value.data));
+    }
+}
+exports.SearchQueryAndPivotResult = SearchQueryAndPivotResult;
+class SearchQueryAndPivotService {
+    get(sqp, spec) {
+        const sr = this.onGetSearchResult(sqp);
+        return ((sr) ? (new SearchQueryAndPivotResult(sr, spec)) : null);
+    }
+}
+exports.SearchQueryAndPivotService = SearchQueryAndPivotService;
 //# sourceMappingURL=search.js.map

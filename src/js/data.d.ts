@@ -276,6 +276,8 @@ export declare class PivotDataSpecification {
     get fields(): PivotAreaFieldSpecMap;
     get dataFields(): PivotDataAreaFieldSpecMap;
     clone(): PivotDataSpecification;
+    copy(source: PivotDataSpecification): PivotDataSpecification;
+    static copyTo(source: PivotDataSpecification, target?: PivotDataSpecification): PivotDataSpecification;
 }
 export declare class PivotDataResult {
     private readonly _root;
