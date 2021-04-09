@@ -289,6 +289,6 @@ export declare class SearchQueryAndPivotResult {
     get pivotDataResult(): PivotDataResult;
 }
 export declare abstract class SearchQueryAndPivotService {
-    get(sqp: SearchQueryParameters, spec?: PivotDataSpecification): any;
-    protected abstract onGetSearchResult(sqp: SearchQueryParameters): SearchResultPage;
+    get(sqp: SearchQueryParameters, spec?: PivotDataSpecification): Promise<SearchQueryAndPivotResult>;
+    protected abstract onGetSearchResult(sqp: SearchQueryParameters): Promise<SearchResultPage>;
 }

@@ -1097,10 +1097,10 @@ export class SearchQueryAndPivotResult {
 }
 
 export abstract class SearchQueryAndPivotService {
-  public get(sqp: SearchQueryParameters, spec: PivotDataSpecification = null): any {
-    const sr: SearchResultPage = this.onGetSearchResult(sqp);
+  public async get(sqp: SearchQueryParameters, spec: PivotDataSpecification = null): Promise<SearchQueryAndPivotResult> {
+    const sr: SearchResultPage = (await this.onGetSearchResult(sqp));
     return ((sr) ? (new SearchQueryAndPivotResult(sr, spec)) : null);
   }
 
-  protected abstract onGetSearchResult(sqp: SearchQueryParameters): SearchResultPage;
+  protected abstract onGetSearchResult(sqp: SearchQueryParameters): Promise<SearchResultPage>;
 }

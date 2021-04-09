@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SearchQueryAndPivotService = exports.SearchQueryAndPivotResult = exports.SearchSuggestionResultPage = exports.SearchSuggestionResult = exports.SearchResultPage = exports.SearchResult = exports.FacetResultMap = exports.FacetResult = exports.FacetResultValueMap = exports.FacetResultValue = exports.SearchSuggestionQueryParameters = exports.FieldMap = exports.FieldElement = exports.SearchQueryParameters = exports.SearchQueryParametersBase = exports.FacetMap = exports.Facet = exports.OrderElementMap = exports.OrderElementDesc = exports.OrderElementAsc = exports.OrderElement = exports.FilterMap = exports.SimpleFilter = exports.CompositeFilter = exports.Filter = exports.FilterOperator = exports.QueryType = exports.DialectType = void 0;
+const tslib_1 = require("tslib");
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const _1 = require(".");
@@ -839,8 +840,10 @@ class SearchQueryAndPivotResult {
 exports.SearchQueryAndPivotResult = SearchQueryAndPivotResult;
 class SearchQueryAndPivotService {
     get(sqp, spec = null) {
-        const sr = this.onGetSearchResult(sqp);
-        return ((sr) ? (new SearchQueryAndPivotResult(sr, spec)) : null);
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const sr = (yield this.onGetSearchResult(sqp));
+            return ((sr) ? (new SearchQueryAndPivotResult(sr, spec)) : null);
+        });
     }
 }
 exports.SearchQueryAndPivotService = SearchQueryAndPivotService;
