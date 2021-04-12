@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PivotDataService = exports.PivotDataCell = exports.PivotDataCellValues = exports.PivotDataCellUrl = exports.PivotDataResult = exports.PivotDataSpecification = exports.PivotDataAreaFieldSpecMap = exports.PivotAreaFieldSpecMap = exports.PivotAreaFieldSpecBaseMap = exports.PivotDataAreaFieldSpec = exports.PivotDataCellCalcSumFn = exports.PivotDataCellCalcContext = exports.PivotAreaFieldSpec = exports.PivotAreaFieldSpecBase = exports.PivotArea = exports.DataTable = exports.RowMap = exports.Row = exports.CellMap = exports.Cell = exports.DataTableColumnMap = exports.ColumnMap = exports.Column = exports.ColumnType = exports.PageDirection = exports.EntityQueryPage = exports.EntityQueryParameters = exports.AscDesc = exports.AndOr = void 0;
+exports.PivotDataService = exports.PivotDataCell = exports.PivotDataCellValues = exports.PivotDataCellUrl = exports.PivotDataResult = exports.PivotDataSpecification = exports.PivotDataAreaFieldSpecMap = exports.PivotAreaFieldSpecMap = exports.PivotAreaFieldSpecBaseMap = exports.PivotDataAreaFieldSpec = exports.getPivotDataCellCalcSumFn = exports.PivotDataCellCalcContext = exports.PivotAreaFieldSpec = exports.PivotAreaFieldSpecBase = exports.PivotArea = exports.DataTable = exports.RowMap = exports.Row = exports.CellMap = exports.Cell = exports.DataTableColumnMap = exports.ColumnMap = exports.Column = exports.ColumnType = exports.PageDirection = exports.EntityQueryPage = exports.EntityQueryParameters = exports.AscDesc = exports.AndOr = void 0;
 const entity_1 = require("./entity");
 class AndOr extends entity_1.Enum {
     constructor(id, value) {
@@ -602,22 +602,24 @@ class PivotDataCellCalcContext {
     }
 }
 exports.PivotDataCellCalcContext = PivotDataCellCalcContext;
-const PivotDataCellCalcSumFn = (ctx) => {
-    let sum = 0;
-    ctx.rows.forEach((r) => {
-        const cell = r.cells.get(ctx.dataFieldSpecification.fieldName);
-        if (!cell) {
-            return null;
-        }
-        const val = cell.value;
-        if (typeof (val) !== 'number') {
-            return;
-        }
-        sum += val;
-    });
-    return sum;
+const getPivotDataCellCalcSumFn = (sourceField = null) => {
+    return (ctx) => {
+        let sum = 0;
+        ctx.rows.forEach((r) => {
+            const cell = r.cells.get(sourceField || ctx.dataFieldSpecification.fieldName);
+            if (!cell) {
+                return null;
+            }
+            const val = cell.value;
+            if (typeof (val) !== 'number') {
+                return;
+            }
+            sum += val;
+        });
+        return sum;
+    };
 };
-exports.PivotDataCellCalcSumFn = PivotDataCellCalcSumFn;
+exports.getPivotDataCellCalcSumFn = getPivotDataCellCalcSumFn;
 class PivotDataAreaFieldSpec extends PivotAreaFieldSpecBase {
     constructor(fieldName, fn, specification) {
         super(fieldName, PivotArea.Data, specification);
@@ -892,6 +894,9 @@ class PivotDataCell extends entity_1.Composite {
                 row[f.fieldName] = n.url.parts[index];
             });
             spec.dataFields.forEach((f) => {
+                if (f.fieldName === 'mv2') {
+                    console.log('mv2');
+                }
                 row[f.fieldName] = n.values.get(f.fieldName);
             });
             rows.push(row);

@@ -806,26 +806,28 @@ export class PivotDataCellCalcContext {
 
 export type PivotDataCellCalcFn = ((context: PivotDataCellCalcContext) => number);
 
-export const PivotDataCellCalcSumFn = (ctx: PivotDataCellCalcContext): number => {
-  let sum = 0;
+export const getPivotDataCellCalcSumFn = (sourceField: string = null): PivotDataCellCalcFn => {
+  return (ctx: PivotDataCellCalcContext): number => {
+    let sum = 0;
 
-  ctx.rows.forEach((r) => {
-    const cell = r.cells.get(ctx.dataFieldSpecification.fieldName);
-
-    if (!cell) {
-      return null;
-    }
-
-    const val = (cell.value as number);
-
-    if (typeof(val) !== 'number') {
-      return;
-    }
-
-    sum += val;
-  });
-
-  return sum;
+    ctx.rows.forEach((r) => {
+      const cell = r.cells.get(sourceField || ctx.dataFieldSpecification.fieldName);
+  
+      if (!cell) {
+        return null;
+      }
+  
+      const val = (cell.value as number);
+  
+      if (typeof(val) !== 'number') {
+        return;
+      }
+  
+      sum += val;
+    });
+  
+    return sum;
+  }
 };
 
 export class PivotDataAreaFieldSpec extends PivotAreaFieldSpecBase {
@@ -1206,13 +1208,17 @@ export class PivotDataCell extends Composite<PivotDataCell> {
       });
 
       spec.dataFields.forEach((f) => {
+        if (f.fieldName === 'mv2') {
+          console.log('mv2');
+        }
+
         row[f.fieldName] = n.values.get(f.fieldName);
       });
 
       rows.push(row);
     });
 
-    const pk =  spec.fields.map(f => f.fieldName);
+    const pk: string[] = spec.fields.map(f => f.fieldName);
     return DataTable.from(rows, pk);
   }
 }

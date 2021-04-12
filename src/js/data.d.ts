@@ -226,7 +226,7 @@ export declare class PivotDataCellCalcContext {
     get dataFieldSpecification(): PivotDataAreaFieldSpec;
 }
 export declare type PivotDataCellCalcFn = ((context: PivotDataCellCalcContext) => number);
-export declare const PivotDataCellCalcSumFn: (ctx: PivotDataCellCalcContext) => number;
+export declare const getPivotDataCellCalcSumFn: (sourceField?: string) => PivotDataCellCalcFn;
 export declare class PivotDataAreaFieldSpec extends PivotAreaFieldSpecBase {
     private readonly _fn;
     constructor(fieldName: string, fn: PivotDataCellCalcFn, specification: PivotDataSpecification);

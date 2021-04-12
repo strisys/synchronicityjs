@@ -1,5 +1,5 @@
 import { assert, expect } from 'chai';
-import { DataTable, RowData, Cell, DataFieldSpec, FieldSpec, PivotDataService, PivotDataCell, PivotDataCellUrl, PivotDataResult, PivotDataCellCalcContext, PivotDataCellCalcSumFn } from '../';
+import { DataTable, RowData, Cell, DataFieldSpec, FieldSpec, PivotDataService, PivotDataCellUrl, PivotDataResult, getPivotDataCellCalcSumFn } from '../';
 
 let id = 0;
 
@@ -144,7 +144,7 @@ describe('PivotDataService', function() {
     // Arrange
     const pds = new PivotDataService();
     pds.specification.fields.set([{ 'fund': 'column' }, { 'status': 'column' }]);
-    pds.specification.dataFields.set([{ 'mv': PivotDataCellCalcSumFn }, { 'repo': PivotDataCellCalcSumFn }]);
+    pds.specification.dataFields.set([{ 'mv': getPivotDataCellCalcSumFn('mv') }, { 'repo': getPivotDataCellCalcSumFn('repo') }]);
 
     // Act
     const root = pds.execute(DataTable.from(generateData('risk'), 'id')).root;
@@ -167,7 +167,7 @@ describe('PivotDataService', function() {
     // Arrange
     const pds = new PivotDataService();
     pds.specification.fields.set([{ 'fund': 'column' }, { 'status': 'column' }]);
-    pds.specification.dataFields.set([{ 'mv': PivotDataCellCalcSumFn }, { 'repo': PivotDataCellCalcSumFn }]);
+    pds.specification.dataFields.set([{ 'mv': getPivotDataCellCalcSumFn('mv'), 'mv2': getPivotDataCellCalcSumFn('mv') }, { 'repo': getPivotDataCellCalcSumFn() }]);
 
     // Act
     const value: DataTable = pds.execute(DataTable.from(generateData('risk'), 'id')).value;
@@ -187,6 +187,7 @@ describe('PivotDataService', function() {
     // expected market values
     [10, 35, 60].forEach((v, index) => {
       expect(value.rows.get(index).cells.get('mv').value).to.be.eq(v);
+      expect(value.rows.get(index).cells.get('mv2').value).to.be.eq(v);
     });
   });
 });

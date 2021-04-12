@@ -116,7 +116,7 @@ describe('PivotDataService', function () {
         // Arrange
         const pds = new __1.PivotDataService();
         pds.specification.fields.set([{ 'fund': 'column' }, { 'status': 'column' }]);
-        pds.specification.dataFields.set([{ 'mv': __1.PivotDataCellCalcSumFn }, { 'repo': __1.PivotDataCellCalcSumFn }]);
+        pds.specification.dataFields.set([{ 'mv': __1.getPivotDataCellCalcSumFn('mv') }, { 'repo': __1.getPivotDataCellCalcSumFn('repo') }]);
         // Act
         const root = pds.execute(__1.DataTable.from(generateData('risk'), 'id')).root;
         // Assert
@@ -133,7 +133,7 @@ describe('PivotDataService', function () {
         // Arrange
         const pds = new __1.PivotDataService();
         pds.specification.fields.set([{ 'fund': 'column' }, { 'status': 'column' }]);
-        pds.specification.dataFields.set([{ 'mv': __1.PivotDataCellCalcSumFn }, { 'repo': __1.PivotDataCellCalcSumFn }]);
+        pds.specification.dataFields.set([{ 'mv': __1.getPivotDataCellCalcSumFn('mv'), 'mv2': __1.getPivotDataCellCalcSumFn('mv') }, { 'repo': __1.getPivotDataCellCalcSumFn() }]);
         // Act
         const value = pds.execute(__1.DataTable.from(generateData('risk'), 'id')).value;
         // Assert
@@ -148,6 +148,7 @@ describe('PivotDataService', function () {
         // expected market values
         [10, 35, 60].forEach((v, index) => {
             chai_1.expect(value.rows.get(index).cells.get('mv').value).to.be.eq(v);
+            chai_1.expect(value.rows.get(index).cells.get('mv2').value).to.be.eq(v);
         });
     });
 });
