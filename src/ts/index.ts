@@ -32,6 +32,7 @@ export { AndOrCode,
          PivotDataCellUrl,
          PivotDataCellCalcFn,
          getPivotDataCellCalcSumFn,
+         PivotDataCellFilterFn,
          PivotDataCellCalcContext,
          PivotDataService } from './data';
 export { QueryTypeCode,

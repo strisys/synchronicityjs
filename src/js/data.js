@@ -608,11 +608,13 @@ class PivotDataCellCalcContext {
     }
 }
 exports.PivotDataCellCalcContext = PivotDataCellCalcContext;
-const getPivotDataCellCalcSumFn = (sourceField = null) => {
+const getPivotDataCellCalcSumFn = (sourceField = null, filterFn = null) => {
     return (ctx) => {
+        const rows = ((typeof (filterFn) === 'function') ? filterFn(ctx) : ctx.rows);
+        const dfName = (sourceField || ctx.dataFieldSpecification.fieldName);
         let sum = 0;
-        ctx.rows.forEach((r) => {
-            const cell = r.cells.get(sourceField || ctx.dataFieldSpecification.fieldName);
+        rows.forEach((r) => {
+            const cell = r.cells.get(dfName);
             if (!cell) {
                 return null;
             }
