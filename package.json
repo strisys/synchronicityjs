@@ -1,6 +1,6 @@
 {
   "name": "synchronicityjs",
-  "version": "0.0.0-beta.31",
+  "version": "0.0.0-beta.32",
   "description": "Simple set of types commonly used in Domain-Driven development (DDD)",
   "main": "./src/js/index.js",
   "scripts": {
