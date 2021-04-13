@@ -807,19 +807,22 @@ export class PivotDataCellCalcContext {
     return this.node.rows;
   }
 
-  public get dataFieldSpecification():  PivotDataAreaFieldSpec {
+  public get dataFieldSpecification(): PivotDataAreaFieldSpec {
     return this._dfSpec;
   }
 }
 
 export type PivotDataCellCalcFn = ((context: PivotDataCellCalcContext) => number);
+export type PivotDataCellFilterFn = ((context: PivotDataCellCalcContext) => Row[]);
 
-export const getPivotDataCellCalcSumFn = (sourceField: string = null): PivotDataCellCalcFn => {
+export const getPivotDataCellCalcSumFn = (sourceField: string = null, filterFn: PivotDataCellFilterFn = null): PivotDataCellCalcFn => {
   return (ctx: PivotDataCellCalcContext): number => {
+    const rows: Row[] = ((typeof(filterFn) === 'function') ? filterFn(ctx) : ctx.rows);
+    const dfName = (sourceField || ctx.dataFieldSpecification.fieldName);
     let sum = 0;
 
-    ctx.rows.forEach((r) => {
-      const cell = r.cells.get(sourceField || ctx.dataFieldSpecification.fieldName);
+    rows.forEach((r) => {
+      const cell = r.cells.get(dfName);
   
       if (!cell) {
         return null;

@@ -1,0 +1,6 @@
+
+git commit -m"beta version" -a
+git tag v0.0.0-beta.XXX
+git push
+git push --tags
+npm publish --tag beta
