@@ -222,6 +222,8 @@ export declare class PivotDataCellCalcContext {
     private readonly _dfSpec;
     constructor(node: PivotDataCell, dfSpec: PivotDataAreaFieldSpec);
     get node(): PivotDataCell;
+    get root(): PivotDataCell;
+    getValue(dataFieldName: string): number;
     get rows(): Row[];
     get dataFieldSpecification(): PivotDataAreaFieldSpec;
 }

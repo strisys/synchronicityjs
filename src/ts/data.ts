@@ -795,6 +795,14 @@ export class PivotDataCellCalcContext {
     return this._node;
   }
 
+  public get root():  PivotDataCell {
+    return this._node.root;
+  }
+
+  public getValue(dataFieldName: string): number {
+    return this._node.values.get(dataFieldName);
+  }
+
   public get rows(): Row[] {
     return this.node.rows;
   }
@@ -1114,25 +1122,42 @@ export class PivotDataCellValues {
   }
 
   public get(dataField: string): number {
-    const df = this._node.specification.dataFields.get(dataField);
+    const df = (dataField || '').trim();
 
     if (!df) {
-      throw new Error(`Invalid operation expection.  Failed to get data field specification for the specified field name of ${df.fieldName}.`);
+      return null;
     }
 
-    const fn = df.fn;
-    
-    if (!fn) {
-      return (this._cached[df.fieldName] = null);
+    const dfSpec = this._node.specification.dataFields.get(dataField);
+
+    if (!dfSpec) {
+      console.error(`Invalid operation expection.  Failed to get calculated value for the specified field name of '${df}'.  The data field specification for that name does not exist [${JSON.stringify(dfSpec.specification.dataFields.map((f) => f.fieldName))}].`);
+      return (this._cached[dfSpec.fieldName] = null);
     }
 
-    const val = this._cached[df.fieldName];
+    const val = this._cached[dfSpec.fieldName];
 
-    if (val !== undefined) {
+    // Calculated or attempted before
+    if ((val !== undefined) || (val === null)) {
       return val;
     }
 
-    return (this._cached[df.fieldName] = fn(new PivotDataCellCalcContext(this._node, df)));
+    const fn = dfSpec.fn;
+    
+    if (!fn) {
+      return (this._cached[dfSpec.fieldName] = null);
+    }
+
+    let result = null;
+
+    try {
+      result = fn(new PivotDataCellCalcContext(this._node, dfSpec));
+    }
+    catch (ex) {
+      console.error(`Failed to get calculated value for the specified field name of '${df}'. ${ex}`);
+    }
+
+    return (this._cached[dfSpec.fieldName] = result);
   }
 }
 
