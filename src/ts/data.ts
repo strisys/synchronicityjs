@@ -420,6 +420,10 @@ export class Cell extends Identifiable {
   }
 
   public static coerce(value: unknown): unknown {
+    if ((typeof(value) === 'number') || (typeof(value) === 'string')) {
+      return ((value === undefined) ? null : value);
+    }
+
     return ((typeof(value) === 'boolean') ? value : (value || null));
   }
 
@@ -1236,10 +1240,6 @@ export class PivotDataCell extends Composite<PivotDataCell> {
       });
 
       spec.dataFields.forEach((f) => {
-        if (f.fieldName === 'mv2') {
-          console.log('mv2');
-        }
-
         row[f.fieldName] = n.values.get(f.fieldName);
       });
 

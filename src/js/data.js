@@ -313,6 +313,9 @@ class Cell extends entity_1.Identifiable {
         this._column = column;
     }
     static coerce(value) {
+        if ((typeof (value) === 'number') || (typeof (value) === 'string')) {
+            return ((value === undefined) ? null : value);
+        }
         return ((typeof (value) === 'boolean') ? value : (value || null));
     }
     get value() {
@@ -915,9 +918,6 @@ class PivotDataCell extends entity_1.Composite {
                 row[f.fieldName] = n.url.parts[index];
             });
             spec.dataFields.forEach((f) => {
-                if (f.fieldName === 'mv2') {
-                    console.log('mv2');
-                }
                 row[f.fieldName] = n.values.get(f.fieldName);
             });
             rows.push(row);
