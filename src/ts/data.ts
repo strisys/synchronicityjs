@@ -1105,7 +1105,7 @@ export class PivotDataCellUrl extends Identifiable {
     let url = `${delim}root${delim}`;
 
     parts.forEach((v, index) => {
-      url += v;
+      url += `[${v}]`;
 
       if (index < maxIndex) {
         url += delim;

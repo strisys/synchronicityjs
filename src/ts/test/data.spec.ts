@@ -96,7 +96,7 @@ describe('DataTable', function() {
 describe('PivotCellUrl', function() {
   it('should be able to crate a basic url based on the parts', function() {
     // Arrange/ Act / Assert
-    expect((new PivotDataCellUrl(['a', 'b', 'c'])).value).to.be.eq('/root/a/b/c');
+    expect((new PivotDataCellUrl(['a', 'b', 'c'])).value).to.be.eq('/root/[a]/[b]/[c]');
   });
 });
 
