@@ -62,5 +62,6 @@ export { QueryTypeCode,
          SearchResultPage,
          SearchSuggestionResult,
          SearchSuggestionResultPage,
+         SearchAndPivotParameters,
          SearchQueryAndPivotResult,
          SearchQueryAndPivotService } from './search';

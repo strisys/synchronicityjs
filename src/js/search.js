@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SearchQueryAndPivotService = exports.SearchQueryAndPivotResult = exports.SearchSuggestionResultPage = exports.SearchSuggestionResult = exports.SearchResultPage = exports.SearchResult = exports.FacetResultMap = exports.FacetResult = exports.FacetResultValueMap = exports.FacetResultValue = exports.SearchSuggestionQueryParameters = exports.FieldMap = exports.FieldElement = exports.SearchQueryParameters = exports.SearchQueryParametersBase = exports.FacetMap = exports.Facet = exports.OrderElementMap = exports.OrderElementDesc = exports.OrderElementAsc = exports.OrderElement = exports.FilterMap = exports.SimpleFilter = exports.CompositeFilter = exports.Filter = exports.FilterOperator = exports.QueryType = exports.DialectType = void 0;
+exports.SearchAndPivotParameters = exports.SearchQueryAndPivotService = exports.SearchQueryAndPivotResult = exports.SearchSuggestionResultPage = exports.SearchSuggestionResult = exports.SearchResultPage = exports.SearchResult = exports.FacetResultMap = exports.FacetResult = exports.FacetResultValueMap = exports.FacetResultValue = exports.SearchSuggestionQueryParameters = exports.FieldMap = exports.FieldElement = exports.SearchQueryParameters = exports.SearchQueryParametersBase = exports.FacetMap = exports.Facet = exports.OrderElementMap = exports.OrderElementDesc = exports.OrderElementAsc = exports.OrderElement = exports.FilterMap = exports.SimpleFilter = exports.CompositeFilter = exports.Filter = exports.FilterOperator = exports.QueryType = exports.DialectType = void 0;
 const tslib_1 = require("tslib");
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -847,4 +847,17 @@ class SearchQueryAndPivotService {
     }
 }
 exports.SearchQueryAndPivotService = SearchQueryAndPivotService;
+class SearchAndPivotParameters {
+    constructor(searchParams, pds = null) {
+        this._searchParams = searchParams;
+        this._pds = (pds || null);
+    }
+    get searchParams() {
+        return this._searchParams;
+    }
+    get pivotSpecification() {
+        return this._pds;
+    }
+}
+exports.SearchAndPivotParameters = SearchAndPivotParameters;
 //# sourceMappingURL=search.js.map

@@ -1104,3 +1104,22 @@ export abstract class SearchQueryAndPivotService {
 
   protected abstract onGetSearchResult(sqp: SearchQueryParameters): Promise<SearchResultPage>;
 }
+
+
+export class SearchAndPivotParameters {
+  private readonly _searchParams: SearchQueryParameters;
+  private readonly _pds: PivotDataSpecification;
+
+  constructor(searchParams: SearchQueryParameters, pds: PivotDataSpecification = null) {
+    this._searchParams = searchParams;
+    this._pds = (pds || null);
+  }
+
+  public get searchParams(): SearchQueryParameters {
+    return this._searchParams;
+  }
+
+  public get pivotSpecification(): PivotDataSpecification {
+    return this._pds;
+  }
+}

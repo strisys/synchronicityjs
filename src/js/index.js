@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SearchSuggestionResult = exports.SearchResultPage = exports.SearchResult = exports.FacetResultMap = exports.FacetResult = exports.FacetResultValueMap = exports.FacetResultValue = exports.SearchSuggestionQueryParameters = exports.FieldMap = exports.FieldElement = exports.SearchQueryParameters = exports.FacetMap = exports.Facet = exports.OrderElementMap = exports.OrderElementDesc = exports.OrderElementAsc = exports.OrderElement = exports.FilterMap = exports.SimpleFilter = exports.CompositeFilter = exports.Filter = exports.FilterOperator = exports.DialectType = exports.QueryType = exports.PivotDataService = exports.PivotDataCellCalcContext = exports.getPivotDataCellCalcSumFn = exports.PivotDataCellUrl = exports.PivotDataCell = exports.PivotDataResult = exports.PivotDataSpecification = exports.DataTable = exports.RowMap = exports.Row = exports.CellMap = exports.Cell = exports.DataTableColumnMap = exports.ColumnMap = exports.Column = exports.ColumnType = exports.PageDirection = exports.EntityQueryPage = exports.EntityQueryParameters = exports.AscDesc = exports.AndOr = exports.CompositeMap = exports.Composite = exports.IdentifiableMap = exports.Identifiable = exports.Enum = void 0;
-exports.SearchQueryAndPivotService = exports.SearchQueryAndPivotResult = exports.SearchSuggestionResultPage = void 0;
+exports.SearchQueryAndPivotService = exports.SearchQueryAndPivotResult = exports.SearchAndPivotParameters = exports.SearchSuggestionResultPage = void 0;
 var entity_1 = require("./entity");
 Object.defineProperty(exports, "Enum", { enumerable: true, get: function () { return entity_1.Enum; } });
 Object.defineProperty(exports, "Identifiable", { enumerable: true, get: function () { return entity_1.Identifiable; } });
@@ -56,6 +56,7 @@ Object.defineProperty(exports, "SearchResult", { enumerable: true, get: function
 Object.defineProperty(exports, "SearchResultPage", { enumerable: true, get: function () { return search_1.SearchResultPage; } });
 Object.defineProperty(exports, "SearchSuggestionResult", { enumerable: true, get: function () { return search_1.SearchSuggestionResult; } });
 Object.defineProperty(exports, "SearchSuggestionResultPage", { enumerable: true, get: function () { return search_1.SearchSuggestionResultPage; } });
+Object.defineProperty(exports, "SearchAndPivotParameters", { enumerable: true, get: function () { return search_1.SearchAndPivotParameters; } });
 Object.defineProperty(exports, "SearchQueryAndPivotResult", { enumerable: true, get: function () { return search_1.SearchQueryAndPivotResult; } });
 Object.defineProperty(exports, "SearchQueryAndPivotService", { enumerable: true, get: function () { return search_1.SearchQueryAndPivotService; } });
 //# sourceMappingURL=index.js.map
