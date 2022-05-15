@@ -52,27 +52,9 @@ class DataAccessService {
     return `${this.getSegment(this.baseUrlSegment)}${this.getSegment(endpoint)}${this.tryToQueryParamString(queryParams)}`;
   }
 
+  
   private tryToQueryParamString = (queryParams: QueryParams): string => {
-    if (!queryParams) {
-      return '';
-    }
-
-    let val = '';
-
-    const pairString = (key: string): string => {
-      return `${key}=${queryParams[key]}`;
-    };
-
-    Object.keys(queryParams).forEach((key, index) => {
-      if (0 === index) {
-        val = `?${pairString(key)}`;
-        return;
-      }
-
-      val = `${val}&${pairString(key)}`;
-    });
-
-    return val;
+    return ((queryParams) ? (new URLSearchParams(queryParams)).toString() : '');
   }
 
   private fetchByUrl = async (url: string, throwError = true): Promise<Response> => {
